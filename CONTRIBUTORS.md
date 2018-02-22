@@ -14,9 +14,12 @@
 -->
 A lot of awesome people have contributed to this project! Here they are:
 
-Sonatype internal people:
+Sonatype internal people, in alphabetical order by username:
 
 * [@DarthHater](https://github.com/darthhater/) (Jeffry Hesse)
+* [@doddi](https://github.com/doddi/) (Mark Dodgson)
+* [@fjmilens3](https://github.com/fjmilens3/) (Frederick Milens)
+* [@jlstephens89](https://github.com/jlstephens89/) (Joseph Stephens)
 
 External contributors:
 
