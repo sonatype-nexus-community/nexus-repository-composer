@@ -1,0 +1,66 @@
+{
+  "packages": {
+    "vendor1\/project1": {
+      "branch1": {
+        "name": "vendor1\/project1",
+        "description": "Description 1",
+        "keywords": [],
+        "homepage": "",
+        "version": "branch1",
+        "version_normalized": "branch1",
+        "license": [
+          "MIT"
+        ],
+        "authors": [
+          {
+            "name": "Author 1",
+            "homepage": "http:\/\/example.com/author1"
+          }
+        ],
+        "source": {
+          "type": "git",
+          "url": "https:\/\/git.example.com\/vendor1\/project1.git",
+          "reference": "48954c0fa210437795be418e708b379598333d0a"
+        },
+        "dist": {
+          "type": "zip",
+          "url": "https:\/\/git.example.com\/zipball\/48954c0fa210437795be418e708b379598333d0a",
+          "reference": "48954c0fa210437795be418e708b379598333d0a",
+          "shasum": ""
+        },
+        "time": "2018-01-09T15:53:01+00:00",
+        "uid": 1
+      },
+      "branch2": {
+        "name": "vendor2\/project2",
+        "description": "Description 2",
+        "keywords": [],
+        "homepage": "",
+        "version": "branch2",
+        "version_normalized": "branch2",
+        "license": [
+          "MIT"
+        ],
+        "authors": [
+          {
+            "name": "Author 2",
+            "homepage": "http:\/\/example.com/author2"
+          }
+        ],
+        "source": {
+          "type": "git",
+          "url": "https:\/\/git.example.com\/vendor2\/project1.git",
+          "reference": "be418e708b379598333d0a48954c0fa210437795"
+        },
+        "dist": {
+          "type": "zip",
+          "url": "https:\/\/git.example.com\/zipball\/be418e708b379598333d0a48954c0fa210437795",
+          "reference": "be418e708b379598333d0a48954c0fa210437795",
+          "shasum": ""
+        },
+        "time": "2018-01-09T15:53:01+00:00",
+        "uid": 2
+      }
+    }
+  }
+}

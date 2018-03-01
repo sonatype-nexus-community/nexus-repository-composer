@@ -1,0 +1,56 @@
+{
+  "packages": {
+    "vendor1/project1": {
+      "branch1": {
+        "name": "vendor1/project1",
+        "description": "Description 1",
+        "keywords": [],
+        "homepage": "",
+        "version": "branch1",
+        "version_normalized": "branch1",
+        "license": [
+          "MIT"
+        ],
+        "authors": [
+          {
+            "name": "Author 1",
+            "homepage": "http://example.com/author1"
+          }
+        ],
+        "dist": {
+          "type": "zip",
+          "url": "http://nexus.repo/base/repo/vendor1/project1/branch1/vendor1-project1-branch1.zip",
+          "reference": "48954c0fa210437795be418e708b379598333d0a",
+          "shasum": ""
+        },
+        "time": "2018-01-09T15:53:01+00:00",
+        "uid": 1
+      },
+      "branch2": {
+        "name": "vendor2/project2",
+        "description": "Description 2",
+        "keywords": [],
+        "homepage": "",
+        "version": "branch2",
+        "version_normalized": "branch2",
+        "license": [
+          "MIT"
+        ],
+        "authors": [
+          {
+            "name": "Author 2",
+            "homepage": "http://example.com/author2"
+          }
+        ],
+        "dist": {
+          "type": "zip",
+          "url": "http://nexus.repo/base/repo/vendor1/project1/branch2/vendor1-project1-branch2.zip",
+          "reference": "be418e708b379598333d0a48954c0fa210437795",
+          "shasum": ""
+        },
+        "time": "2018-01-09T15:53:01+00:00",
+        "uid": 2
+      }
+    }
+  }
+}
