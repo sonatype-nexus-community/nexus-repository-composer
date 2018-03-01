@@ -51,6 +51,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -136,11 +137,14 @@ public class ComposerContentFacetImplTest
   @Mock
   private TempBlob tempBlob;
 
+  @Mock
+  private ComposerFormatAttributesExtractor composerFormatAttributesExtractor;
+
   private ComposerContentFacetImpl underTest;
 
   @Before
   public void setUp() throws Exception {
-    underTest = new ComposerContentFacetImpl(COMPOSER_FORMAT);
+    underTest = new ComposerContentFacetImpl(COMPOSER_FORMAT, composerFormatAttributesExtractor);
     underTest.attach(repository);
 
     when(tx.findBucket(repository)).thenReturn(bucket);
@@ -179,6 +183,9 @@ public class ComposerContentFacetImplTest
     when(component.group(any(String.class))).thenReturn(component);
     when(component.name(any(String.class))).thenReturn(component);
     when(component.version(any(String.class))).thenReturn(component);
+
+    doThrow(new RuntimeException("Test")).when(composerFormatAttributesExtractor)
+        .extractFromZip(tempBlob, formatAttributes);
 
     UnitOfWork.beginBatch(tx);
   }
@@ -271,6 +278,11 @@ public class ComposerContentFacetImplTest
     assertThat(content, is(notNullValue()));
     assertThat(content.openInputStream(), is(blobInputStream));
     assertThat(content.getContentType(), is(CONTENT_TYPE));
+
+    if (ZIPBALL.equals(assetKind)) {
+      verify(formatAttributes).clear();
+      verify(composerFormatAttributesExtractor).extractFromZip(tempBlob, formatAttributes);
+    }
 
     verify(tx).saveAsset(asset);
     if (!update && ZIPBALL.equals(assetKind)) {

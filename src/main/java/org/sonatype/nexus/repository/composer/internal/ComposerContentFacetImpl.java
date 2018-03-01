@@ -63,9 +63,14 @@ public class ComposerContentFacetImpl
 
   private final Format format;
 
+  private final ComposerFormatAttributesExtractor composerFormatAttributesExtractor;
+
   @Inject
-  public ComposerContentFacetImpl(@Named(ComposerFormat.NAME) final Format format) {
+  public ComposerContentFacetImpl(@Named(ComposerFormat.NAME) final Format format,
+                                  final ComposerFormatAttributesExtractor composerFormatAttributesExtractor)
+  {
     this.format = checkNotNull(format);
+    this.composerFormatAttributesExtractor = checkNotNull(composerFormatAttributesExtractor);
   }
 
   @Nullable
@@ -189,6 +194,14 @@ public class ComposerContentFacetImpl
         content.getContentType(),
         false
     );
+
+    try {
+      asset.formatAttributes().clear();
+      composerFormatAttributesExtractor.extractFromZip(tempBlob, asset.formatAttributes());
+    }
+    catch (Exception e) {
+      log.error("Error extracting format attributes for {}, skipping", path, e);
+    }
 
     tx.saveAsset(asset);
 
