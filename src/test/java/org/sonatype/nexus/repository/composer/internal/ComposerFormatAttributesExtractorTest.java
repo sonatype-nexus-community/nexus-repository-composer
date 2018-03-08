@@ -70,7 +70,6 @@ public class ComposerFormatAttributesExtractorTest
       when(blob.getInputStream()).thenReturn(in);
 
       NestedAttributesMap attributesMap = new NestedAttributesMap("composer", new LinkedHashMap<>());
-      ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
       underTest.extractFromZip(tempBlob, attributesMap);
 
       assertThat(attributesMap.keys(), containsInAnyOrder(EXPECTED_FIELDS));
@@ -103,7 +102,6 @@ public class ComposerFormatAttributesExtractorTest
       when(blob.getInputStream()).thenReturn(in);
 
       NestedAttributesMap attributesMap = new NestedAttributesMap("composer", new LinkedHashMap<>());
-      ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
       underTest.extractFromZip(tempBlob, attributesMap);
 
       assertThat(attributesMap.keys(), is(empty()));
@@ -112,8 +110,6 @@ public class ComposerFormatAttributesExtractorTest
 
   @Test
   public void extractStringsMissing() {
-    ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
-
     underTest.extractStrings(emptyMap(), destination, singletonMap("inkey", "outkey"));
     assertThat(destination.keys(), is(empty()));
   }
@@ -126,16 +122,12 @@ public class ComposerFormatAttributesExtractorTest
 
   @Test
   public void extractStringsNonStringValue() {
-    ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
-
     underTest.extractStrings(singletonMap("inkey", Integer.MAX_VALUE), destination, singletonMap("inkey", "outkey"));
     assertThat(destination.keys(), is(empty()));
   }
 
   @Test
   public void extractStringsSingleString() {
-    ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
-
     underTest.extractStrings(singletonMap("inkey", "value"), destination, singletonMap("inkey", "outkey"));
     assertThat(destination.keys(), contains("outkey"));
     assertThat(destination.get("outkey"), is("value"));
@@ -143,24 +135,18 @@ public class ComposerFormatAttributesExtractorTest
 
   @Test
   public void extractStringsEmptyCollection() {
-    ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
-
     underTest.extractStrings(singletonMap("inkey", emptyList()), destination, singletonMap("inkey", "outkey"));
     assertThat(destination.keys(), is(empty()));
   }
 
   @Test
   public void extractStringsCollectionWithNonStringValue() {
-    ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
-
     underTest.extractStrings(singletonMap("inkey", Integer.MAX_VALUE), destination, singletonMap("inkey", "outkey"));
     assertThat(destination.keys(), is(empty()));
   }
 
   @Test
   public void extractStringsCollectionWithString() {
-    ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
-
     underTest
         .extractStrings(singletonMap("inkey", singletonList("value")), destination, singletonMap("inkey", "outkey"));
     assertThat(destination.keys(), contains("outkey"));
@@ -170,8 +156,6 @@ public class ComposerFormatAttributesExtractorTest
   @Test
   public void extractAuthorPartMissing() {
     List<String> parts = new ArrayList<>();
-    ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
-
     underTest.extractAuthorPart(emptyMap(), parts, "part", "%s");
     assertThat(parts, is(empty()));
   }
@@ -179,8 +163,6 @@ public class ComposerFormatAttributesExtractorTest
   @Test
   public void extractAuthorPartNull() {
     List<String> parts = new ArrayList<>();
-    ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
-
     underTest.extractAuthorPart(Collections.singletonMap("part", null), parts, "part", "%s");
     assertThat(parts, is(empty()));
   }
@@ -188,8 +170,6 @@ public class ComposerFormatAttributesExtractorTest
   @Test
   public void extractAuthorPartNonStringValue() {
     List<String> parts = new ArrayList<>();
-    ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
-
     underTest.extractAuthorPart(Collections.singletonMap("part", Integer.MAX_VALUE), parts, "part", "%s");
     assertThat(parts, is(empty()));
   }
@@ -197,48 +177,36 @@ public class ComposerFormatAttributesExtractorTest
   @Test
   public void extractAuthorPartString() {
     List<String> parts = new ArrayList<>();
-    ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
-
     underTest.extractAuthorPart(Collections.singletonMap("part", "value"), parts, "part", "%s");
     assertThat(parts, contains("value"));
   }
 
   @Test
   public void extractAuthorsMissing() {
-    ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
-
     underTest.extractAuthors(emptyMap(), destination);
     assertThat(destination.keys(), is(empty()));
   }
 
   @Test
   public void extractAuthorsNull() {
-    ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
-
     underTest.extractAuthors(singletonMap("authors", null), destination);
     assertThat(destination.keys(), is(empty()));
   }
 
   @Test
   public void extractAuthorsEmptyCollection() {
-    ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
-
     underTest.extractAuthors(singletonMap("authors", emptyList()), destination);
     assertThat(destination.keys(), is(empty()));
   }
 
   @Test
   public void extractAuthorsEmptyAuthor() {
-    ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
-
     underTest.extractAuthors(singletonMap("authors", singletonList(emptyMap())), destination);
     assertThat(destination.keys(), is(empty()));
   }
 
   @Test
   public void extractAuthorsAuthorName() {
-    ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
-
     underTest.extractAuthors(singletonMap("authors", singletonList(singletonMap("name", "value"))), destination);
     assertThat(destination.keys(), contains(P_AUTHORS));
     assertThat((List<String>) destination.get(P_AUTHORS), contains("value"));
@@ -246,8 +214,6 @@ public class ComposerFormatAttributesExtractorTest
 
   @Test
   public void extractAuthorsAuthorEmail() {
-    ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
-
     underTest.extractAuthors(singletonMap("authors", singletonList(singletonMap("email", "value"))), destination);
     assertThat(destination.keys(), contains(P_AUTHORS));
     assertThat((List<String>) destination.get(P_AUTHORS), contains("<value>"));
@@ -255,8 +221,6 @@ public class ComposerFormatAttributesExtractorTest
 
   @Test
   public void extractAuthorsAuthorHomepage() {
-    ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
-
     underTest.extractAuthors(singletonMap("authors", singletonList(singletonMap("homepage", "value"))), destination);
     assertThat(destination.keys(), contains(P_AUTHORS));
     assertThat((List<String>) destination.get(P_AUTHORS), contains("(value)"));
