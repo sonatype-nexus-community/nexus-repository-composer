@@ -23,6 +23,7 @@ import org.sonatype.nexus.blobstore.api.Blob;
 import org.sonatype.nexus.common.collect.NestedAttributesMap;
 import org.sonatype.nexus.repository.storage.TempBlob;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -51,6 +52,16 @@ public class ComposerFormatAttributesExtractorTest
 
   @Mock
   private TempBlob tempBlob;
+
+  private ComposerFormatAttributesExtractor underTest;
+
+  private NestedAttributesMap destination;
+
+  @Before
+  public void setUp() {
+    underTest = new ComposerFormatAttributesExtractor();
+    destination = new NestedAttributesMap("backing", new LinkedHashMap<>());
+  }
 
   @Test
   public void extractInfoFromZipballWithJson() throws Exception {
@@ -101,7 +112,6 @@ public class ComposerFormatAttributesExtractorTest
 
   @Test
   public void extractStringsMissing() {
-    NestedAttributesMap destination = new NestedAttributesMap("backing", new LinkedHashMap<>());
     ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
 
     underTest.extractStrings(emptyMap(), destination, singletonMap("inkey", "outkey"));
@@ -110,16 +120,12 @@ public class ComposerFormatAttributesExtractorTest
 
   @Test
   public void extractStringsNull() {
-    NestedAttributesMap destination = new NestedAttributesMap("backing", new LinkedHashMap<>());
-    ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
-
     underTest.extractStrings(singletonMap("inkey", null), destination, singletonMap("inkey", "outkey"));
     assertThat(destination.keys(), is(empty()));
   }
 
   @Test
   public void extractStringsNonStringValue() {
-    NestedAttributesMap destination = new NestedAttributesMap("backing", new LinkedHashMap<>());
     ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
 
     underTest.extractStrings(singletonMap("inkey", Integer.MAX_VALUE), destination, singletonMap("inkey", "outkey"));
@@ -128,7 +134,6 @@ public class ComposerFormatAttributesExtractorTest
 
   @Test
   public void extractStringsSingleString() {
-    NestedAttributesMap destination = new NestedAttributesMap("backing", new LinkedHashMap<>());
     ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
 
     underTest.extractStrings(singletonMap("inkey", "value"), destination, singletonMap("inkey", "outkey"));
@@ -138,7 +143,6 @@ public class ComposerFormatAttributesExtractorTest
 
   @Test
   public void extractStringsEmptyCollection() {
-    NestedAttributesMap destination = new NestedAttributesMap("backing", new LinkedHashMap<>());
     ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
 
     underTest.extractStrings(singletonMap("inkey", emptyList()), destination, singletonMap("inkey", "outkey"));
@@ -147,7 +151,6 @@ public class ComposerFormatAttributesExtractorTest
 
   @Test
   public void extractStringsCollectionWithNonStringValue() {
-    NestedAttributesMap destination = new NestedAttributesMap("backing", new LinkedHashMap<>());
     ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
 
     underTest.extractStrings(singletonMap("inkey", Integer.MAX_VALUE), destination, singletonMap("inkey", "outkey"));
@@ -156,7 +159,6 @@ public class ComposerFormatAttributesExtractorTest
 
   @Test
   public void extractStringsCollectionWithString() {
-    NestedAttributesMap destination = new NestedAttributesMap("backing", new LinkedHashMap<>());
     ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
 
     underTest
@@ -203,7 +205,6 @@ public class ComposerFormatAttributesExtractorTest
 
   @Test
   public void extractAuthorsMissing() {
-    NestedAttributesMap destination = new NestedAttributesMap("backing", new LinkedHashMap<>());
     ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
 
     underTest.extractAuthors(emptyMap(), destination);
@@ -212,7 +213,6 @@ public class ComposerFormatAttributesExtractorTest
 
   @Test
   public void extractAuthorsNull() {
-    NestedAttributesMap destination = new NestedAttributesMap("backing", new LinkedHashMap<>());
     ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
 
     underTest.extractAuthors(singletonMap("authors", null), destination);
@@ -221,7 +221,6 @@ public class ComposerFormatAttributesExtractorTest
 
   @Test
   public void extractAuthorsEmptyCollection() {
-    NestedAttributesMap destination = new NestedAttributesMap("backing", new LinkedHashMap<>());
     ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
 
     underTest.extractAuthors(singletonMap("authors", emptyList()), destination);
@@ -230,7 +229,6 @@ public class ComposerFormatAttributesExtractorTest
 
   @Test
   public void extractAuthorsEmptyAuthor() {
-    NestedAttributesMap destination = new NestedAttributesMap("backing", new LinkedHashMap<>());
     ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
 
     underTest.extractAuthors(singletonMap("authors", singletonList(emptyMap())), destination);
@@ -239,7 +237,6 @@ public class ComposerFormatAttributesExtractorTest
 
   @Test
   public void extractAuthorsAuthorName() {
-    NestedAttributesMap destination = new NestedAttributesMap("backing", new LinkedHashMap<>());
     ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
 
     underTest.extractAuthors(singletonMap("authors", singletonList(singletonMap("name", "value"))), destination);
@@ -249,7 +246,6 @@ public class ComposerFormatAttributesExtractorTest
 
   @Test
   public void extractAuthorsAuthorEmail() {
-    NestedAttributesMap destination = new NestedAttributesMap("backing", new LinkedHashMap<>());
     ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
 
     underTest.extractAuthors(singletonMap("authors", singletonList(singletonMap("email", "value"))), destination);
@@ -259,7 +255,6 @@ public class ComposerFormatAttributesExtractorTest
 
   @Test
   public void extractAuthorsAuthorHomepage() {
-    NestedAttributesMap destination = new NestedAttributesMap("backing", new LinkedHashMap<>());
     ComposerFormatAttributesExtractor underTest = new ComposerFormatAttributesExtractor();
 
     underTest.extractAuthors(singletonMap("authors", singletonList(singletonMap("homepage", "value"))), destination);
