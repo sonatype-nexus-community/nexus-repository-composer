@@ -36,6 +36,10 @@ import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 import com.google.common.base.Throwables;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.NAME_TOKEN;
+import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.PROJECT_TOKEN;
+import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VENDOR_TOKEN;
+import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VERSION_TOKEN;
 import static org.sonatype.nexus.repository.http.HttpMethods.GET;
 
 /**
@@ -52,14 +56,6 @@ public class ComposerProxyFacetImpl
   private static final String PROVIDER_JSON = "p/%s/%s.json";
 
   private static final String ZIPBALL = "%s/%s/%s/%s.zip";
-
-  private static final String VENDOR_TOKEN = "vendor";
-
-  private static final String PROJECT_TOKEN = "project";
-
-  private static final String VERSION_TOKEN = "version";
-
-  private static final String NAME_TOKEN = "name";
 
   private final ComposerJsonProcessor composerJsonProcessor;
 

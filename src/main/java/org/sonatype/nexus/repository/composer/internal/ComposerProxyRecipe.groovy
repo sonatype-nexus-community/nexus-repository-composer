@@ -47,13 +47,7 @@ class ComposerProxyRecipe
   Provider<ComposerProxyFacetImpl> proxyFacet
 
   @Inject
-  Provider<HttpClientFacet> httpClientFacet
-
-  @Inject
   Provider<NegativeCacheFacet> negativeCacheFacet
-
-  @Inject
-  Provider<SingleAssetComponentMaintenance> componentMaintenanceFacet
 
   @Inject
   Provider<PurgeUnusedFacet> purgeUnusedFacet
@@ -94,6 +88,7 @@ class ComposerProxyRecipe
         .handler(timingHandler)
         .handler(assetKindHandler.rcurry(AssetKind.PACKAGES))
         .handler(securityHandler)
+        .handler(exceptionHandler)
         .handler(handlerContributor)
         .handler(negativeCacheHandler)
         .handler(conditionalRequestHandler)
@@ -107,6 +102,7 @@ class ComposerProxyRecipe
         .handler(timingHandler)
         .handler(assetKindHandler.rcurry(AssetKind.LIST))
         .handler(securityHandler)
+        .handler(exceptionHandler)
         .handler(handlerContributor)
         .handler(negativeCacheHandler)
         .handler(conditionalRequestHandler)
@@ -120,6 +116,7 @@ class ComposerProxyRecipe
         .handler(timingHandler)
         .handler(assetKindHandler.rcurry(AssetKind.PROVIDER))
         .handler(securityHandler)
+        .handler(exceptionHandler)
         .handler(handlerContributor)
         .handler(negativeCacheHandler)
         .handler(conditionalRequestHandler)
@@ -134,6 +131,7 @@ class ComposerProxyRecipe
         .handler(timingHandler)
         .handler(assetKindHandler.rcurry(AssetKind.ZIPBALL))
         .handler(securityHandler)
+        .handler(exceptionHandler)
         .handler(handlerContributor)
         .handler(negativeCacheHandler)
         .handler(conditionalRequestHandler)
