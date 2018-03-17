@@ -19,6 +19,7 @@ import javax.annotation.Nullable;
 import org.sonatype.nexus.repository.Facet;
 import org.sonatype.nexus.repository.cache.CacheInfo;
 import org.sonatype.nexus.repository.view.Content;
+import org.sonatype.nexus.repository.view.Payload;
 
 /**
  * Content facet used for getting assets from storage and putting assets into storage for a Composer-format repository.
@@ -30,7 +31,7 @@ public interface ComposerContentFacet
   @Nullable
   Content get(String path) throws IOException;
 
-  Content put(String path, Content content, AssetKind assetKind) throws IOException;
+  Content put(String path, Payload payload, AssetKind assetKind) throws IOException;
 
   void setCacheInfo(String path, Content content, CacheInfo cacheInfo) throws IOException;
 }

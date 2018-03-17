@@ -38,6 +38,7 @@ import org.sonatype.nexus.repository.transaction.TransactionalStoreMetadata;
 import org.sonatype.nexus.repository.transaction.TransactionalTouchBlob;
 import org.sonatype.nexus.repository.transaction.TransactionalTouchMetadata;
 import org.sonatype.nexus.repository.view.Content;
+import org.sonatype.nexus.repository.view.Payload;
 import org.sonatype.nexus.repository.view.payloads.BlobPayload;
 import org.sonatype.nexus.transaction.UnitOfWork;
 
@@ -92,18 +93,18 @@ public class ComposerContentFacetImpl
   }
 
   @Override
-  public Content put(final String path, final Content content, final AssetKind assetKind) throws IOException {
+  public Content put(final String path, final Payload payload, final AssetKind assetKind) throws IOException {
     StorageFacet storageFacet = facet(StorageFacet.class);
-    try (TempBlob tempBlob = storageFacet.createTempBlob(content, hashAlgorithms)) {
+    try (TempBlob tempBlob = storageFacet.createTempBlob(payload, hashAlgorithms)) {
       switch (assetKind) {
         case ZIPBALL:
-          return doPutContent(path, tempBlob, content, assetKind);
+          return doPutContent(path, tempBlob, payload, assetKind);
         case PACKAGES:
-          return doPutMetadata(path, tempBlob, content, assetKind);
+          return doPutMetadata(path, tempBlob, payload, assetKind);
         case LIST:
-          return doPutMetadata(path, tempBlob, content, assetKind);
+          return doPutMetadata(path, tempBlob, payload, assetKind);
         case PROVIDER:
-          return doPutMetadata(path, tempBlob, content, assetKind);
+          return doPutMetadata(path, tempBlob, payload, assetKind);
         default:
           throw new IllegalStateException("Unexpected asset kind: " + assetKind);
       }
@@ -129,7 +130,7 @@ public class ComposerContentFacetImpl
   @TransactionalStoreBlob
   protected Content doPutMetadata(final String path,
                                   final TempBlob tempBlob,
-                                  final Content content,
+                                  final Payload payload,
                                   final AssetKind assetKind)
       throws IOException
   {
@@ -137,13 +138,16 @@ public class ComposerContentFacetImpl
 
     Asset asset = getOrCreateAsset(path, assetKind);
 
-    Content.applyToAsset(asset, Content.maintainLastModified(asset, content.getAttributes()));
+    if (payload instanceof Content) {
+      Content.applyToAsset(asset, Content.maintainLastModified(asset, ((Content) payload).getAttributes()));
+    }
+
     AssetBlob assetBlob = tx.setBlob(
         asset,
         path,
         tempBlob,
         null,
-        content.getContentType(),
+        payload.getContentType(),
         false
     );
 
@@ -172,7 +176,7 @@ public class ComposerContentFacetImpl
   @TransactionalStoreBlob
   protected Content doPutContent(final String path,
                                  final TempBlob tempBlob,
-                                 final Content content,
+                                 final Payload payload,
                                  final AssetKind assetKind)
       throws IOException
   {
@@ -185,13 +189,16 @@ public class ComposerContentFacetImpl
 
     Asset asset = getOrCreateAsset(path, assetKind, group, name, version);
 
-    Content.applyToAsset(asset, Content.maintainLastModified(asset, content.getAttributes()));
+    if (payload instanceof Content) {
+      Content.applyToAsset(asset, Content.maintainLastModified(asset, ((Content) payload).getAttributes()));
+    }
+
     AssetBlob assetBlob = tx.setBlob(
         asset,
         path,
         tempBlob,
         null,
-        content.getContentType(),
+        payload.getContentType(),
         false
     );
 
