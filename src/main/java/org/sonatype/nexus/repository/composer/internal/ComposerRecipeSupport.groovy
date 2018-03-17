@@ -49,13 +49,13 @@ import static org.sonatype.nexus.repository.http.HttpMethods.PUT
 abstract class ComposerRecipeSupport
     extends RecipeSupport
 {
-  public static final String VENDOR_TOKEN = "vendor";
+  public static final String VENDOR_TOKEN = 'vendor'
 
-  public static final String PROJECT_TOKEN = "project";
+  public static final String PROJECT_TOKEN = 'project'
 
-  public static final String VERSION_TOKEN = "version";
+  public static final String VERSION_TOKEN = 'version'
 
-  public static final String NAME_TOKEN = "name";
+  public static final String NAME_TOKEN = 'name'
 
   @Inject
   Provider<ComposerContentFacet> contentFacet
