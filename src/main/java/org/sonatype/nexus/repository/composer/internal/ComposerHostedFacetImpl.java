@@ -27,8 +27,6 @@ public class ComposerHostedFacetImpl
     extends FacetSupport
     implements ComposerHostedFacet
 {
-  private static final String ZIPBALL = "%s/%s/%s/%s.zip";
-
   @Override
   public void upload(final String path, final Payload payload) throws IOException {
     content().put(path, payload, AssetKind.ZIPBALL);
