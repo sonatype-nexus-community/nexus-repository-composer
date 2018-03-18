@@ -45,7 +45,7 @@ public final class ComposerPathUtils
   }
 
   /**
-   * Returns the project token from a path in a context. The vendor token must be present or the operation will fail.
+   * Returns the project token from a path in a context. The project token must be present or the operation will fail.
    */
   public static String getProjectToken(final Context context) {
     TokenMatcher.State state = context.getAttributes().require(TokenMatcher.State.class);
