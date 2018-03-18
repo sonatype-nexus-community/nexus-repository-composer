@@ -25,6 +25,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.sonatype.nexus.repository.Repository;
+import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.repository.storage.Component;
 import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.ContentTypes;
@@ -65,6 +66,10 @@ public class ComposerJsonProcessor
   private static final String TYPE_KEY = "type";
 
   private static final String URL_KEY = "url";
+
+  private static final String NAME_KEY = "name";
+
+  private static final String VERSION_KEY = "version";
 
   private static final String ZIP_TYPE = "zip";
 
@@ -131,6 +136,37 @@ public class ComposerJsonProcessor
       }
     }
     return new StringPayload(mapper.writeValueAsString(json), payload.getContentType());
+  }
+
+  /**
+   * Builds a provider JSON file for a list of assets. This minimal subset will contain the packages entries with the
+   * name, version, and dist information for each asset.
+   */
+  public Content buildProviderJson(final Repository repository, final Collection<Asset> assets) throws IOException {
+    Map<String, Map<String, Object>> packages = new LinkedHashMap<>();
+    for (Asset asset : assets) {
+      String name = asset.formatAttributes().require(ComposerAttributes.P_NAME, String.class);
+      String version = asset.formatAttributes().require(ComposerAttributes.P_VERSION, String.class);
+
+      Map<String, Object> dist = new LinkedHashMap<>();
+      dist.put(URL_KEY, repository.getUrl() + "/" + asset.name());
+      dist.put(TYPE_KEY, ZIP_TYPE);
+
+      Map<String, Object> pkg = new LinkedHashMap<>();
+      pkg.put(NAME_KEY, name);
+      pkg.put(VERSION_KEY, version);
+      pkg.put(DIST_KEY, dist);
+
+      if (!packages.containsKey(name)) {
+        packages.put(name, new LinkedHashMap<>());
+      }
+
+      Map<String, Object> packagesForName = packages.get(name);
+      packagesForName.put(version, pkg);
+    }
+
+    return new Content(new StringPayload(mapper.writeValueAsString(Collections.singletonMap(PACKAGES_KEY, packages)),
+        ContentTypes.APPLICATION_JSON));
   }
 
   /**

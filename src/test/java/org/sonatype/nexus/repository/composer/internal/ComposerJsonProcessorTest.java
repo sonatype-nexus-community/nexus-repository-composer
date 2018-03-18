@@ -18,7 +18,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import org.sonatype.goodies.testsupport.TestSupport;
+import org.sonatype.nexus.common.collect.NestedAttributesMap;
 import org.sonatype.nexus.repository.Repository;
+import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.repository.storage.Component;
 import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Payload;
@@ -33,6 +35,8 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
+import static org.sonatype.nexus.repository.composer.internal.ComposerAttributes.P_NAME;
+import static org.sonatype.nexus.repository.composer.internal.ComposerAttributes.P_VERSION;
 
 public class ComposerJsonProcessorTest
     extends TestSupport
@@ -48,6 +52,30 @@ public class ComposerJsonProcessorTest
 
   @Mock
   private Component component2;
+
+  @Mock
+  private Asset asset1;
+
+  @Mock
+  private Asset asset2;
+
+  @Mock
+  private Asset asset3;
+
+  @Mock
+  private Asset asset4;
+
+  @Mock
+  private NestedAttributesMap assetAttributes1;
+
+  @Mock
+  private NestedAttributesMap assetAttributes2;
+
+  @Mock
+  private NestedAttributesMap assetAttributes3;
+
+  @Mock
+  private NestedAttributesMap assetAttributes4;
 
   @Test
   public void generatePackagesFromList() throws Exception {
@@ -91,6 +119,42 @@ public class ComposerJsonProcessorTest
 
     ComposerJsonProcessor underTest = new ComposerJsonProcessor();
     Payload output = underTest.rewriteProviderJson(repository, payload);
+
+    assertEquals(readStreamToString(output.openInputStream()), outputJson, true);
+  }
+
+  @Test
+  public void buildProviderJson() throws Exception {
+    String outputJson = readStreamToString(getClass().getResourceAsStream("buildProviderJson.json"));
+
+    when(repository.getUrl()).thenReturn("http://nexus.repo/base/repo");
+
+    when(asset1.name()).thenReturn("vendor1/project1/1.0.0/vendor1-project1-1.0.0.zip");
+    when(asset1.formatAttributes()).thenReturn(assetAttributes1);
+
+    when(asset2.name()).thenReturn("vendor1/project1/2.0.0/vendor1-project1-2.0.0.zip");
+    when(asset2.formatAttributes()).thenReturn(assetAttributes2);
+
+    when(asset3.name()).thenReturn("vendor2/project2/3.0.0/vendor2-project2-3.0.0.zip");
+    when(asset3.formatAttributes()).thenReturn(assetAttributes3);
+
+    when(asset4.name()).thenReturn("vendor2/project2/4.0.0/vendor2-project2-4.0.0.zip");
+    when(asset4.formatAttributes()).thenReturn(assetAttributes4);
+
+    when(assetAttributes1.require(P_NAME, String.class)).thenReturn("vendor1/project1");
+    when(assetAttributes1.require(P_VERSION, String.class)).thenReturn("1.0.0");
+
+    when(assetAttributes2.require(P_NAME, String.class)).thenReturn("vendor1/project1");
+    when(assetAttributes2.require(P_VERSION, String.class)).thenReturn("2.0.0");
+
+    when(assetAttributes3.require(P_NAME, String.class)).thenReturn("vendor2/project2");
+    when(assetAttributes3.require(P_VERSION, String.class)).thenReturn("3.0.0");
+
+    when(assetAttributes4.require(P_NAME, String.class)).thenReturn("vendor2/project2");
+    when(assetAttributes4.require(P_VERSION, String.class)).thenReturn("4.0.0");
+
+    ComposerJsonProcessor underTest = new ComposerJsonProcessor();
+    Content output = underTest.buildProviderJson(repository, asList(asset1, asset2, asset3, asset4));
 
     assertEquals(readStreamToString(output.openInputStream()), outputJson, true);
   }
