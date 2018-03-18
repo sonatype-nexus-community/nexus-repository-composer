@@ -36,6 +36,7 @@ import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 import com.google.common.base.Throwables;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.buildProviderPath;
 import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.buildZipballPath;
 import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.PROJECT_TOKEN;
 import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VENDOR_TOKEN;
@@ -52,8 +53,6 @@ public class ComposerProxyFacetImpl
   private static final String PACKAGES_JSON = "packages.json";
 
   private static final String LIST_JSON = "packages/list.json";
-
-  private static final String PROVIDER_JSON = "p/%s/%s.json";
 
   private final ComposerJsonProcessor composerJsonProcessor;
 
@@ -78,7 +77,7 @@ public class ComposerProxyFacetImpl
       case LIST:
         return content().get(LIST_JSON);
       case PROVIDER:
-        return content().get(providerPath(context));
+        return content().get(buildProviderPath(context));
       case ZIPBALL:
         return content().get(buildZipballPath(context));
       default:
@@ -95,7 +94,7 @@ public class ComposerProxyFacetImpl
       case LIST:
         return content().put(LIST_JSON, content, assetKind);
       case PROVIDER:
-        return content().put(providerPath(context), content, assetKind);
+        return content().put(buildProviderPath(context), content, assetKind);
       case ZIPBALL:
         return content().put(buildZipballPath(context), content, assetKind);
       default:
@@ -116,7 +115,7 @@ public class ComposerProxyFacetImpl
         content().setCacheInfo(LIST_JSON, content, cacheInfo);
         break;
       case PROVIDER:
-        content().setCacheInfo(providerPath(context), content, cacheInfo);
+        content().setCacheInfo(buildProviderPath(context), content, cacheInfo);
         break;
       case ZIPBALL:
         content().setCacheInfo(buildZipballPath(context), content, cacheInfo);
@@ -169,7 +168,7 @@ public class ComposerProxyFacetImpl
       String project = tokens.get(PROJECT_TOKEN);
       String version = tokens.get(VERSION_TOKEN);
 
-      Request request = new Request.Builder().action(GET).path("/" + String.format(PROVIDER_JSON, vendor, project))
+      Request request = new Request.Builder().action(GET).path("/" + buildProviderPath(vendor, project))
           .attribute(ComposerProviderHandler.DO_NOT_REWRITE, "true").build();
       Response response = getRepository().facet(ViewFacet.class).dispatch(request, context);
       Payload payload = checkNotNull(response.getPayload());
@@ -182,12 +181,6 @@ public class ComposerProxyFacetImpl
       Throwables.throwIfUnchecked(e);
       throw new RuntimeException(e);
     }
-  }
-
-  private String providerPath(final Context context) {
-    TokenMatcher.State state = context.getAttributes().require(TokenMatcher.State.class);
-    Map<String, String> tokens = state.getTokens();
-    return String.format(PROVIDER_JSON, tokens.get(VENDOR_TOKEN), tokens.get(PROJECT_TOKEN));
   }
 
   private ComposerContentFacet content() {

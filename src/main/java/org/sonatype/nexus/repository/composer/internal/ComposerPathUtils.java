@@ -19,6 +19,7 @@ import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 
 import org.eclipse.sisu.Nullable;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.NAME_TOKEN;
 import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.PROJECT_TOKEN;
 import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VENDOR_TOKEN;
@@ -30,6 +31,8 @@ import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupp
 public final class ComposerPathUtils
 {
   private static final String ZIPBALL_PATH = "%s/%s/%s/%s.zip";
+
+  private static final String PROVIDER_JSON_PATH = "p/%s/%s.json";
 
   private static final String NAME_PATTERN = "%s-%s-%s";
 
@@ -56,6 +59,25 @@ public final class ComposerPathUtils
   {
     return String.format(ZIPBALL_PATH, vendor, project, version,
         name == null ? String.format(NAME_PATTERN, vendor, project, version) : name);
+  }
+
+  /**
+   * Builds the path to a provider json file based on the path contained in a particular context. The vendor token and
+   * the project token must be present in the context in order to successfully generate the path.
+   */
+  public static String buildProviderPath(final Context context) {
+    TokenMatcher.State state = context.getAttributes().require(TokenMatcher.State.class);
+    Map<String, String> tokens = state.getTokens();
+    return buildProviderPath(tokens.get(VENDOR_TOKEN), tokens.get(PROJECT_TOKEN));
+  }
+
+  /**
+   * Builds the path to a provider json file based on the specified vendor and project tokens.
+   */
+  public static String buildProviderPath(final String vendor, final String project) {
+    checkNotNull(vendor);
+    checkNotNull(project);
+    return String.format(PROVIDER_JSON_PATH, vendor, project);
   }
 
   private ComposerPathUtils() {
