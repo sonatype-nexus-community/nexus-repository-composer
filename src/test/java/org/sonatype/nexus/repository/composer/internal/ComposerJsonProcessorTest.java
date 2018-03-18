@@ -24,6 +24,8 @@ import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Payload;
 
 import com.google.common.io.CharStreams;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -110,18 +112,22 @@ public class ComposerJsonProcessorTest
     when(component1.group()).thenReturn("vendor1");
     when(component1.name()).thenReturn("project1");
     when(component1.version()).thenReturn("1.0.0");
+    when(component1.requireLastUpdated()).thenReturn(new DateTime(392056200000L, DateTimeZone.forOffsetHours(-4)));
 
     when(component2.group()).thenReturn("vendor1");
     when(component2.name()).thenReturn("project1");
     when(component2.version()).thenReturn("2.0.0");
+    when(component2.requireLastUpdated()).thenReturn(new DateTime(1210869000000L, DateTimeZone.forOffsetHours(-4)));
 
     when(component3.group()).thenReturn("vendor2");
     when(component3.name()).thenReturn("project2");
     when(component3.version()).thenReturn("3.0.0");
+    when(component3.requireLastUpdated()).thenReturn(new DateTime(300558600000L, DateTimeZone.forOffsetHours(-4)));
 
     when(component4.group()).thenReturn("vendor2");
     when(component4.name()).thenReturn("project2");
     when(component4.version()).thenReturn("4.0.0");
+    when(component4.requireLastUpdated()).thenReturn(new DateTime(1210869000000L, DateTimeZone.forOffsetHours(-4)));
 
     ComposerJsonProcessor underTest = new ComposerJsonProcessor();
     Content output = underTest.buildProviderJson(repository, asList(component1, component2, component3, component4));

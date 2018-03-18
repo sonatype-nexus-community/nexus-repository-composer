@@ -25,7 +25,6 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.sonatype.nexus.repository.Repository;
-import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.repository.storage.Component;
 import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.ContentTypes;
@@ -34,6 +33,9 @@ import org.sonatype.nexus.repository.view.payloads.StringPayload;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.buildZipballPath;
@@ -72,10 +74,13 @@ public class ComposerJsonProcessor
 
   private static final String VERSION_KEY = "version";
 
+  private static final String TIME_KEY = "time";
+
   private static final String ZIP_TYPE = "zip";
 
   private static final ObjectMapper mapper = new ObjectMapper();
 
+  private static final DateTimeFormatter timeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZZ");
   /**
    * Generates a packages.json file (inclusive of all projects) based on the list.json provided as a payload. Expected
    * usage is to "go remote" on the current repository to fetch a list.json copy, then pass it to this method to build
@@ -159,6 +164,7 @@ public class ComposerJsonProcessor
       pkg.put(NAME_KEY, name);
       pkg.put(VERSION_KEY, version);
       pkg.put(DIST_KEY, dist);
+      pkg.put(TIME_KEY, component.requireLastUpdated().withZone(DateTimeZone.UTC).toString(timeFormatter));
 
       if (!packages.containsKey(name)) {
         packages.put(name, new LinkedHashMap<>());
