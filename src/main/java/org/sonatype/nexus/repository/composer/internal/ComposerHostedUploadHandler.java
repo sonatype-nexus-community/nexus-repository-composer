@@ -12,8 +12,6 @@
  */
 package org.sonatype.nexus.repository.composer.internal;
 
-import java.util.Map;
-
 import javax.annotation.Nonnull;
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -25,13 +23,8 @@ import org.sonatype.nexus.repository.view.Handler;
 import org.sonatype.nexus.repository.view.Payload;
 import org.sonatype.nexus.repository.view.Request;
 import org.sonatype.nexus.repository.view.Response;
-import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.NAME_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.PROJECT_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VENDOR_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VERSION_TOKEN;
 
 /**
  * Upload handler for Composer hosted repositories.
@@ -41,20 +34,11 @@ import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupp
 public class ComposerHostedUploadHandler
     implements Handler
 {
-  private static final String ZIPBALL = "%s/%s/%s/%s.zip";
 
   @Nonnull
   @Override
   public Response handle(@Nonnull final Context context) throws Exception {
-    TokenMatcher.State state = context.getAttributes().require(TokenMatcher.State.class);
-    Map<String, String> tokens = state.getTokens();
-
-    String path = String.format(ZIPBALL,
-        tokens.get(VENDOR_TOKEN),
-        tokens.get(PROJECT_TOKEN),
-        tokens.get(VERSION_TOKEN),
-        tokens.get(NAME_TOKEN));
-
+    String path = ComposerPathUtils.buildZipballPath(context);
     Request request = checkNotNull(context.getRequest());
     Payload payload = checkNotNull(request.getPayload());
 

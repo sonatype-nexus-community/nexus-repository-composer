@@ -36,7 +36,7 @@ import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 import com.google.common.base.Throwables;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.NAME_TOKEN;
+import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.buildZipballPath;
 import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.PROJECT_TOKEN;
 import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VENDOR_TOKEN;
 import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VERSION_TOKEN;
@@ -54,8 +54,6 @@ public class ComposerProxyFacetImpl
   private static final String LIST_JSON = "packages/list.json";
 
   private static final String PROVIDER_JSON = "p/%s/%s.json";
-
-  private static final String ZIPBALL = "%s/%s/%s/%s.zip";
 
   private final ComposerJsonProcessor composerJsonProcessor;
 
@@ -82,7 +80,7 @@ public class ComposerProxyFacetImpl
       case PROVIDER:
         return content().get(providerPath(context));
       case ZIPBALL:
-        return content().get(zipballPath(context));
+        return content().get(buildZipballPath(context));
       default:
         throw new IllegalStateException();
     }
@@ -99,7 +97,7 @@ public class ComposerProxyFacetImpl
       case PROVIDER:
         return content().put(providerPath(context), content, assetKind);
       case ZIPBALL:
-        return content().put(zipballPath(context), content, assetKind);
+        return content().put(buildZipballPath(context), content, assetKind);
       default:
         throw new IllegalStateException();
     }
@@ -121,7 +119,7 @@ public class ComposerProxyFacetImpl
         content().setCacheInfo(providerPath(context), content, cacheInfo);
         break;
       case ZIPBALL:
-        content().setCacheInfo(zipballPath(context), content, cacheInfo);
+        content().setCacheInfo(buildZipballPath(context), content, cacheInfo);
         break;
       default:
         throw new IllegalStateException();
@@ -190,16 +188,6 @@ public class ComposerProxyFacetImpl
     TokenMatcher.State state = context.getAttributes().require(TokenMatcher.State.class);
     Map<String, String> tokens = state.getTokens();
     return String.format(PROVIDER_JSON, tokens.get(VENDOR_TOKEN), tokens.get(PROJECT_TOKEN));
-  }
-
-  private String zipballPath(final Context context) {
-    TokenMatcher.State state = context.getAttributes().require(TokenMatcher.State.class);
-    Map<String, String> tokens = state.getTokens();
-    return String.format(ZIPBALL,
-        tokens.get(VENDOR_TOKEN),
-        tokens.get(PROJECT_TOKEN),
-        tokens.get(VERSION_TOKEN),
-        tokens.get(NAME_TOKEN));
   }
 
   private ComposerContentFacet content() {
