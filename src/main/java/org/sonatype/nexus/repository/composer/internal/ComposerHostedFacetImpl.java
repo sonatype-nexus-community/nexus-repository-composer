@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.sonatype.nexus.repository.FacetSupport;
+import org.sonatype.nexus.repository.storage.Query;
 import org.sonatype.nexus.repository.storage.StorageTx;
 import org.sonatype.nexus.repository.transaction.TransactionalTouchMetadata;
 import org.sonatype.nexus.repository.view.Content;
@@ -25,6 +26,9 @@ import org.sonatype.nexus.repository.view.Payload;
 import org.sonatype.nexus.transaction.UnitOfWork;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Collections.singletonList;
+import static org.sonatype.nexus.repository.storage.ComponentEntityAdapter.P_GROUP;
+import static org.sonatype.nexus.repository.storage.MetadataNodeEntityAdapter.P_NAME;
 
 /**
  * Default implementation of a Composer hosted facet.
@@ -57,6 +61,15 @@ public class ComposerHostedFacetImpl
     StorageTx tx = UnitOfWork.currentTx();
     return composerJsonProcessor
         .generatePackagesFromComponents(getRepository(), tx.browseComponents(tx.findBucket(getRepository())));
+  }
+
+  @Override
+  @TransactionalTouchMetadata
+  public Content getProviderJson(final String vendor, final String project) throws IOException {
+    StorageTx tx = UnitOfWork.currentTx();
+    return composerJsonProcessor.buildProviderJson(getRepository(),
+        tx.findComponents(Query.builder().where(P_GROUP).eq(vendor).and(P_NAME).eq(project).build(),
+            singletonList(getRepository())));
   }
 
   private ComposerContentFacet content() {

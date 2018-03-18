@@ -25,6 +25,8 @@ import org.sonatype.nexus.repository.view.Handler;
 import org.sonatype.nexus.repository.view.Response;
 
 import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.buildZipballPath;
+import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.getProjectToken;
+import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.getVendorToken;
 
 /**
  * Download handler for Composer hosted repositories.
@@ -46,7 +48,7 @@ public class ComposerHostedDownloadHandler
       case LIST:
         throw new IllegalStateException("Unsupported assetKind: " + assetKind);
       case PROVIDER:
-        throw new IllegalStateException("Unsupported assetKind: " + assetKind);
+        return HttpResponses.ok(hostedFacet.getProviderJson(getVendorToken(context), getProjectToken(context)));
       case ZIPBALL:
         return responseFor(hostedFacet.getZipball(buildZipballPath(context)));
       default:
