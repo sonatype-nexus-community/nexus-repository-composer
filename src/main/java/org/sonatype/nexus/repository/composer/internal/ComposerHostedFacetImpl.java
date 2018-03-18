@@ -14,10 +14,17 @@ package org.sonatype.nexus.repository.composer.internal;
 
 import java.io.IOException;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.sonatype.nexus.repository.FacetSupport;
+import org.sonatype.nexus.repository.storage.StorageTx;
+import org.sonatype.nexus.repository.transaction.TransactionalTouchMetadata;
+import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Payload;
+import org.sonatype.nexus.transaction.UnitOfWork;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Default implementation of a Composer hosted facet.
@@ -27,9 +34,24 @@ public class ComposerHostedFacetImpl
     extends FacetSupport
     implements ComposerHostedFacet
 {
+  private final ComposerJsonProcessor composerJsonProcessor;
+
+  @Inject
+  public ComposerHostedFacetImpl(final ComposerJsonProcessor composerJsonProcessor) {
+    this.composerJsonProcessor = checkNotNull(composerJsonProcessor);
+  }
+
   @Override
   public void upload(final String path, final Payload payload) throws IOException {
     content().put(path, payload, AssetKind.ZIPBALL);
+  }
+
+  @Override
+  @TransactionalTouchMetadata
+  public Content getPackagesJson() throws IOException {
+    StorageTx tx = UnitOfWork.currentTx();
+    return composerJsonProcessor
+        .generatePackagesFromComponents(getRepository(), tx.browseComponents(tx.findBucket(getRepository())));
   }
 
   private ComposerContentFacet content() {

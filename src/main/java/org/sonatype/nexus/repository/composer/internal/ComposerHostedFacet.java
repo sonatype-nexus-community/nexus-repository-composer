@@ -15,6 +15,7 @@ package org.sonatype.nexus.repository.composer.internal;
 import java.io.IOException;
 
 import org.sonatype.nexus.repository.Facet;
+import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Payload;
 
 /**
@@ -25,4 +26,6 @@ public interface ComposerHostedFacet
     extends Facet
 {
   void upload(String path, Payload payload) throws IOException;
+
+  Content getPackagesJson() throws IOException;
 }

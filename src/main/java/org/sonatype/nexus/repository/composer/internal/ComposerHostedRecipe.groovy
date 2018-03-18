@@ -27,6 +27,7 @@ import org.sonatype.nexus.repository.view.ConfigurableViewFacet
 import org.sonatype.nexus.repository.view.Router
 import org.sonatype.nexus.repository.view.ViewFacet
 
+import static org.sonatype.nexus.repository.composer.internal.AssetKind.PACKAGES
 import static org.sonatype.nexus.repository.composer.internal.AssetKind.ZIPBALL
 
 /**
@@ -44,6 +45,9 @@ class ComposerHostedRecipe
 
   @Inject
   ComposerHostedUploadHandler uploadHandler
+
+  @Inject
+  ComposerHostedDownloadHandler downloadHandler
 
   @Inject
   ComposerHostedRecipe(@Named(HostedType.NAME) final Type type, @Named(ComposerFormat.NAME) final Format format) {
@@ -68,6 +72,19 @@ class ComposerHostedRecipe
    */
   private ViewFacet configure(final ConfigurableViewFacet facet) {
     Router.Builder builder = new Router.Builder()
+
+    builder.route(packagesMatcher()
+        .handler(timingHandler)
+        .handler(assetKindHandler.rcurry(PACKAGES))
+        .handler(securityHandler)
+        .handler(exceptionHandler)
+        .handler(handlerContributor)
+        .handler(conditionalRequestHandler)
+        .handler(partialFetchHandler)
+        .handler(contentHeadersHandler)
+        .handler(unitOfWorkHandler)
+        .handler(downloadHandler)
+        .create())
 
     builder.route(uploadMatcher()
         .handler(timingHandler)

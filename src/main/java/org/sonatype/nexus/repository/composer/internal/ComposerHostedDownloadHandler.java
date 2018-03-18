@@ -34,34 +34,30 @@ import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupp
 import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VERSION_TOKEN;
 
 /**
- * Upload handler for Composer hosted repositories.
+ * Download handler for Composer hosted repositories.
  */
 @Named
 @Singleton
-public class ComposerHostedUploadHandler
+public class ComposerHostedDownloadHandler
     implements Handler
 {
-  private static final String ZIPBALL = "%s/%s/%s/%s.zip";
-
   @Nonnull
   @Override
   public Response handle(@Nonnull final Context context) throws Exception {
-    TokenMatcher.State state = context.getAttributes().require(TokenMatcher.State.class);
-    Map<String, String> tokens = state.getTokens();
-
-    String path = String.format(ZIPBALL,
-        tokens.get(VENDOR_TOKEN),
-        tokens.get(PROJECT_TOKEN),
-        tokens.get(VERSION_TOKEN),
-        tokens.get(NAME_TOKEN));
-
-    Request request = checkNotNull(context.getRequest());
-    Payload payload = checkNotNull(request.getPayload());
-
     Repository repository = context.getRepository();
     ComposerHostedFacet hostedFacet = repository.facet(ComposerHostedFacet.class);
-
-    hostedFacet.upload(path, payload);
-    return HttpResponses.ok();
+    AssetKind assetKind = context.getAttributes().require(AssetKind.class);
+    switch (assetKind) {
+      case PACKAGES:
+        return HttpResponses.ok(hostedFacet.getPackagesJson());
+      case LIST:
+        throw new IllegalStateException("Unsupported assetKind: " + assetKind);
+      case PROVIDER:
+        throw new IllegalStateException("Unsupported assetKind: " + assetKind);
+      case ZIPBALL:
+        throw new IllegalStateException("Unsupported assetKind: " + assetKind);
+      default:
+        throw new IllegalStateException("Unexpected assetKind: " + assetKind);
+    }
   }
 }
