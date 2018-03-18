@@ -36,6 +36,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static com.google.common.base.Preconditions.checkState;
+import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.buildZipballPath;
 
 /**
  * Class encapsulating JSON processing for Composer-format repositories, including operations for parsing JSON indexes
@@ -139,17 +140,19 @@ public class ComposerJsonProcessor
   }
 
   /**
-   * Builds a provider JSON file for a list of assets. This minimal subset will contain the packages entries with the
-   * name, version, and dist information for each asset.
+   * Builds a provider JSON file for a list of componentts. This minimal subset will contain the packages entries with the
+   * name, version, and dist information for each component.
    */
-  public Content buildProviderJson(final Repository repository, final Collection<Asset> assets) throws IOException {
+  public Content buildProviderJson(final Repository repository, final Iterable<Component> components) throws IOException {
     Map<String, Map<String, Object>> packages = new LinkedHashMap<>();
-    for (Asset asset : assets) {
-      String name = asset.formatAttributes().require(ComposerAttributes.P_NAME, String.class);
-      String version = asset.formatAttributes().require(ComposerAttributes.P_VERSION, String.class);
+    for (Component component : components) {
+      String vendor = component.group();
+      String project = component.name();
+      String version = component.version();
+      String name = vendor + "/" + project;
 
       Map<String, Object> dist = new LinkedHashMap<>();
-      dist.put(URL_KEY, repository.getUrl() + "/" + asset.name());
+      dist.put(URL_KEY, repository.getUrl() + "/" + buildZipballPath(vendor, project, version));
       dist.put(TYPE_KEY, ZIP_TYPE);
 
       Map<String, Object> pkg = new LinkedHashMap<>();
