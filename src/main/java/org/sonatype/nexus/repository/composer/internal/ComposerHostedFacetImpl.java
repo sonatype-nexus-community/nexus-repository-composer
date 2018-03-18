@@ -25,6 +25,8 @@ import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Payload;
 import org.sonatype.nexus.transaction.UnitOfWork;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Collections.singletonList;
 import static org.sonatype.nexus.repository.storage.ComponentEntityAdapter.P_GROUP;
@@ -68,8 +70,12 @@ public class ComposerHostedFacetImpl
   public Content getProviderJson(final String vendor, final String project) throws IOException {
     StorageTx tx = UnitOfWork.currentTx();
     return composerJsonProcessor.buildProviderJson(getRepository(),
-        tx.findComponents(Query.builder().where(P_GROUP).eq(vendor).and(P_NAME).eq(project).build(),
-            singletonList(getRepository())));
+        tx.findComponents(buildQuery(vendor, project), singletonList(getRepository())));
+  }
+
+  @VisibleForTesting
+  protected Query buildQuery(final String vendor, final String project) {
+    return Query.builder().where(P_GROUP).eq(vendor).and(P_NAME).eq(project).build();
   }
 
   private ComposerContentFacet content() {
