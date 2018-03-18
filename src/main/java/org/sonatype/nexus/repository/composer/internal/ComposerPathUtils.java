@@ -37,6 +37,22 @@ public final class ComposerPathUtils
   private static final String NAME_PATTERN = "%s-%s-%s";
 
   /**
+   * Returns the vendor token from a path in a context. The vendor token must be present or the operation will fail.
+   */
+  public static String getVendorToken(final Context context) {
+    TokenMatcher.State state = context.getAttributes().require(TokenMatcher.State.class);
+    return checkNotNull(state.getTokens().get(VENDOR_TOKEN));
+  }
+
+  /**
+   * Returns the project token from a path in a context. The vendor token must be present or the operation will fail.
+   */
+  public static String getProjectToken(final Context context) {
+    TokenMatcher.State state = context.getAttributes().require(TokenMatcher.State.class);
+    return checkNotNull(state.getTokens().get(PROJECT_TOKEN));
+  }
+
+  /**
    * Builds the path to a zipball based on the path contained in a particular context. For download routes the full
    * path including the name token will be present and will be constructed accordingly. For upload routes the full
    * path will not be known because the filename will not be present, so the name portion will be constructed from
@@ -50,6 +66,14 @@ public final class ComposerPathUtils
         tokens.get(PROJECT_TOKEN),
         tokens.get(VERSION_TOKEN),
         tokens.get(NAME_TOKEN));
+  }
+
+  /**
+   * Builds the zipball path based on the provided vendor, project, and version. The filename will be constructed based
+   * on the values of those parameters.
+   */
+  public static String buildZipballPath(final String vendor, final String project, final String version) {
+    return buildZipballPath(vendor, project, version, null);
   }
 
   private static String buildZipballPath(final String vendor,

@@ -74,6 +74,16 @@ public class ComposerPathUtilsTest
   }
 
   @Test
+  public void buildZipballPathFromValues() {
+    when(context.getAttributes()).thenReturn(contextAttributes);
+    when(contextAttributes.require(TokenMatcher.State.class)).thenReturn(state);
+    when(state.getTokens()).thenReturn(tokens);
+
+    assertThat(ComposerPathUtils.buildZipballPath("testvendor", "testproject", "1.2.3"),
+        is("testvendor/testproject/1.2.3/testvendor-testproject-1.2.3.zip"));
+  }
+
+  @Test
   public void buildProviderPathFromTokens() {
     when(context.getAttributes()).thenReturn(contextAttributes);
     when(contextAttributes.require(TokenMatcher.State.class)).thenReturn(state);
