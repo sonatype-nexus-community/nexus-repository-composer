@@ -8,6 +8,7 @@
           "url" : "http://nexus.repo/base/repo/vendor1/project1/1.0.0/vendor1-project1-1.0.0.zip",
           "type" : "zip"
         },
+        "uid" : 1345846687,
         "time" : "1982-06-04T16:30:00+00:00"
       },
       "2.0.0" : {
@@ -17,6 +18,7 @@
           "url" : "http://nexus.repo/base/repo/vendor1/project1/2.0.0/vendor1-project1-2.0.0.zip",
           "type" : "zip"
         },
+        "uid" : 1700253429,
         "time" : "2008-05-15T16:30:00+00:00"
       }
     },
@@ -28,6 +30,7 @@
           "url" : "http://nexus.repo/base/repo/vendor2/project2/3.0.0/vendor2-project2-3.0.0.zip",
           "type" : "zip"
         },
+        "uid" : 1398386772,
         "time" : "1979-07-11T16:30:00+00:00"
       },
       "4.0.0" : {
@@ -37,6 +40,7 @@
           "url" : "http://nexus.repo/base/repo/vendor2/project2/4.0.0/vendor2-project2-4.0.0.zip",
           "type" : "zip"
         },
+        "uid" : 237122898,
         "time" : "2008-05-15T16:30:00+00:00"
       }
     }

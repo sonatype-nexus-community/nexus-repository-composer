@@ -14,6 +14,7 @@ package org.sonatype.nexus.repository.composer.internal;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -33,6 +34,7 @@ import org.sonatype.nexus.repository.view.payloads.StringPayload;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.hash.Hashing;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -75,6 +77,8 @@ public class ComposerJsonProcessor
   private static final String VERSION_KEY = "version";
 
   private static final String TIME_KEY = "time";
+
+  private static final String UID_KEY = "uid";
 
   private static final String ZIP_TYPE = "zip";
 
@@ -154,7 +158,9 @@ public class ComposerJsonProcessor
       String vendor = component.group();
       String project = component.name();
       String version = component.version();
+
       String name = vendor + "/" + project;
+      String time = component.requireLastUpdated().withZone(DateTimeZone.UTC).toString(timeFormatter);
 
       Map<String, Object> dist = new LinkedHashMap<>();
       dist.put(URL_KEY, repository.getUrl() + "/" + buildZipballPath(vendor, project, version));
@@ -164,7 +170,14 @@ public class ComposerJsonProcessor
       pkg.put(NAME_KEY, name);
       pkg.put(VERSION_KEY, version);
       pkg.put(DIST_KEY, dist);
-      pkg.put(TIME_KEY, component.requireLastUpdated().withZone(DateTimeZone.UTC).toString(timeFormatter));
+      pkg.put(TIME_KEY, time);
+      pkg.put(UID_KEY, Hashing.md5().newHasher()
+          .putString(vendor, StandardCharsets.UTF_8)
+          .putString(project, StandardCharsets.UTF_8)
+          .putString(version, StandardCharsets.UTF_8)
+          .putString(time, StandardCharsets.UTF_8)
+          .hash()
+          .asInt());
 
       if (!packages.containsKey(name)) {
         packages.put(name, new LinkedHashMap<>());
