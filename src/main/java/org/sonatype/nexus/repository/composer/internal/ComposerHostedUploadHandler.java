@@ -34,7 +34,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class ComposerHostedUploadHandler
     implements Handler
 {
-
   @Nonnull
   @Override
   public Response handle(@Nonnull final Context context) throws Exception {
