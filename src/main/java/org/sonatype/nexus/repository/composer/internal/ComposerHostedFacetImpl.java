@@ -47,6 +47,11 @@ public class ComposerHostedFacetImpl
   }
 
   @Override
+  public Content getZipball(final String path) throws IOException {
+    return content().get(path);
+  }
+
+  @Override
   @TransactionalTouchMetadata
   public Content getPackagesJson() throws IOException {
     StorageTx tx = UnitOfWork.currentTx();

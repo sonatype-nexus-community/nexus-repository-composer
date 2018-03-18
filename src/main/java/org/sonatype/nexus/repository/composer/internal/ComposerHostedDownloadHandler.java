@@ -12,26 +12,19 @@
  */
 package org.sonatype.nexus.repository.composer.internal;
 
-import java.util.Map;
-
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.http.HttpResponses;
+import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.Handler;
-import org.sonatype.nexus.repository.view.Payload;
-import org.sonatype.nexus.repository.view.Request;
 import org.sonatype.nexus.repository.view.Response;
-import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.NAME_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.PROJECT_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VENDOR_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VERSION_TOKEN;
+import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.buildZipballPath;
 
 /**
  * Download handler for Composer hosted repositories.
@@ -55,9 +48,16 @@ public class ComposerHostedDownloadHandler
       case PROVIDER:
         throw new IllegalStateException("Unsupported assetKind: " + assetKind);
       case ZIPBALL:
-        throw new IllegalStateException("Unsupported assetKind: " + assetKind);
+        return responseFor(hostedFacet.getZipball(buildZipballPath(context)));
       default:
         throw new IllegalStateException("Unexpected assetKind: " + assetKind);
     }
+  }
+
+  private Response responseFor(@Nullable final Content content) {
+    if (content == null) {
+      return HttpResponses.notFound();
+    }
+    return HttpResponses.ok(content);
   }
 }
