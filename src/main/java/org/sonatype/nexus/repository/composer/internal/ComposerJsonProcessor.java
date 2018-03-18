@@ -149,8 +149,9 @@ public class ComposerJsonProcessor
   }
 
   /**
-   * Builds a provider JSON file for a list of componentts. This minimal subset will contain the packages entries with the
-   * name, version, and dist information for each component.
+   * Builds a provider JSON file for a list of components. This minimal subset will contain the packages entries with
+   * the name, version, and dist information for each component. A timestamp derived from the component's last updated
+   * field and a uid derived from the component group/name/version and last updated time is also included in the JSON.
    */
   public Content buildProviderJson(final Repository repository, final Iterable<Component> components) throws IOException {
     Map<String, Map<String, Object>> packages = new LinkedHashMap<>();
