@@ -19,11 +19,13 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.sonatype.nexus.repository.Repository;
+import org.sonatype.nexus.repository.storage.Component;
 import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.ContentTypes;
 import org.sonatype.nexus.repository.view.Payload;
@@ -73,16 +75,32 @@ public class ComposerJsonProcessor
    * usage is to "go remote" on the current repository to fetch a list.json copy, then pass it to this method to build
    * the packages.json for the client to use.
    */
-  public Content generatePackagesJson(final Repository repository, final Payload payload) throws IOException {
+  public Content generatePackagesFromList(final Repository repository, final Payload payload) throws IOException {
     // TODO: Parse using JSON tokens rather than loading all this into memory, it "should" work but I'd be careful.
     Map<String, Object> listJson = parseJson(payload);
-    Collection<String> packageNames = (Collection<String>) listJson.get(PACKAGE_NAMES_KEY);
-    Map<String, Map<String, Object>> packages = packageNames.stream()
-        .collect(Collectors.toMap((each) -> each, (each) -> Collections.singletonMap(SHA256_KEY, null)));
+    return buildPackagesJson(repository, (Collection<String>) listJson.get(PACKAGE_NAMES_KEY));
+  }
 
+  /**
+   * Generates a packages.json file (inclusive of all projects) based on the components provided. Expected usage is
+   * for a hosted repository to be queried for its components, which are then provided to this method to build the
+   * packages.json for the client to use.
+   */
+  public Content generatePackagesFromComponents(final Repository repository, final Iterable<Component> components)
+      throws IOException
+  {
+    return buildPackagesJson(repository, StreamSupport.stream(components.spliterator(), false)
+        .map(component -> component.group() + "/" + component.name()).collect(Collectors.toList()));
+  }
+
+  /**
+   * Builds a packages.json file as a {@code Content} instance containing the actual JSON for the given providers.
+   */
+  private Content buildPackagesJson(final Repository repository, final Collection<String> names) throws IOException {
     Map<String, Object> packagesJson = new LinkedHashMap<>();
     packagesJson.put(PROVIDERS_URL_KEY, repository.getUrl() + "/p/%package%.json");
-    packagesJson.put(PROVIDERS_KEY, packages);
+    packagesJson.put(PROVIDERS_KEY, names.stream()
+        .collect(Collectors.toMap((each) -> each, (each) -> Collections.singletonMap(SHA256_KEY, null))));
     return new Content(new StringPayload(mapper.writeValueAsString(packagesJson), ContentTypes.APPLICATION_JSON));
   }
 

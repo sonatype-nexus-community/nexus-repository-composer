@@ -152,7 +152,7 @@ public class ComposerProxyFacetImpl
       Request request = new Request.Builder().action(GET).path("/" + LIST_JSON).build();
       Response response = getRepository().facet(ViewFacet.class).dispatch(request, context);
       Payload payload = checkNotNull(response.getPayload());
-      return composerJsonProcessor.generatePackagesJson(getRepository(), payload);
+      return composerJsonProcessor.generatePackagesFromList(getRepository(), payload);
     }
     catch (IOException e) {
       throw new UncheckedIOException(e);

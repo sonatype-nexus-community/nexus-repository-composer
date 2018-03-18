@@ -19,6 +19,7 @@ import java.io.InputStreamReader;
 
 import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.repository.Repository;
+import org.sonatype.nexus.repository.storage.Component;
 import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Payload;
 
@@ -27,6 +28,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
@@ -41,6 +43,12 @@ public class ComposerJsonProcessorTest
   @Mock
   private Payload payload;
 
+  @Mock
+  private Component component1;
+
+  @Mock
+  private Component component2;
+
   @Test
   public void generatePackagesFromList() throws Exception {
     String listJson = readStreamToString(getClass().getResourceAsStream("generatePackagesFromList.list.json"));
@@ -50,9 +58,27 @@ public class ComposerJsonProcessorTest
     when(payload.openInputStream()).thenReturn(new ByteArrayInputStream(listJson.getBytes(UTF_8)));
 
     ComposerJsonProcessor underTest = new ComposerJsonProcessor();
-    Content output = underTest.generatePackagesJson(repository, payload);
+    Content output = underTest.generatePackagesFromList(repository, payload);
 
-    assertEquals(readStreamToString(output.openInputStream()), packagesJson, false);
+    assertEquals(readStreamToString(output.openInputStream()), packagesJson, true);
+  }
+
+  @Test
+  public void generatePackagesFromComponents() throws Exception {
+    String packagesJson = readStreamToString(getClass().getResourceAsStream("generatePackagesFromComponents.json"));
+
+    when(repository.getUrl()).thenReturn("http://nexus.repo/base/repo");
+
+    when(component1.group()).thenReturn("vendor1");
+    when(component1.name()).thenReturn("project1");
+
+    when(component2.group()).thenReturn("vendor2");
+    when(component2.name()).thenReturn("project2");
+
+    ComposerJsonProcessor underTest = new ComposerJsonProcessor();
+    Content output = underTest.generatePackagesFromComponents(repository, asList(component1, component2));
+
+    assertEquals(readStreamToString(output.openInputStream()), packagesJson, true);
   }
 
   @Test
@@ -66,7 +92,7 @@ public class ComposerJsonProcessorTest
     ComposerJsonProcessor underTest = new ComposerJsonProcessor();
     Payload output = underTest.rewriteProviderJson(repository, payload);
 
-    assertEquals(readStreamToString(output.openInputStream()), outputJson, false);
+    assertEquals(readStreamToString(output.openInputStream()), outputJson, true);
   }
 
   @Test
