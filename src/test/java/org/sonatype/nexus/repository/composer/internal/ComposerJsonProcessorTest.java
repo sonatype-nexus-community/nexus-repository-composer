@@ -88,7 +88,7 @@ public class ComposerJsonProcessorTest
     ComposerJsonProcessor underTest = new ComposerJsonProcessor();
     Content output = underTest.generatePackagesFromList(repository, payload);
 
-    assertEquals(readStreamToString(output.openInputStream()), packagesJson, true);
+    assertEquals(packagesJson, readStreamToString(output.openInputStream()), true);
   }
 
   @Test
@@ -106,7 +106,7 @@ public class ComposerJsonProcessorTest
     ComposerJsonProcessor underTest = new ComposerJsonProcessor();
     Content output = underTest.generatePackagesFromComponents(repository, asList(component1, component2));
 
-    assertEquals(readStreamToString(output.openInputStream()), packagesJson, true);
+    assertEquals(packagesJson, readStreamToString(output.openInputStream()), true);
   }
 
   @Test
@@ -120,7 +120,7 @@ public class ComposerJsonProcessorTest
     ComposerJsonProcessor underTest = new ComposerJsonProcessor();
     Payload output = underTest.rewriteProviderJson(repository, payload);
 
-    assertEquals(readStreamToString(output.openInputStream()), outputJson, true);
+    assertEquals(outputJson, readStreamToString(output.openInputStream()), true);
   }
 
   @Test
@@ -156,7 +156,7 @@ public class ComposerJsonProcessorTest
     ComposerJsonProcessor underTest = new ComposerJsonProcessor();
     Content output = underTest.buildProviderJson(repository, asList(asset1, asset2, asset3, asset4));
 
-    assertEquals(readStreamToString(output.openInputStream()), outputJson, true);
+    assertEquals(outputJson, readStreamToString(output.openInputStream()), true);
   }
 
   @Test
