@@ -150,7 +150,7 @@ abstract class ComposerRecipeSupport
     new Builder().matcher(
         LogicMatchers.and(
             new ActionMatcher(PUT),
-            new TokenMatcher('/{vendor:.+}/{project:.+}/{version:.+}/{name:.+}.zip')
+            new TokenMatcher('/packages/upload/{vendor:.+}/{project:.+}/{version:.+}')
         ))
   }
 }

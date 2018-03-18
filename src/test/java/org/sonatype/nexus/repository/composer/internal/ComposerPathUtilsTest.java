@@ -46,7 +46,7 @@ public class ComposerPathUtilsTest
   private Map<String, String> tokens;
 
   @Test
-  public void buildZipballPathFromContext() {
+  public void buildZipballPathFromContextWithNameToken() {
     when(context.getAttributes()).thenReturn(contextAttributes);
     when(contextAttributes.require(TokenMatcher.State.class)).thenReturn(state);
     when(state.getTokens()).thenReturn(tokens);
@@ -57,5 +57,19 @@ public class ComposerPathUtilsTest
     when(tokens.get(NAME_TOKEN)).thenReturn("name");
 
     assertThat(ComposerPathUtils.buildZipballPath(context), is("testvendor/testproject/1.2.3/name.zip"));
+  }
+
+  @Test
+  public void buildZipballPathFromContextWithoutNameToken() {
+    when(context.getAttributes()).thenReturn(contextAttributes);
+    when(contextAttributes.require(TokenMatcher.State.class)).thenReturn(state);
+    when(state.getTokens()).thenReturn(tokens);
+
+    when(tokens.get(VENDOR_TOKEN)).thenReturn("testvendor");
+    when(tokens.get(PROJECT_TOKEN)).thenReturn("testproject");
+    when(tokens.get(VERSION_TOKEN)).thenReturn("1.2.3");
+
+    assertThat(ComposerPathUtils.buildZipballPath(context),
+        is("testvendor/testproject/1.2.3/testvendor-testproject-1.2.3.zip"));
   }
 }

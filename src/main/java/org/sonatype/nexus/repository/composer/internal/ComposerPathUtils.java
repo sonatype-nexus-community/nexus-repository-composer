@@ -17,6 +17,8 @@ import java.util.Map;
 import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 
+import org.eclipse.sisu.Nullable;
+
 import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.NAME_TOKEN;
 import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.PROJECT_TOKEN;
 import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VENDOR_TOKEN;
@@ -27,19 +29,33 @@ import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupp
  */
 public final class ComposerPathUtils
 {
-  private static final String ZIPBALL = "%s/%s/%s/%s.zip";
+  private static final String ZIPBALL_PATH = "%s/%s/%s/%s.zip";
+
+  private static final String NAME_PATTERN = "%s-%s-%s";
 
   /**
-   * Builds the path to a zipball based on the path contained in a particular context.
+   * Builds the path to a zipball based on the path contained in a particular context. For download routes the full
+   * path including the name token will be present and will be constructed accordingly. For upload routes the full
+   * path will not be known because the filename will not be present, so the name portion will be constructed from
+   * the vendor, project, and version information contained in the other path segments.
    */
   public static String buildZipballPath(final Context context) {
     TokenMatcher.State state = context.getAttributes().require(TokenMatcher.State.class);
     Map<String, String> tokens = state.getTokens();
-    return String.format(ZIPBALL,
+    return buildZipballPath(
         tokens.get(VENDOR_TOKEN),
         tokens.get(PROJECT_TOKEN),
         tokens.get(VERSION_TOKEN),
         tokens.get(NAME_TOKEN));
+  }
+
+  private static String buildZipballPath(final String vendor,
+                                         final String project,
+                                         final String version,
+                                         @Nullable final String name)
+  {
+    return String.format(ZIPBALL_PATH, vendor, project, version,
+        name == null ? String.format(NAME_PATTERN, vendor, project, version) : name);
   }
 
   private ComposerPathUtils() {
