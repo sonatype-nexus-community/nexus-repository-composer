@@ -41,6 +41,19 @@ in detail. Minimal configuration steps are:
 - Define URL for 'Remote storage' e.g. [https://packagist.org/](https://packagist.org/)
 - Select a 'Blob store' for 'Storage'
 
+### Hosting Composer Repositories
+
+Creating a Composer hosted repository allows you to register packages in the repository manager. The hosted
+repository acts as an authoritative location for these components.
+
+To add a hosted Composer repository, create a new repository with the recipe 'composer (hosted)' as
+documented in [Repository Management](https://help.sonatype.com/display/NXRM3/Configuration#Configuration-RepositoryManagement).
+
+Minimal configuration steps are:
+
+- Define 'Name' - e.g. `composer-hosted`
+- Select 'Blob store' for 'Storage'
+
 ### Configuring Composer 
 
 The least-invasive way of configuring the Composer client to communicate with Nexus is to update the `repositories`
@@ -65,3 +78,25 @@ that all requests are directed to your Nexus repository manager.
 
 You can browse Composer repositories in the user interface inspecting the components and assets and their details, as
 described in [Browsing Repositories and Repository Groups](https://help.sonatype.com/display/NXRM3/Browsing+Repositories+and+Repository+Groups).
+
+### Publishing Composer Packages
+
+If you are authoring your own packages and want to distribute them to other users in your organization, you have
+to upload them to a hosted repository on the repository manager. The consumers can then download it via the
+repository.
+
+A Composer package should consist of a zipped archive of the sources containing a `composer.json` file. You should be
+able to determine the vendor and project of the package from the `composer.json` file. The version can be determined
+based on your own particular development process (for example, the version is not required in `composer.json` files and
+may instead be something like a Git tag for a release depending on your local arrangements and preferences).
+
+With this information known, the package can be uploaded to your hosted Composer repository (replacing the credentials,
+source filename, and vendor, project, and version path segments to match your particular distributable):
+
+`curl -v --user 'user:pass' --upload-file example.zip http://localhost:8081/repository/composer-hosted/packages/upload/vendor/project/version`
+
+*Note that the relevant information for vendor, project, and version is obtained from the URL you use to upload the zip,
+not the composer.json file contained in the archive.* This flexible upload mechanism allows you to avoid changing the
+contents of your `composer.json` in order to upload to Nexus. For example, you could write a script to check out new
+tags from your Git repo, construct the appropriate upload URL, then push the tagged releases from your Git repo to your
+Nexus hosted repository.
