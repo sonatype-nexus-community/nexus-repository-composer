@@ -52,6 +52,8 @@ public class ComposerJsonProcessor
 {
   private static final String REWRITE_URL = "%s/%s/%s/%s-%s.zip";
 
+  private static final String PACKAGE_JSON_PATH = "/p/%package%.json";
+
   private static final String VENDOR_AND_PROJECT = "%s/%s";
 
   private static final String DIST_KEY = "dist";
@@ -85,7 +87,7 @@ public class ComposerJsonProcessor
   private static final ObjectMapper mapper = new ObjectMapper();
 
   private static final DateTimeFormatter timeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZZ");
-  
+
   /**
    * Generates a packages.json file (inclusive of all projects) based on the list.json provided as a payload. Expected
    * usage is to "go remote" on the current repository to fetch a list.json copy, then pass it to this method to build
@@ -114,7 +116,7 @@ public class ComposerJsonProcessor
    */
   private Content buildPackagesJson(final Repository repository, final Collection<String> names) throws IOException {
     Map<String, Object> packagesJson = new LinkedHashMap<>();
-    packagesJson.put(PROVIDERS_URL_KEY, repository.getUrl() + "/p/%package%.json");
+    packagesJson.put(PROVIDERS_URL_KEY, repository.getUrl() + PACKAGE_JSON_PATH);
     packagesJson.put(PROVIDERS_KEY, names.stream()
         .collect(Collectors.toMap((each) -> each, (each) -> Collections.singletonMap(SHA256_KEY, null))));
     return new Content(new StringPayload(mapper.writeValueAsString(packagesJson), ContentTypes.APPLICATION_JSON));
