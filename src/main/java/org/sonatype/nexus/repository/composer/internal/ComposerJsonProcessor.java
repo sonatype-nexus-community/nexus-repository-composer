@@ -85,6 +85,7 @@ public class ComposerJsonProcessor
   private static final ObjectMapper mapper = new ObjectMapper();
 
   private static final DateTimeFormatter timeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZZ");
+  
   /**
    * Generates a packages.json file (inclusive of all projects) based on the list.json provided as a payload. Expected
    * usage is to "go remote" on the current repository to fetch a list.json copy, then pass it to this method to build
