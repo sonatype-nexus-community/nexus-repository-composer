@@ -60,7 +60,6 @@ class ComposerHostedRecipe
     repository.attach(contentFacet.get())
     repository.attach(securityFacet.get())
     repository.attach(configure(viewFacet.get()))
-    repository.attach(httpClientFacet.get())
     repository.attach(componentMaintenanceFacet.get())
     repository.attach(hostedFacet.get())
     repository.attach(storageFacet.get())

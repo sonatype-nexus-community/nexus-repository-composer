@@ -27,7 +27,6 @@ import org.sonatype.nexus.repository.http.HttpHandlers
 import org.sonatype.nexus.repository.httpclient.HttpClientFacet
 import org.sonatype.nexus.repository.proxy.ProxyHandler
 import org.sonatype.nexus.repository.purge.PurgeUnusedFacet
-import org.sonatype.nexus.repository.storage.SingleAssetComponentMaintenance
 import org.sonatype.nexus.repository.types.ProxyType
 import org.sonatype.nexus.repository.view.ConfigurableViewFacet
 import org.sonatype.nexus.repository.view.Router
@@ -57,6 +56,9 @@ class ComposerProxyRecipe
 
   @Inject
   ProxyHandler proxyHandler
+
+  @Inject
+  Provider<HttpClientFacet> httpClientFacet
 
   @Inject
   ComposerProviderHandler composerProviderHandler
