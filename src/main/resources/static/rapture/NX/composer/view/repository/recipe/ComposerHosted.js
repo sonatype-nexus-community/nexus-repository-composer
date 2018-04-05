@@ -10,28 +10,30 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-package org.sonatype.nexus.repository.composer.internal;
-
-import java.io.IOException;
-
-import javax.annotation.Nullable;
-
-import org.sonatype.nexus.repository.Facet;
-import org.sonatype.nexus.repository.cache.CacheInfo;
-import org.sonatype.nexus.repository.view.Content;
-import org.sonatype.nexus.repository.view.Payload;
+/*global Ext, NX*/
 
 /**
- * Content facet used for getting assets from storage and putting assets into storage for a Composer-format repository.
+ * Configuration settings in the UI for a Composer hosted recipe.
  */
-@Facet.Exposed
-public interface ComposerContentFacet
-    extends Facet
-{
-  @Nullable
-  Content get(String path) throws IOException;
+Ext.define('NX.composer.view.repository.recipe.ComposerHosted', {
+  extend: 'NX.coreui.view.repository.RepositorySettingsForm',
+  alias: 'widget.nx-coreui-repository-composer-hosted',
+  requires: [
+    'NX.coreui.view.repository.facet.StorageFacet',
+    'NX.coreui.view.repository.facet.StorageFacetHosted'
+  ],
 
-  Content put(String path, Payload payload, AssetKind assetKind) throws IOException;
+  /**
+   * @override
+   */
+  initComponent: function () {
+    var me = this;
 
-  void setCacheInfo(String path, Content content, CacheInfo cacheInfo) throws IOException;
-}
+    me.items = [
+      {xtype: 'nx-coreui-repository-storage-facet'},
+      {xtype: 'nx-coreui-repository-storage-hosted-facet', writePolicy: 'ALLOW'}
+    ];
+
+    me.callParent();
+  }
+});

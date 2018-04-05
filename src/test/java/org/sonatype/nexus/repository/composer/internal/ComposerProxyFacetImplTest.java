@@ -208,7 +208,7 @@ public class ComposerProxyFacetImplTest
     when(composerContentFacet.put(PACKAGES_PATH, content, PACKAGES)).thenReturn(content);
 
     when(viewFacet.dispatch(any(Request.class), eq(context))).thenReturn(response);
-    when(composerJsonProcessor.generatePackagesJson(repository, payload)).thenReturn(content);
+    when(composerJsonProcessor.generatePackagesFromList(repository, payload)).thenReturn(content);
 
     assertThat(underTest.store(context, content), is(content));
 

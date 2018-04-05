@@ -14,16 +14,19 @@ package org.sonatype.nexus.repository.composer.internal;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.sonatype.nexus.repository.Repository;
+import org.sonatype.nexus.repository.storage.Component;
 import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.ContentTypes;
 import org.sonatype.nexus.repository.view.Payload;
@@ -31,8 +34,13 @@ import org.sonatype.nexus.repository.view.payloads.StringPayload;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.hash.Hashing;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import static com.google.common.base.Preconditions.checkState;
+import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.buildZipballPath;
 
 /**
  * Class encapsulating JSON processing for Composer-format repositories, including operations for parsing JSON indexes
@@ -43,6 +51,8 @@ import static com.google.common.base.Preconditions.checkState;
 public class ComposerJsonProcessor
 {
   private static final String REWRITE_URL = "%s/%s/%s/%s-%s.zip";
+
+  private static final String PACKAGE_JSON_PATH = "/p/%package%.json";
 
   private static final String VENDOR_AND_PROJECT = "%s/%s";
 
@@ -64,25 +74,51 @@ public class ComposerJsonProcessor
 
   private static final String URL_KEY = "url";
 
+  private static final String NAME_KEY = "name";
+
+  private static final String VERSION_KEY = "version";
+
+  private static final String TIME_KEY = "time";
+
+  private static final String UID_KEY = "uid";
+
   private static final String ZIP_TYPE = "zip";
 
   private static final ObjectMapper mapper = new ObjectMapper();
+
+  private static final DateTimeFormatter timeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZZ");
 
   /**
    * Generates a packages.json file (inclusive of all projects) based on the list.json provided as a payload. Expected
    * usage is to "go remote" on the current repository to fetch a list.json copy, then pass it to this method to build
    * the packages.json for the client to use.
    */
-  public Content generatePackagesJson(final Repository repository, final Payload payload) throws IOException {
+  public Content generatePackagesFromList(final Repository repository, final Payload payload) throws IOException {
     // TODO: Parse using JSON tokens rather than loading all this into memory, it "should" work but I'd be careful.
     Map<String, Object> listJson = parseJson(payload);
-    Collection<String> packageNames = (Collection<String>) listJson.get(PACKAGE_NAMES_KEY);
-    Map<String, Map<String, Object>> packages = packageNames.stream()
-        .collect(Collectors.toMap((each) -> each, (each) -> Collections.singletonMap(SHA256_KEY, null)));
+    return buildPackagesJson(repository, (Collection<String>) listJson.get(PACKAGE_NAMES_KEY));
+  }
 
+  /**
+   * Generates a packages.json file (inclusive of all projects) based on the components provided. Expected usage is
+   * for a hosted repository to be queried for its components, which are then provided to this method to build the
+   * packages.json for the client to use.
+   */
+  public Content generatePackagesFromComponents(final Repository repository, final Iterable<Component> components)
+      throws IOException
+  {
+    return buildPackagesJson(repository, StreamSupport.stream(components.spliterator(), false)
+        .map(component -> component.group() + "/" + component.name()).collect(Collectors.toList()));
+  }
+
+  /**
+   * Builds a packages.json file as a {@code Content} instance containing the actual JSON for the given providers.
+   */
+  private Content buildPackagesJson(final Repository repository, final Collection<String> names) throws IOException {
     Map<String, Object> packagesJson = new LinkedHashMap<>();
-    packagesJson.put(PROVIDERS_URL_KEY, repository.getUrl() + "/p/%package%.json");
-    packagesJson.put(PROVIDERS_KEY, packages);
+    packagesJson.put(PROVIDERS_URL_KEY, repository.getUrl() + PACKAGE_JSON_PATH);
+    packagesJson.put(PROVIDERS_KEY, names.stream()
+        .collect(Collectors.toMap((each) -> each, (each) -> Collections.singletonMap(SHA256_KEY, null))));
     return new Content(new StringPayload(mapper.writeValueAsString(packagesJson), ContentTypes.APPLICATION_JSON));
   }
 
@@ -113,6 +149,50 @@ public class ComposerJsonProcessor
       }
     }
     return new StringPayload(mapper.writeValueAsString(json), payload.getContentType());
+  }
+
+  /**
+   * Builds a provider JSON file for a list of components. This minimal subset will contain the packages entries with
+   * the name, version, and dist information for each component. A timestamp derived from the component's last updated
+   * field and a uid derived from the component group/name/version and last updated time is also included in the JSON.
+   */
+  public Content buildProviderJson(final Repository repository, final Iterable<Component> components) throws IOException {
+    Map<String, Map<String, Object>> packages = new LinkedHashMap<>();
+    for (Component component : components) {
+      String vendor = component.group();
+      String project = component.name();
+      String version = component.version();
+
+      String name = vendor + "/" + project;
+      String time = component.requireLastUpdated().withZone(DateTimeZone.UTC).toString(timeFormatter);
+
+      Map<String, Object> dist = new LinkedHashMap<>();
+      dist.put(URL_KEY, repository.getUrl() + "/" + buildZipballPath(vendor, project, version));
+      dist.put(TYPE_KEY, ZIP_TYPE);
+
+      Map<String, Object> pkg = new LinkedHashMap<>();
+      pkg.put(NAME_KEY, name);
+      pkg.put(VERSION_KEY, version);
+      pkg.put(DIST_KEY, dist);
+      pkg.put(TIME_KEY, time);
+      pkg.put(UID_KEY, Hashing.md5().newHasher()
+          .putString(vendor, StandardCharsets.UTF_8)
+          .putString(project, StandardCharsets.UTF_8)
+          .putString(version, StandardCharsets.UTF_8)
+          .putString(time, StandardCharsets.UTF_8)
+          .hash()
+          .asInt());
+
+      if (!packages.containsKey(name)) {
+        packages.put(name, new LinkedHashMap<>());
+      }
+
+      Map<String, Object> packagesForName = packages.get(name);
+      packagesForName.put(version, pkg);
+    }
+
+    return new Content(new StringPayload(mapper.writeValueAsString(Collections.singletonMap(PACKAGES_KEY, packages)),
+        ContentTypes.APPLICATION_JSON));
   }
 
   /**

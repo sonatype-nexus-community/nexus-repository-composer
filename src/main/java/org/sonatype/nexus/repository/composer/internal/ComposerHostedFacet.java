@@ -17,21 +17,22 @@ import java.io.IOException;
 import javax.annotation.Nullable;
 
 import org.sonatype.nexus.repository.Facet;
-import org.sonatype.nexus.repository.cache.CacheInfo;
 import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Payload;
 
 /**
- * Content facet used for getting assets from storage and putting assets into storage for a Composer-format repository.
+ * Interface defining the features supported by Composer repository hosted facets.
  */
 @Facet.Exposed
-public interface ComposerContentFacet
+public interface ComposerHostedFacet
     extends Facet
 {
+  void upload(String path, Payload payload) throws IOException;
+
+  Content getPackagesJson() throws IOException;
+
+  Content getProviderJson(String vendor, String project) throws IOException;
+
   @Nullable
-  Content get(String path) throws IOException;
-
-  Content put(String path, Payload payload, AssetKind assetKind) throws IOException;
-
-  void setCacheInfo(String path, Content content, CacheInfo cacheInfo) throws IOException;
+  Content getZipball(String path) throws IOException;
 }

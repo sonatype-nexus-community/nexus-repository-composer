@@ -19,14 +19,18 @@ import java.io.InputStreamReader;
 
 import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.repository.Repository;
+import org.sonatype.nexus.repository.storage.Component;
 import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Payload;
 
 import com.google.common.io.CharStreams;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.junit.Test;
 import org.mockito.Mock;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
@@ -41,6 +45,18 @@ public class ComposerJsonProcessorTest
   @Mock
   private Payload payload;
 
+  @Mock
+  private Component component1;
+
+  @Mock
+  private Component component2;
+
+  @Mock
+  private Component component3;
+
+  @Mock
+  private Component component4;
+
   @Test
   public void generatePackagesFromList() throws Exception {
     String listJson = readStreamToString(getClass().getResourceAsStream("generatePackagesFromList.list.json"));
@@ -50,9 +66,27 @@ public class ComposerJsonProcessorTest
     when(payload.openInputStream()).thenReturn(new ByteArrayInputStream(listJson.getBytes(UTF_8)));
 
     ComposerJsonProcessor underTest = new ComposerJsonProcessor();
-    Content output = underTest.generatePackagesJson(repository, payload);
+    Content output = underTest.generatePackagesFromList(repository, payload);
 
-    assertEquals(readStreamToString(output.openInputStream()), packagesJson, false);
+    assertEquals(packagesJson, readStreamToString(output.openInputStream()), true);
+  }
+
+  @Test
+  public void generatePackagesFromComponents() throws Exception {
+    String packagesJson = readStreamToString(getClass().getResourceAsStream("generatePackagesFromComponents.json"));
+
+    when(repository.getUrl()).thenReturn("http://nexus.repo/base/repo");
+
+    when(component1.group()).thenReturn("vendor1");
+    when(component1.name()).thenReturn("project1");
+
+    when(component2.group()).thenReturn("vendor2");
+    when(component2.name()).thenReturn("project2");
+
+    ComposerJsonProcessor underTest = new ComposerJsonProcessor();
+    Content output = underTest.generatePackagesFromComponents(repository, asList(component1, component2));
+
+    assertEquals(packagesJson, readStreamToString(output.openInputStream()), true);
   }
 
   @Test
@@ -66,7 +100,39 @@ public class ComposerJsonProcessorTest
     ComposerJsonProcessor underTest = new ComposerJsonProcessor();
     Payload output = underTest.rewriteProviderJson(repository, payload);
 
-    assertEquals(readStreamToString(output.openInputStream()), outputJson, false);
+    assertEquals(outputJson, readStreamToString(output.openInputStream()), true);
+  }
+
+  @Test
+  public void buildProviderJson() throws Exception {
+    String outputJson = readStreamToString(getClass().getResourceAsStream("buildProviderJson.json"));
+
+    when(repository.getUrl()).thenReturn("http://nexus.repo/base/repo");
+
+    when(component1.group()).thenReturn("vendor1");
+    when(component1.name()).thenReturn("project1");
+    when(component1.version()).thenReturn("1.0.0");
+    when(component1.requireLastUpdated()).thenReturn(new DateTime(392056200000L, DateTimeZone.forOffsetHours(-4)));
+
+    when(component2.group()).thenReturn("vendor1");
+    when(component2.name()).thenReturn("project1");
+    when(component2.version()).thenReturn("2.0.0");
+    when(component2.requireLastUpdated()).thenReturn(new DateTime(1210869000000L, DateTimeZone.forOffsetHours(-4)));
+
+    when(component3.group()).thenReturn("vendor2");
+    when(component3.name()).thenReturn("project2");
+    when(component3.version()).thenReturn("3.0.0");
+    when(component3.requireLastUpdated()).thenReturn(new DateTime(300558600000L, DateTimeZone.forOffsetHours(-4)));
+
+    when(component4.group()).thenReturn("vendor2");
+    when(component4.name()).thenReturn("project2");
+    when(component4.version()).thenReturn("4.0.0");
+    when(component4.requireLastUpdated()).thenReturn(new DateTime(1210869000000L, DateTimeZone.forOffsetHours(-4)));
+
+    ComposerJsonProcessor underTest = new ComposerJsonProcessor();
+    Content output = underTest.buildProviderJson(repository, asList(component1, component2, component3, component4));
+
+    assertEquals(outputJson, readStreamToString(output.openInputStream()), true);
   }
 
   @Test
