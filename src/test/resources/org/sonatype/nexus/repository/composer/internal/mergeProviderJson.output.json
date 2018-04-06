@@ -1,0 +1,60 @@
+{
+  "packages" : {
+    "vendor1/project1" : {
+      "1.0.0" : {
+        "name": "vendor1/project1",
+        "version": "1.0.0",
+        "dist" : {
+          "url" : "http://nexus.repo/base/repo/vendor1/project1/1.0.0/vendor1-project1-1.0.0.zip",
+          "type" : "zip"
+        },
+        "uid" : 2734715359,
+        "time" : "2008-05-15T16:30:00+00:00"
+      },
+      "2.0.0" : {
+        "name": "vendor1/project1",
+        "version": "2.0.0",
+        "dist" : {
+          "url" : "http://nexus.repo/base/repo/vendor1/project1/2.0.0/vendor1-project1-2.0.0.zip",
+          "type" : "zip"
+        },
+        "uid" : 4088247242,
+        "time" : "2008-05-15T16:30:00+00:00"
+      }
+    },
+    "vendor2/project2" : {
+      "3.0.0" : {
+        "name": "vendor2/project2",
+        "version": "3.0.0",
+        "dist" : {
+          "url" : "http://nexus.repo/base/repo/vendor2/project2/3.0.0/vendor2-project2-3.0.0.zip",
+          "type" : "zip"
+        },
+        "uid" : 592576497,
+        "time" : "2008-05-15T16:30:00+00:00"
+      },
+      "4.0.0" : {
+        "name": "vendor2/project2",
+        "version": "4.0.0",
+        "dist" : {
+          "url" : "http://nexus.repo/base/repo/vendor2/project2/4.0.0/vendor2-project2-4.0.0.zip",
+          "type" : "zip"
+        },
+        "uid" : 1702476377,
+        "time" : "2008-05-15T16:30:00+00:00"
+      }
+    },
+    "vendor3/project3" : {
+      "2.0.0": {
+        "name": "vendor3/project3",
+        "version": "2.0.0",
+        "dist": {
+          "url": "http://nexus.repo/base/repo/vendor3/project3/2.0.0/vendor3-project3-2.0.0.zip",
+          "type": "zip"
+        },
+        "uid": 384657117,
+        "time": "2008-05-15T16:30:00+00:00"
+      }
+    }
+  }
+}

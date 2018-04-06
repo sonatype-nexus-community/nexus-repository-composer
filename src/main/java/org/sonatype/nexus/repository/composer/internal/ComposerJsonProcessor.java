@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -37,6 +38,7 @@ import org.sonatype.nexus.repository.view.payloads.StringPayload;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.hash.Hashing;
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -205,6 +207,68 @@ public class ComposerJsonProcessor
 
       Map<String, Object> packagesForName = packages.get(name);
       packagesForName.put(version, pkg);
+    }
+
+    return new Content(new StringPayload(mapper.writeValueAsString(Collections.singletonMap(PACKAGES_KEY, packages)),
+        ContentTypes.APPLICATION_JSON));
+  }
+
+  /**
+   * Parses an incoming provider JSON file, extracting only the minimal parts we need for operations such as group
+   * merge.
+   */
+  public Content mergeProviderJson(final Repository repository, final List<Payload> payloads, final DateTime now)
+      throws IOException
+  {
+    String time = now.withZone(DateTimeZone.UTC).toString(timeFormatter);
+
+    // TODO: Make this more robust, right now it makes a lot of assumptions and doesn't deal with bad things well,
+    // can probably consolidate this with the handling for rewrites for proxy (or at least make it more rational).
+    Map<String, Map<String, Object>> packages = new LinkedHashMap<>();
+    for (Payload payload : payloads) {
+      Map<String, Object> json = parseJson(payload);
+      if (json.get(PACKAGES_KEY) instanceof Map) {
+
+        Map<String, Object> packagesMap = (Map<String, Object>) json.get(PACKAGES_KEY);
+        for (String packageName : packagesMap.keySet()) {
+
+          Map<String, Object> packageVersions = (Map<String, Object>) packagesMap.get(packageName);
+          for (String packageVersion : packageVersions.keySet()) {
+
+            Map<String, Object> versionInfo = (Map<String, Object>) packageVersions.get(packageVersion);
+            Map<String, Object> distInfo = (Map<String, Object>) versionInfo.get(DIST_KEY);
+            if (distInfo == null) {
+              continue;
+            }
+
+            Map<String, Object> newDistInfo = new LinkedHashMap<>();
+            newDistInfo.put(URL_KEY, String
+                .format(REWRITE_URL, repository.getUrl(), packageName, packageVersion, packageName.replace('/', '-'),
+                    packageVersion));
+            newDistInfo.put(TYPE_KEY, distInfo.get(TYPE_KEY));
+
+            Map<String, Object> newPackageInfo = new LinkedHashMap<>();
+            newPackageInfo.put(NAME_KEY, versionInfo.get(NAME_KEY));
+            newPackageInfo.put(VERSION_KEY, versionInfo.get(VERSION_KEY));
+            newPackageInfo.put(DIST_KEY, newDistInfo);
+            newPackageInfo.put(TIME_KEY, time);
+            newPackageInfo.put(UID_KEY, Integer.toUnsignedLong(
+                Hashing.md5().newHasher()
+                    .putString(packageName, StandardCharsets.UTF_8)
+                    .putString(packageVersion, StandardCharsets.UTF_8)
+                    .putString(time, StandardCharsets.UTF_8)
+                    .hash()
+                    .asInt()));
+
+            if (!packages.containsKey(packageName)) {
+              packages.put(packageName, new LinkedHashMap<>());
+            }
+
+            Map<String, Object> packagesForName = packages.get(packageName);
+            packagesForName.put(packageVersion, newPackageInfo);
+          }
+        }
+      }
     }
 
     return new Content(new StringPayload(mapper.writeValueAsString(Collections.singletonMap(PACKAGES_KEY, packages)),

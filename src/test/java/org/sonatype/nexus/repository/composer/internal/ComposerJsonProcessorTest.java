@@ -45,7 +45,10 @@ public class ComposerJsonProcessorTest
   private Repository repository;
 
   @Mock
-  private Payload payload;
+  private Payload payload1;
+
+  @Mock
+  private Payload payload2;
 
   @Mock
   private Component component1;
@@ -65,10 +68,10 @@ public class ComposerJsonProcessorTest
     String packagesJson = readStreamToString(getClass().getResourceAsStream("generatePackagesFromList.packages.json"));
 
     when(repository.getUrl()).thenReturn("http://nexus.repo/base/repo");
-    when(payload.openInputStream()).thenReturn(new ByteArrayInputStream(listJson.getBytes(UTF_8)));
+    when(payload1.openInputStream()).thenReturn(new ByteArrayInputStream(listJson.getBytes(UTF_8)));
 
     ComposerJsonProcessor underTest = new ComposerJsonProcessor();
-    Content output = underTest.generatePackagesFromList(repository, payload);
+    Content output = underTest.generatePackagesFromList(repository, payload1);
 
     assertEquals(packagesJson, readStreamToString(output.openInputStream()), true);
   }
@@ -109,10 +112,28 @@ public class ComposerJsonProcessorTest
     String outputJson = readStreamToString(getClass().getResourceAsStream("rewriteProviderJson.output.json"));
 
     when(repository.getUrl()).thenReturn("http://nexus.repo/base/repo");
-    when(payload.openInputStream()).thenReturn(new ByteArrayInputStream(inputJson.getBytes(UTF_8)));
+    when(payload1.openInputStream()).thenReturn(new ByteArrayInputStream(inputJson.getBytes(UTF_8)));
 
     ComposerJsonProcessor underTest = new ComposerJsonProcessor();
-    Payload output = underTest.rewriteProviderJson(repository, payload);
+    Payload output = underTest.rewriteProviderJson(repository, payload1);
+
+    assertEquals(outputJson, readStreamToString(output.openInputStream()), true);
+  }
+
+  @Test
+  public void mergeProviderJson() throws Exception {
+    DateTime time = new DateTime(1210869000000L, DateTimeZone.forOffsetHours(-4));
+
+    String inputJson1 = readStreamToString(getClass().getResourceAsStream("mergeProviderJson.input1.json"));
+    String inputJson2 = readStreamToString(getClass().getResourceAsStream("mergeProviderJson.input2.json"));
+    String outputJson = readStreamToString(getClass().getResourceAsStream("mergeProviderJson.output.json"));
+
+    when(repository.getUrl()).thenReturn("http://nexus.repo/base/repo");
+    when(payload1.openInputStream()).thenReturn(new ByteArrayInputStream(inputJson1.getBytes(UTF_8)));
+    when(payload2.openInputStream()).thenReturn(new ByteArrayInputStream(inputJson2.getBytes(UTF_8)));
+
+    ComposerJsonProcessor underTest = new ComposerJsonProcessor();
+    Payload output = underTest.mergeProviderJson(repository, Arrays.asList(payload1, payload2), time);
 
     assertEquals(outputJson, readStreamToString(output.openInputStream()), true);
   }
@@ -152,10 +173,10 @@ public class ComposerJsonProcessorTest
   @Test
   public void getDistUrl() throws Exception {
     String inputJson = readStreamToString(getClass().getResourceAsStream("getDistUrl.json"));
-    when(payload.openInputStream()).thenReturn(new ByteArrayInputStream(inputJson.getBytes(UTF_8)));
+    when(payload1.openInputStream()).thenReturn(new ByteArrayInputStream(inputJson.getBytes(UTF_8)));
 
     ComposerJsonProcessor underTest = new ComposerJsonProcessor();
-    String distUrl = underTest.getDistUrl("vendor1", "project1", "2.0.0", payload);
+    String distUrl = underTest.getDistUrl("vendor1", "project1", "2.0.0", payload1);
 
     assertThat(distUrl, is("https://git.example.com/zipball/418e708b379598333d0a48954c0fa210437795be"));
   }
@@ -163,10 +184,10 @@ public class ComposerJsonProcessorTest
   @Test
   public void parsePackagesJson() throws Exception {
     String packagesJson = readStreamToString(getClass().getResourceAsStream("parsePackagesJson.json"));
-    when(payload.openInputStream()).thenReturn(new ByteArrayInputStream(packagesJson.getBytes(UTF_8)));
+    when(payload1.openInputStream()).thenReturn(new ByteArrayInputStream(packagesJson.getBytes(UTF_8)));
 
     ComposerJsonProcessor underTest = new ComposerJsonProcessor();
-    Map<String, String> packages = underTest.parsePackagesJson(payload);
+    Map<String, String> packages = underTest.parsePackagesJson(payload1);
 
     assertThat(packages.size(), is(3));
     assertThat(packages.get("vendor1/project1"), is("sha1"));
