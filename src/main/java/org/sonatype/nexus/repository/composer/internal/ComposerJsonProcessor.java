@@ -214,8 +214,8 @@ public class ComposerJsonProcessor
   }
 
   /**
-   * Parses an incoming provider JSON file, extracting only the minimal parts we need for operations such as group
-   * merge.
+   * Merges incoming provider JSON files, producing a merged file containing only the minimal subset of fields that we
+   * need to download artifacts.
    */
   public Content mergeProviderJson(final Repository repository, final List<Payload> payloads, final DateTime now)
       throws IOException
