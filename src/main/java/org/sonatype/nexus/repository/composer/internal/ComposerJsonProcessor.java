@@ -130,7 +130,7 @@ public class ComposerJsonProcessor
   /**
    * Builds a packages.json file as a {@code Content} instance containing the actual JSON for the given providers.
    */
-  private Content buildPackagesJson(final Repository repository, final Collection<String> names) throws IOException {
+  public Content buildPackagesJson(final Repository repository, final Collection<String> names) throws IOException {
     Map<String, Object> packagesJson = new LinkedHashMap<>();
     packagesJson.put(PROVIDERS_URL_KEY, repository.getUrl() + PACKAGE_JSON_PATH);
     packagesJson.put(PROVIDERS_KEY, names.stream()

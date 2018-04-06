@@ -16,6 +16,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.Map;
 
 import org.sonatype.goodies.testsupport.TestSupport;
@@ -86,6 +87,18 @@ public class ComposerJsonProcessorTest
 
     ComposerJsonProcessor underTest = new ComposerJsonProcessor();
     Content output = underTest.generatePackagesFromComponents(repository, asList(component1, component2));
+
+    assertEquals(packagesJson, readStreamToString(output.openInputStream()), true);
+  }
+
+  @Test
+  public void buildPackagesJson() throws Exception {
+    String packagesJson = readStreamToString(getClass().getResourceAsStream("buildPackagesJson.json"));
+    when(repository.getUrl()).thenReturn("http://nexus.repo/base/repo");
+
+    ComposerJsonProcessor underTest = new ComposerJsonProcessor();
+    Content output = underTest.buildPackagesJson(repository, Arrays
+        .asList("vendor1/project1", "vendor2/project2", "vendor3/project3"));
 
     assertEquals(packagesJson, readStreamToString(output.openInputStream()), true);
   }
