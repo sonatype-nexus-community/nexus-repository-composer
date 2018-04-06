@@ -16,6 +16,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Map;
 
 import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.repository.Repository;
@@ -144,6 +145,20 @@ public class ComposerJsonProcessorTest
     String distUrl = underTest.getDistUrl("vendor1", "project1", "2.0.0", payload);
 
     assertThat(distUrl, is("https://git.example.com/zipball/418e708b379598333d0a48954c0fa210437795be"));
+  }
+
+  @Test
+  public void parsePackagesJson() throws Exception {
+    String packagesJson = readStreamToString(getClass().getResourceAsStream("parsePackagesJson.json"));
+    when(payload.openInputStream()).thenReturn(new ByteArrayInputStream(packagesJson.getBytes(UTF_8)));
+
+    ComposerJsonProcessor underTest = new ComposerJsonProcessor();
+    Map<String, String> packages = underTest.parsePackagesJson(payload);
+
+    assertThat(packages.size(), is(3));
+    assertThat(packages.get("vendor1/project1"), is("sha1"));
+    assertThat(packages.get("vendor2/project2"), is("sha2"));
+    assertThat(packages.get("vendor3/project3"), is("sha3"));
   }
 
   private String readStreamToString(final InputStream in) throws IOException {

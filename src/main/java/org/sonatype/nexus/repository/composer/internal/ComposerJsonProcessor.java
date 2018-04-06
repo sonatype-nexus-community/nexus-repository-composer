@@ -17,8 +17,10 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -109,6 +111,20 @@ public class ComposerJsonProcessor
   {
     return buildPackagesJson(repository, StreamSupport.stream(components.spliterator(), false)
         .map(component -> component.group() + "/" + component.name()).collect(Collectors.toList()));
+  }
+
+  /**
+   * Parses the packages.json file, returning a collection of all the provider names and their sha256 hashes.
+   */
+  public Map<String, String> parsePackagesJson(final Payload payload) throws IOException {
+    Map<String, Object> json = parseJson(payload);
+    Map<String, Object> providers = (Map<String, Object>) json.get(PROVIDERS_KEY);
+    Map<String, String> results = new HashMap<>();
+    for (Entry<String, Object> entry : providers.entrySet()) {
+      Map<String, Object> value = (Map<String, Object>) entry.getValue();
+      results.put(entry.getKey(), (String) value.get(SHA256_KEY));
+    }
+    return results;
   }
 
   /**
