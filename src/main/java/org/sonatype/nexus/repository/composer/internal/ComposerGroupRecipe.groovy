@@ -26,10 +26,8 @@ import org.sonatype.nexus.repository.group.GroupHandler
 import org.sonatype.nexus.repository.http.HttpHandlers
 import org.sonatype.nexus.repository.types.GroupType
 import org.sonatype.nexus.repository.view.ConfigurableViewFacet
-import org.sonatype.nexus.repository.view.Route
 import org.sonatype.nexus.repository.view.Router
 import org.sonatype.nexus.repository.view.ViewFacet
-import org.sonatype.nexus.repository.view.handlers.BrowseUnsupportedHandler
 
 /**
  * Recipe for creating a Composer group repository.
@@ -46,6 +44,9 @@ class ComposerGroupRecipe
 
   @Inject
   GroupHandler standardGroupHandler
+
+  @Inject
+  ComposerGroupPackagesJsonHandler packagesJsonHandler
 
   @Inject
   ComposerGroupRecipe(@Named(GroupType.NAME) final Type type, @Named(ComposerFormat.NAME) final Format format) {
@@ -73,7 +74,7 @@ class ComposerGroupRecipe
         .handler(securityHandler)
         .handler(exceptionHandler)
         .handler(handlerContributor)
-        .handler(standardGroupHandler)
+        .handler(packagesJsonHandler)
         .create())
 
     builder.route(providerMatcher()
