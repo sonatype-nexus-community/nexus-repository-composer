@@ -193,13 +193,14 @@ public class ComposerJsonProcessor
       pkg.put(VERSION_KEY, version);
       pkg.put(DIST_KEY, dist);
       pkg.put(TIME_KEY, time);
-      pkg.put(UID_KEY, Hashing.md5().newHasher()
-          .putString(vendor, StandardCharsets.UTF_8)
-          .putString(project, StandardCharsets.UTF_8)
-          .putString(version, StandardCharsets.UTF_8)
-          .putString(time, StandardCharsets.UTF_8)
-          .hash()
-          .asInt());
+      pkg.put(UID_KEY, Integer.toUnsignedLong(
+          Hashing.md5().newHasher()
+              .putString(vendor, StandardCharsets.UTF_8)
+              .putString(project, StandardCharsets.UTF_8)
+              .putString(version, StandardCharsets.UTF_8)
+              .putString(time, StandardCharsets.UTF_8)
+              .hash()
+              .asInt()));
 
       if (!packages.containsKey(name)) {
         packages.put(name, new LinkedHashMap<>());
