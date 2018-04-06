@@ -17,11 +17,11 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -116,23 +116,9 @@ public class ComposerJsonProcessor
   }
 
   /**
-   * Parses the packages.json file, returning a collection of all the provider names and their sha256 hashes.
-   */
-  public Map<String, String> parsePackagesJson(final Payload payload) throws IOException {
-    Map<String, Object> json = parseJson(payload);
-    Map<String, Object> providers = (Map<String, Object>) json.get(PROVIDERS_KEY);
-    Map<String, String> results = new HashMap<>();
-    for (Entry<String, Object> entry : providers.entrySet()) {
-      Map<String, Object> value = (Map<String, Object>) entry.getValue();
-      results.put(entry.getKey(), (String) value.get(SHA256_KEY));
-    }
-    return results;
-  }
-
-  /**
    * Builds a packages.json file as a {@code Content} instance containing the actual JSON for the given providers.
    */
-  public Content buildPackagesJson(final Repository repository, final Collection<String> names) throws IOException {
+  private Content buildPackagesJson(final Repository repository, final Collection<String> names) throws IOException {
     Map<String, Object> packagesJson = new LinkedHashMap<>();
     packagesJson.put(PROVIDERS_URL_KEY, repository.getUrl() + PACKAGE_JSON_PATH);
     packagesJson.put(PROVIDERS_KEY, names.stream()
@@ -212,6 +198,19 @@ public class ComposerJsonProcessor
 
     return new Content(new StringPayload(mapper.writeValueAsString(Collections.singletonMap(PACKAGES_KEY, packages)),
         ContentTypes.APPLICATION_JSON));
+  }
+
+  /**
+   * Merges an incoming set of packages.json files.
+   */
+  public Content mergePackagesJson(final Repository repository, final List<Payload> payloads) throws IOException {
+    Set<String> names = new HashSet<>();
+    for (Payload payload : payloads) {
+      Map<String, Object> json = parseJson(payload);
+      Map<String, Object> providers = (Map<String, Object>) json.get(PROVIDERS_KEY);
+      names.addAll(providers.keySet());
+    }
+    return buildPackagesJson(repository, names);
   }
 
   /**

@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
-import java.util.Map;
 
 import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.repository.Repository;
@@ -95,18 +94,6 @@ public class ComposerJsonProcessorTest
   }
 
   @Test
-  public void buildPackagesJson() throws Exception {
-    String packagesJson = readStreamToString(getClass().getResourceAsStream("buildPackagesJson.json"));
-    when(repository.getUrl()).thenReturn("http://nexus.repo/base/repo");
-
-    ComposerJsonProcessor underTest = new ComposerJsonProcessor();
-    Content output = underTest.buildPackagesJson(repository, Arrays
-        .asList("vendor1/project1", "vendor2/project2", "vendor3/project3"));
-
-    assertEquals(packagesJson, readStreamToString(output.openInputStream()), true);
-  }
-
-  @Test
   public void rewriteProviderJson() throws Exception {
     String inputJson = readStreamToString(getClass().getResourceAsStream("rewriteProviderJson.input.json"));
     String outputJson = readStreamToString(getClass().getResourceAsStream("rewriteProviderJson.output.json"));
@@ -171,6 +158,22 @@ public class ComposerJsonProcessorTest
   }
 
   @Test
+  public void mergePackagesJson() throws Exception {
+    String inputJson1 = readStreamToString(getClass().getResourceAsStream("mergePackagesJson.input1.json"));
+    String inputJson2 = readStreamToString(getClass().getResourceAsStream("mergePackagesJson.input2.json"));
+    String outputJson = readStreamToString(getClass().getResourceAsStream("mergePackagesJson.output.json"));
+
+    when(repository.getUrl()).thenReturn("http://nexus.repo/base/repo");
+    when(payload1.openInputStream()).thenReturn(new ByteArrayInputStream(inputJson1.getBytes(UTF_8)));
+    when(payload2.openInputStream()).thenReturn(new ByteArrayInputStream(inputJson2.getBytes(UTF_8)));
+
+    ComposerJsonProcessor underTest = new ComposerJsonProcessor();
+    Payload output = underTest.mergePackagesJson(repository, Arrays.asList(payload1, payload2));
+
+    assertEquals(outputJson, readStreamToString(output.openInputStream()), true);
+  }
+
+  @Test
   public void getDistUrl() throws Exception {
     String inputJson = readStreamToString(getClass().getResourceAsStream("getDistUrl.json"));
     when(payload1.openInputStream()).thenReturn(new ByteArrayInputStream(inputJson.getBytes(UTF_8)));
@@ -179,20 +182,6 @@ public class ComposerJsonProcessorTest
     String distUrl = underTest.getDistUrl("vendor1", "project1", "2.0.0", payload1);
 
     assertThat(distUrl, is("https://git.example.com/zipball/418e708b379598333d0a48954c0fa210437795be"));
-  }
-
-  @Test
-  public void parsePackagesJson() throws Exception {
-    String packagesJson = readStreamToString(getClass().getResourceAsStream("parsePackagesJson.json"));
-    when(payload1.openInputStream()).thenReturn(new ByteArrayInputStream(packagesJson.getBytes(UTF_8)));
-
-    ComposerJsonProcessor underTest = new ComposerJsonProcessor();
-    Map<String, String> packages = underTest.parsePackagesJson(payload1);
-
-    assertThat(packages.size(), is(3));
-    assertThat(packages.get("vendor1/project1"), is("sha1"));
-    assertThat(packages.get("vendor2/project2"), is("sha2"));
-    assertThat(packages.get("vendor3/project3"), is("sha3"));
   }
 
   private String readStreamToString(final InputStream in) throws IOException {

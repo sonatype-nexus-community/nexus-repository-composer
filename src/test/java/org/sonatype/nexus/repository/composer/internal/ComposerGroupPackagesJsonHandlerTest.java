@@ -12,8 +12,6 @@
  */
 package org.sonatype.nexus.repository.composer.internal;
 
-import java.util.Collection;
-
 import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.repository.Repository;
@@ -30,15 +28,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonMap;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonatype.nexus.repository.http.HttpMethods.GET;
@@ -131,11 +126,6 @@ public class ComposerGroupPackagesJsonHandlerTest
     when(status1.getCode()).thenReturn(OK);
     when(status2.getCode()).thenReturn(OK);
 
-    when(composerJsonProcessor.parsePackagesJson(payload1)).thenReturn(singletonMap("vendor1/project1", null));
-    when(composerJsonProcessor.parsePackagesJson(payload2)).thenReturn(singletonMap("vendor2/project2", null));
-
-    when(composerJsonProcessor.buildPackagesJson(eq(repository), any(Collection.class))).thenReturn(content);
-
     underTest = new ComposerGroupPackagesJsonHandler(composerJsonProcessor);
   }
 
@@ -146,23 +136,7 @@ public class ComposerGroupPackagesJsonHandlerTest
     assertThat(result.getStatus(), is(notNullValue()));
     assertThat(result.getStatus().getCode(), is(OK));
 
-    verify(composerJsonProcessor).parsePackagesJson(payload1);
-    verify(composerJsonProcessor).parsePackagesJson(payload2);
-    verify(composerJsonProcessor).buildPackagesJson(repository, newHashSet("vendor1/project1", "vendor2/project2"));
-  }
-
-  @Test
-  public void mergeContentsWithoutDuplicates() throws Exception {
-    when(composerJsonProcessor.parsePackagesJson(payload2)).thenReturn(singletonMap("vendor1/project1", null));
-
-    Response result = underTest.handle(context);
-
-    assertThat(result.getStatus(), is(notNullValue()));
-    assertThat(result.getStatus().getCode(), is(OK));
-
-    verify(composerJsonProcessor).parsePackagesJson(payload1);
-    verify(composerJsonProcessor).parsePackagesJson(payload2);
-    verify(composerJsonProcessor).buildPackagesJson(repository, newHashSet("vendor1/project1"));
+    verify(composerJsonProcessor).mergePackagesJson(eq(repository), eq(asList(payload1, payload2)));
   }
 
   @Test
@@ -174,9 +148,7 @@ public class ComposerGroupPackagesJsonHandlerTest
     assertThat(result.getStatus(), is(notNullValue()));
     assertThat(result.getStatus().getCode(), is(OK));
 
-    verify(composerJsonProcessor, never()).parsePackagesJson(payload1);
-    verify(composerJsonProcessor).parsePackagesJson(payload2);
-    verify(composerJsonProcessor).buildPackagesJson(repository, newHashSet("vendor2/project2"));
+    verify(composerJsonProcessor).mergePackagesJson(eq(repository), eq(singletonList(payload2)));
   }
 
   @Test
@@ -188,8 +160,6 @@ public class ComposerGroupPackagesJsonHandlerTest
     assertThat(result.getStatus(), is(notNullValue()));
     assertThat(result.getStatus().getCode(), is(OK));
 
-    verify(composerJsonProcessor, never()).parsePackagesJson(null);
-    verify(composerJsonProcessor).parsePackagesJson(payload2);
-    verify(composerJsonProcessor).buildPackagesJson(repository, newHashSet("vendor2/project2"));
+    verify(composerJsonProcessor).mergePackagesJson(eq(repository), eq(singletonList(payload2)));
   }
 }

@@ -12,12 +12,8 @@
  */
 package org.sonatype.nexus.repository.composer.internal;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -31,6 +27,7 @@ import org.sonatype.nexus.repository.group.GroupHandler;
 import org.sonatype.nexus.repository.http.HttpResponses;
 import org.sonatype.nexus.repository.http.HttpStatus;
 import org.sonatype.nexus.repository.view.Context;
+import org.sonatype.nexus.repository.view.Payload;
 import org.sonatype.nexus.repository.view.Response;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -64,23 +61,7 @@ public class ComposerGroupPackagesJsonHandler
     if (successfulResponses.isEmpty()) {
       return notFoundResponse(context);
     }
-
-    List<Map<String, String>> parts = successfulResponses.stream().map(this::parseResponse)
-        .collect(Collectors.toList());
-    Set<String> names = new HashSet<>();
-    for (Map<String, String> part : parts) {
-      names.addAll(part.keySet());
-    }
-
-    return HttpResponses.ok(composerJsonProcessor.buildPackagesJson(repository, names));
-  }
-
-  protected Map<String, String> parseResponse(@Nonnull final Response response) {
-    try {
-      return composerJsonProcessor.parsePackagesJson(checkNotNull(response.getPayload()));
-    }
-    catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
+    List<Payload> payloads = successfulResponses.stream().map(Response::getPayload).collect(Collectors.toList());
+    return HttpResponses.ok(composerJsonProcessor.mergePackagesJson(repository, payloads));
   }
 }
