@@ -18,7 +18,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -96,7 +98,7 @@ public class ComposerJsonProcessor
   public Content generatePackagesFromList(final Repository repository, final Payload payload) throws IOException {
     // TODO: Parse using JSON tokens rather than loading all this into memory, it "should" work but I'd be careful.
     Map<String, Object> listJson = parseJson(payload);
-    return buildPackagesJson(repository, (Collection<String>) listJson.get(PACKAGE_NAMES_KEY));
+    return buildPackagesJson(repository, new LinkedHashSet<>((Collection<String>) listJson.get(PACKAGE_NAMES_KEY)));
   }
 
   /**
@@ -108,13 +110,13 @@ public class ComposerJsonProcessor
       throws IOException
   {
     return buildPackagesJson(repository, StreamSupport.stream(components.spliterator(), false)
-        .map(component -> component.group() + "/" + component.name()).collect(Collectors.toList()));
+        .map(component -> component.group() + "/" + component.name()).collect(Collectors.toSet()));
   }
 
   /**
    * Builds a packages.json file as a {@code Content} instance containing the actual JSON for the given providers.
    */
-  private Content buildPackagesJson(final Repository repository, final Collection<String> names) throws IOException {
+  private Content buildPackagesJson(final Repository repository, final Set<String> names) throws IOException {
     Map<String, Object> packagesJson = new LinkedHashMap<>();
     packagesJson.put(PROVIDERS_URL_KEY, repository.getUrl() + PACKAGE_JSON_PATH);
     packagesJson.put(PROVIDERS_KEY, names.stream()
