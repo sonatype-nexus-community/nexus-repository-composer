@@ -79,12 +79,18 @@ public class ComposerJsonProcessorTest
 
     when(component1.group()).thenReturn("vendor1");
     when(component1.name()).thenReturn("project1");
+    when(component1.version()).thenReturn("version1");
 
     when(component2.group()).thenReturn("vendor2");
     when(component2.name()).thenReturn("project2");
+    when(component2.version()).thenReturn("version2");
+
+    when(component3.group()).thenReturn("vendor1");
+    when(component3.name()).thenReturn("project1");
+    when(component3.version()).thenReturn("version2");
 
     ComposerJsonProcessor underTest = new ComposerJsonProcessor();
-    Content output = underTest.generatePackagesFromComponents(repository, asList(component1, component2));
+    Content output = underTest.generatePackagesFromComponents(repository, asList(component1, component2, component3));
 
     assertEquals(packagesJson, readStreamToString(output.openInputStream()), true);
   }
