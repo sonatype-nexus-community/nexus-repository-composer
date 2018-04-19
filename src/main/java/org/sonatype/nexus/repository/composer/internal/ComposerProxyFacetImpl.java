@@ -33,6 +33,7 @@ import org.sonatype.nexus.repository.view.Response;
 import org.sonatype.nexus.repository.view.ViewFacet;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -59,6 +60,18 @@ public class ComposerProxyFacetImpl
   @Inject
   public ComposerProxyFacetImpl(final ComposerJsonProcessor composerJsonProcessor) {
     this.composerJsonProcessor = checkNotNull(composerJsonProcessor);
+  }
+
+  @Nullable
+  @Override
+  protected Content fetch(Context context, Content stale) throws IOException {
+    try {
+      return super.fetch(context, stale);
+    }
+    catch (NonResolvableProviderJsonException e) {
+      log.debug("Composer provider URL not resolvable: {}", e.getMessage());
+      return null;
+    }
   }
 
   // HACK: Workaround for known CGLIB issue, forces an Import-Package for org.sonatype.nexus.repository.config
@@ -171,8 +184,14 @@ public class ComposerProxyFacetImpl
       Request request = new Request.Builder().action(GET).path("/" + buildProviderPath(vendor, project))
           .attribute(ComposerProviderHandler.DO_NOT_REWRITE, "true").build();
       Response response = getRepository().facet(ViewFacet.class).dispatch(request, context);
-      Payload payload = checkNotNull(response.getPayload());
-      return composerJsonProcessor.getDistUrl(vendor, project, version, payload);
+      Payload payload = response.getPayload();
+      if (payload == null) {
+        throw new NonResolvableProviderJsonException(
+            String.format("No provider found for vendor %s, project %s, version %s", vendor, project, version));
+      }
+      else {
+        return composerJsonProcessor.getDistUrl(vendor, project, version, payload);
+      }
     }
     catch (IOException e) {
       throw new UncheckedIOException(e);
@@ -185,5 +204,14 @@ public class ComposerProxyFacetImpl
 
   private ComposerContentFacet content() {
     return getRepository().facet(ComposerContentFacet.class);
+  }
+
+  @VisibleForTesting
+  static class NonResolvableProviderJsonException
+      extends RuntimeException
+  {
+    public NonResolvableProviderJsonException(final String message) {
+      super(message);
+    }
   }
 }
