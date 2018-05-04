@@ -53,7 +53,7 @@ public final class ComposerPathUtils
   }
 
   /**
-   * Returns the version token from a path in a context. The project token must be present or the operation will fail.
+   * Returns the version token from a path in a context. The version token must be present or the operation will fail.
    */
   public static String getVersionToken(final Context context) {
     TokenMatcher.State state = context.getAttributes().require(TokenMatcher.State.class);
