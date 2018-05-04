@@ -33,6 +33,8 @@ public interface ComposerHostedFacet
 
   Content getProviderJson(String vendor, String project) throws IOException;
 
+  void rebuildProviderJson(String vendor, String project) throws IOException;
+
   @Nullable
   Content getZipball(String path) throws IOException;
 }

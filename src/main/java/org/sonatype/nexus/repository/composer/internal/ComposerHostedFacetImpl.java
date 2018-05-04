@@ -20,6 +20,7 @@ import javax.inject.Named;
 import org.sonatype.nexus.repository.FacetSupport;
 import org.sonatype.nexus.repository.storage.Query;
 import org.sonatype.nexus.repository.storage.StorageTx;
+import org.sonatype.nexus.repository.transaction.TransactionalStoreBlob;
 import org.sonatype.nexus.repository.transaction.TransactionalTouchMetadata;
 import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Payload;
@@ -48,6 +49,7 @@ public class ComposerHostedFacetImpl
   }
 
   @Override
+  @TransactionalStoreBlob
   public void upload(final String vendor, final String project, final String version, final Payload payload)
       throws IOException
   {
@@ -70,9 +72,16 @@ public class ComposerHostedFacetImpl
   @Override
   @TransactionalTouchMetadata
   public Content getProviderJson(final String vendor, final String project) throws IOException {
+    return content().get(ComposerPathUtils.buildProviderPath(vendor, project));
+  }
+
+  @Override
+  @TransactionalStoreBlob
+  public void rebuildProviderJson(final String vendor, final String project) throws IOException {
     StorageTx tx = UnitOfWork.currentTx();
-    return composerJsonProcessor.buildProviderJson(getRepository(), tx,
+    Content content = composerJsonProcessor.buildProviderJson(getRepository(), tx,
         tx.findComponents(buildQuery(vendor, project), singletonList(getRepository())));
+    content().put(ComposerPathUtils.buildProviderPath(vendor, project), content, AssetKind.PROVIDER);
   }
 
   @VisibleForTesting
