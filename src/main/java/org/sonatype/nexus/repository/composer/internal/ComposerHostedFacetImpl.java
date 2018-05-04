@@ -69,7 +69,7 @@ public class ComposerHostedFacetImpl
   @TransactionalTouchMetadata
   public Content getProviderJson(final String vendor, final String project) throws IOException {
     StorageTx tx = UnitOfWork.currentTx();
-    return composerJsonProcessor.buildProviderJson(getRepository(),
+    return composerJsonProcessor.buildProviderJson(getRepository(), tx,
         tx.findComponents(buildQuery(vendor, project), singletonList(getRepository())));
   }
 

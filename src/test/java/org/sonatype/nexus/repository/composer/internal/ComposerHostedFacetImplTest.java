@@ -114,7 +114,7 @@ public class ComposerHostedFacetImplTest
   public void testGetProviderJson() throws Exception {
     when(underTest.buildQuery(VENDOR, PROJECT)).thenReturn(query);
     when(tx.findComponents(eq(query), eq(singletonList(repository)))).thenReturn(components);
-    when(composerJsonProcessor.buildProviderJson(repository, components)).thenReturn(content);
+    when(composerJsonProcessor.buildProviderJson(repository, tx, components)).thenReturn(content);
     assertThat(underTest.getProviderJson(VENDOR, PROJECT), is(content));
   }
 
