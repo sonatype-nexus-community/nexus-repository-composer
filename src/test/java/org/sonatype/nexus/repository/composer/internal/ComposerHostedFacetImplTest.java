@@ -40,11 +40,13 @@ import static org.sonatype.nexus.repository.composer.internal.AssetKind.ZIPBALL;
 public class ComposerHostedFacetImplTest
     extends TestSupport
 {
-  private static final String VENDOR = "test-vendor";
+  private static final String VENDOR = "vendor";
 
-  private static final String PROJECT = "test-project";
+  private static final String PROJECT = "project";
 
-  private static final String ZIPBALL_PATH = "test-vendor/test-project/version/vendor-project-version.zip";
+  private static final String VERSION = "version";
+
+  private static final String ZIPBALL_PATH = "vendor/project/version/vendor-project-version.zip";
 
   @Mock
   private Repository repository;
@@ -93,7 +95,7 @@ public class ComposerHostedFacetImplTest
 
   @Test
   public void testUpload() throws Exception {
-    underTest.upload(ZIPBALL_PATH, payload);
+    underTest.upload(VENDOR, PROJECT, VERSION, payload);
     verify(composerContentFacet).put(ZIPBALL_PATH, payload, ZIPBALL);
   }
 

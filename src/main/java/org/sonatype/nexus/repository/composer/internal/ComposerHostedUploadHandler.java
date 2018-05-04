@@ -37,14 +37,17 @@ public class ComposerHostedUploadHandler
   @Nonnull
   @Override
   public Response handle(@Nonnull final Context context) throws Exception {
-    String path = ComposerPathUtils.buildZipballPath(context);
+    String vendor = ComposerPathUtils.getVendorToken(context);
+    String project = ComposerPathUtils.getProjectToken(context);
+    String version = ComposerPathUtils.getVersionToken(context);
+
     Request request = checkNotNull(context.getRequest());
     Payload payload = checkNotNull(request.getPayload());
 
     Repository repository = context.getRepository();
     ComposerHostedFacet hostedFacet = repository.facet(ComposerHostedFacet.class);
 
-    hostedFacet.upload(path, payload);
+    hostedFacet.upload(vendor, project, version, payload);
     return HttpResponses.ok();
   }
 }

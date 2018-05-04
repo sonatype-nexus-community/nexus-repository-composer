@@ -82,7 +82,6 @@ public class ComposerHostedUploadHandlerTest
     assertThat(response.getStatus().getCode(), is(200));
     assertThat(response.getPayload(), is(nullValue()));
 
-    verify(composerHostedFacet)
-        .upload("testvendor/testproject/testversion/testvendor-testproject-testversion.zip", payload);
+    verify(composerHostedFacet).upload("testvendor", "testproject", "testversion", payload);
   }
 }

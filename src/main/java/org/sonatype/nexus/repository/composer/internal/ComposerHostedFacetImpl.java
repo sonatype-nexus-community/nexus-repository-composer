@@ -48,8 +48,10 @@ public class ComposerHostedFacetImpl
   }
 
   @Override
-  public void upload(final String path, final Payload payload) throws IOException {
-    content().put(path, payload, AssetKind.ZIPBALL);
+  public void upload(final String vendor, final String project, final String version, final Payload payload)
+      throws IOException
+  {
+    content().put(ComposerPathUtils.buildZipballPath(vendor, project, version), payload, AssetKind.ZIPBALL);
   }
 
   @Override
