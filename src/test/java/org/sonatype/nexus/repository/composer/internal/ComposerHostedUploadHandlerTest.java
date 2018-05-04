@@ -83,6 +83,5 @@ public class ComposerHostedUploadHandlerTest
     assertThat(response.getPayload(), is(nullValue()));
 
     verify(composerHostedFacet).upload("testvendor", "testproject", "testversion", payload);
-    verify(composerHostedFacet).rebuildProviderJson("testvendor", "testproject");
   }
 }

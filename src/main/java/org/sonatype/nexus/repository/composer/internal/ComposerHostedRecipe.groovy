@@ -45,6 +45,9 @@ class ComposerHostedRecipe
   Provider<ComposerHostedFacet> hostedFacet
 
   @Inject
+  Provider<ComposerHostedMetadataFacet> hostedMetadataFacet
+
+  @Inject
   ComposerHostedUploadHandler uploadHandler
 
   @Inject
@@ -62,6 +65,7 @@ class ComposerHostedRecipe
     repository.attach(configure(viewFacet.get()))
     repository.attach(componentMaintenanceFacet.get())
     repository.attach(hostedFacet.get())
+    repository.attach(hostedMetadataFacet.get())
     repository.attach(storageFacet.get())
     repository.attach(searchFacet.get())
     repository.attach(attributesFacet.get())

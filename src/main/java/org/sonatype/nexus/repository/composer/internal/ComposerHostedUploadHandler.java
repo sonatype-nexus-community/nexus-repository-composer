@@ -48,8 +48,6 @@ public class ComposerHostedUploadHandler
     ComposerHostedFacet hostedFacet = repository.facet(ComposerHostedFacet.class);
 
     hostedFacet.upload(vendor, project, version, payload);
-    hostedFacet.rebuildProviderJson(vendor, project);
-
     return HttpResponses.ok();
   }
 }
