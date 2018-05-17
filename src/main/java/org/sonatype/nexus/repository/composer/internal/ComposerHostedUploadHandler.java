@@ -25,6 +25,9 @@ import org.sonatype.nexus.repository.view.Request;
 import org.sonatype.nexus.repository.view.Response;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.getProjectToken;
+import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.getVendorToken;
+import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.getVersionToken;
 
 /**
  * Upload handler for Composer hosted repositories.
@@ -37,9 +40,9 @@ public class ComposerHostedUploadHandler
   @Nonnull
   @Override
   public Response handle(@Nonnull final Context context) throws Exception {
-    String vendor = ComposerPathUtils.getVendorToken(context);
-    String project = ComposerPathUtils.getProjectToken(context);
-    String version = ComposerPathUtils.getVersionToken(context);
+    String vendor = getVendorToken(context);
+    String project = getProjectToken(context);
+    String version = getVersionToken(context);
 
     Request request = checkNotNull(context.getRequest());
     Payload payload = checkNotNull(request.getPayload());
