@@ -74,12 +74,19 @@ public class ComposerJsonExtractor
    */
   private Map<String, Object> processEntry(final ArchiveInputStream stream, final ArchiveEntry entry) throws IOException
   {
-    String name = entry.getName();
-    int filenameIndex = name.indexOf("/composer.json");
-    int separatorIndex = name.indexOf("/");
-    if (filenameIndex >= 0 && filenameIndex == separatorIndex) {
+    if (isComposerJsonFilename(entry.getName())) {
       return mapper.readValue(stream, typeReference);
     }
     return Collections.emptyMap();
+  }
+
+  /**
+   * Returns a boolean indicating if the associated file path (from an archive file) represents the {@code
+   * composer.json} file.
+   */
+  private boolean isComposerJsonFilename(final String entryName) {
+    int filenameIndex = entryName.indexOf("/composer.json");
+    int separatorIndex = entryName.indexOf("/");
+    return filenameIndex >= 0 && filenameIndex == separatorIndex;
   }
 }
