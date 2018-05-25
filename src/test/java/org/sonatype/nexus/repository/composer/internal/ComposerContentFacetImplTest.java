@@ -62,6 +62,9 @@ import static org.sonatype.nexus.repository.composer.internal.AssetKind.LIST;
 import static org.sonatype.nexus.repository.composer.internal.AssetKind.PACKAGES;
 import static org.sonatype.nexus.repository.composer.internal.AssetKind.PROVIDER;
 import static org.sonatype.nexus.repository.composer.internal.AssetKind.ZIPBALL;
+import static org.sonatype.nexus.repository.composer.internal.ComposerAttributes.P_PROJECT;
+import static org.sonatype.nexus.repository.composer.internal.ComposerAttributes.P_VENDOR;
+import static org.sonatype.nexus.repository.composer.internal.ComposerAttributes.P_VERSION;
 import static org.sonatype.nexus.repository.storage.MetadataNodeEntityAdapter.P_NAME;
 
 public class ComposerContentFacetImplTest
@@ -281,6 +284,9 @@ public class ComposerContentFacetImplTest
 
     if (ZIPBALL.equals(assetKind)) {
       verify(formatAttributes).clear();
+      verify(formatAttributes).set(P_VENDOR, "vendor");
+      verify(formatAttributes).set(P_PROJECT, "project");
+      verify(formatAttributes).set(P_VERSION, "version");
       verify(composerFormatAttributesExtractor).extractFromZip(tempBlob, formatAttributes);
     }
 

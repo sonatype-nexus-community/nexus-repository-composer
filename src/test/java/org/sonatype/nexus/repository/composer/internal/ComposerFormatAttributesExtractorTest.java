@@ -17,12 +17,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.blobstore.api.Blob;
 import org.sonatype.nexus.common.collect.NestedAttributesMap;
 import org.sonatype.nexus.repository.storage.TempBlob;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -53,59 +56,63 @@ public class ComposerFormatAttributesExtractorTest
   @Mock
   private TempBlob tempBlob;
 
+  @Mock
+  private ComposerJsonExtractor composerJsonExtractor;
+
   private ComposerFormatAttributesExtractor underTest;
 
   private NestedAttributesMap destination;
 
   @Before
   public void setUp() {
-    underTest = new ComposerFormatAttributesExtractor();
+    underTest = new ComposerFormatAttributesExtractor(composerJsonExtractor);
     destination = new NestedAttributesMap("backing", new LinkedHashMap<>());
   }
 
   @Test
   public void extractInfoFromZipballWithJson() throws Exception {
-    try (InputStream in = getClass().getResourceAsStream("extractInfoFromZipballWithJson.zip")) {
-      when(tempBlob.getBlob()).thenReturn(blob);
-      when(blob.getInputStream()).thenReturn(in);
-
-      NestedAttributesMap attributesMap = new NestedAttributesMap("composer", new LinkedHashMap<>());
-      underTest.extractFromZip(tempBlob, attributesMap);
-
-      assertThat(attributesMap.keys(), containsInAnyOrder(EXPECTED_FIELDS));
-      assertThat(attributesMap.get(P_NAME), is("vendor/project"));
-      assertThat(attributesMap.get(P_VERSION), is("1.2.3"));
-      assertThat(attributesMap.get(P_DESCRIPTION), is("Test description"));
-      assertThat(attributesMap.get(P_TYPE), is("library"));
-      assertThat((List<String>) attributesMap.get(P_KEYWORDS), containsInAnyOrder("keyword1", "keyword2", "keyword3"));
-      assertThat(attributesMap.get(P_HOMEPAGE), is("http://www.example.com/"));
-      assertThat(attributesMap.get(P_TIME), is("2008-05-15"));
-      assertThat(attributesMap.get(P_LICENSE), is("MIT"));
-      assertThat((List<String>) attributesMap.get(P_AUTHORS),
-          containsInAnyOrder(
-              "Author1 <author1@example.com> (http://www.example.com/author1)",
-              "Author2 <author2@example.com> (http://www.example.com/author2)"));
-      assertThat(attributesMap.get(P_SUPPORT_EMAIL), is("email@example.com"));
-      assertThat(attributesMap.get(P_SUPPORT_ISSUES), is("irc://irc.example.com/irc"));
-      assertThat(attributesMap.get(P_SUPPORT_FORUM), is("http://www.example.com/forum"));
-      assertThat(attributesMap.get(P_SUPPORT_WIKI), is("http://www.example.com/wiki"));
-      assertThat(attributesMap.get(P_SUPPORT_SOURCE), is("http://www.example.com/source"));
-      assertThat(attributesMap.get(P_SUPPORT_DOCS), is("http://www.example.com/docs"));
-      assertThat(attributesMap.get(P_SUPPORT_RSS), is("http://www.example.com/rss"));
+    Map<String, Object> contents;
+    try (InputStream in = getClass().getResourceAsStream("extractInfoFromZipballWithJson.composer.json")) {
+      contents = new ObjectMapper().readValue(in, new TypeReference<Map<String, Object>>() { });
     }
+
+    when(tempBlob.getBlob()).thenReturn(blob);
+    when(composerJsonExtractor.extractFromZip(blob)).thenReturn(contents);
+
+    NestedAttributesMap attributesMap = new NestedAttributesMap("composer", new LinkedHashMap<>());
+    underTest.extractFromZip(tempBlob, attributesMap);
+
+    assertThat(attributesMap.keys(), containsInAnyOrder(EXPECTED_FIELDS));
+    assertThat(attributesMap.get(P_NAME), is("vendor/project"));
+    assertThat(attributesMap.get(P_VERSION), is("1.2.3"));
+    assertThat(attributesMap.get(P_DESCRIPTION), is("Test description"));
+    assertThat(attributesMap.get(P_TYPE), is("library"));
+    assertThat((List<String>) attributesMap.get(P_KEYWORDS), containsInAnyOrder("keyword1", "keyword2", "keyword3"));
+    assertThat(attributesMap.get(P_HOMEPAGE), is("http://www.example.com/"));
+    assertThat(attributesMap.get(P_TIME), is("2008-05-15"));
+    assertThat(attributesMap.get(P_LICENSE), is("MIT"));
+    assertThat((List<String>) attributesMap.get(P_AUTHORS),
+        containsInAnyOrder(
+            "Author1 <author1@example.com> (http://www.example.com/author1)",
+            "Author2 <author2@example.com> (http://www.example.com/author2)"));
+    assertThat(attributesMap.get(P_SUPPORT_EMAIL), is("email@example.com"));
+    assertThat(attributesMap.get(P_SUPPORT_ISSUES), is("irc://irc.example.com/irc"));
+    assertThat(attributesMap.get(P_SUPPORT_FORUM), is("http://www.example.com/forum"));
+    assertThat(attributesMap.get(P_SUPPORT_WIKI), is("http://www.example.com/wiki"));
+    assertThat(attributesMap.get(P_SUPPORT_SOURCE), is("http://www.example.com/source"));
+    assertThat(attributesMap.get(P_SUPPORT_DOCS), is("http://www.example.com/docs"));
+    assertThat(attributesMap.get(P_SUPPORT_RSS), is("http://www.example.com/rss"));
   }
 
   @Test
   public void extractInfoFromZipballWithoutJson() throws Exception {
-    try (InputStream in = getClass().getResourceAsStream("extractInfoFromZipballWithoutJson.zip")) {
       when(tempBlob.getBlob()).thenReturn(blob);
-      when(blob.getInputStream()).thenReturn(in);
+      when(composerJsonExtractor.extractFromZip(blob)).thenReturn(Collections.emptyMap());
 
       NestedAttributesMap attributesMap = new NestedAttributesMap("composer", new LinkedHashMap<>());
       underTest.extractFromZip(tempBlob, attributesMap);
 
       assertThat(attributesMap.keys(), is(empty()));
-    }
   }
 
   @Test

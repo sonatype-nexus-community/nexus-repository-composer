@@ -24,11 +24,16 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import org.sonatype.nexus.blobstore.api.Blob;
+import org.sonatype.nexus.blobstore.api.BlobRef;
 import org.sonatype.nexus.repository.Repository;
+import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.repository.storage.Component;
+import org.sonatype.nexus.repository.storage.StorageTx;
 import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.ContentTypes;
 import org.sonatype.nexus.repository.view.Payload;
@@ -41,6 +46,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.buildZipballPath;
 
@@ -58,6 +64,8 @@ public class ComposerJsonProcessor
 
   private static final String VENDOR_AND_PROJECT = "%s/%s";
 
+  private static final String AUTOLOAD_KEY = "autoload";
+
   private static final String DIST_KEY = "dist";
 
   private static final String PROVIDERS_URL_KEY = "providers-url";
@@ -68,9 +76,15 @@ public class ComposerJsonProcessor
 
   private static final String PACKAGE_NAMES_KEY = "packageNames";
 
+  private static final String REQUIRE_KEY = "require";
+
+  private static final String REQUIRE_DEV_KEY = "require-dev";
+
   private static final String SHA256_KEY = "sha256";
 
   private static final String SOURCE_KEY = "source";
+
+  private static final String SUGGEST_KEY = "suggest";
 
   private static final String TYPE_KEY = "type";
 
@@ -89,6 +103,13 @@ public class ComposerJsonProcessor
   private static final ObjectMapper mapper = new ObjectMapper();
 
   private static final DateTimeFormatter timeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZZ");
+
+  private ComposerJsonExtractor composerJsonExtractor;
+
+  @Inject
+  public ComposerJsonProcessor(final ComposerJsonExtractor composerJsonExtractor) {
+    this.composerJsonExtractor = checkNotNull(composerJsonExtractor);
+  }
 
   /**
    * Generates a packages.json file (inclusive of all projects) based on the list.json provided as a payload. Expected
@@ -158,9 +179,17 @@ public class ComposerJsonProcessor
    * the name, version, and dist information for each component. A timestamp derived from the component's last updated
    * field and a uid derived from the component group/name/version and last updated time is also included in the JSON.
    */
-  public Content buildProviderJson(final Repository repository, final Iterable<Component> components) throws IOException {
+  public Content buildProviderJson(final Repository repository,
+                                   final StorageTx storageTx,
+                                   final Iterable<Component> components) throws IOException
+  {
     Map<String, Map<String, Object>> packages = new LinkedHashMap<>();
     for (Component component : components) {
+      Asset asset = storageTx.firstAsset(component);
+      BlobRef blobRef = asset.requireBlobRef();
+      Blob blob = storageTx.requireBlob(blobRef);
+      Map<String, Object> composerJson = composerJsonExtractor.extractFromZip(blob);
+
       String vendor = component.group();
       String project = component.name();
       String version = component.version();
@@ -184,6 +213,19 @@ public class ComposerJsonProcessor
           .putString(time, StandardCharsets.UTF_8)
           .hash()
           .asInt());
+
+      if (composerJson.containsKey(AUTOLOAD_KEY)) {
+        pkg.put(AUTOLOAD_KEY, composerJson.get(AUTOLOAD_KEY));
+      }
+      if (composerJson.containsKey(REQUIRE_KEY)) {
+        pkg.put(REQUIRE_KEY, composerJson.get(REQUIRE_KEY));
+      }
+      if (composerJson.containsKey(REQUIRE_DEV_KEY)) {
+        pkg.put(REQUIRE_DEV_KEY, composerJson.get(REQUIRE_DEV_KEY));
+      }
+      if (composerJson.containsKey(SUGGEST_KEY)) {
+        pkg.put(SUGGEST_KEY, composerJson.get(SUGGEST_KEY));
+      }
 
       if (!packages.containsKey(name)) {
         packages.put(name, new LinkedHashMap<>());
