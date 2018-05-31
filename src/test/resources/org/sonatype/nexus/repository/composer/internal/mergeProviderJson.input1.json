@@ -24,7 +24,21 @@
           "shasum": ""
         },
         "time": "2018-01-09T15:53:01+00:00",
-        "uid": 1
+        "uid": 1,
+        "autoload": {
+          "psr-4": {
+            "psr-1-key": "psr-1-value"
+          }
+        },
+        "require": {
+          "dependency-1": "version-1"
+        },
+        "require-dev": {
+          "dev-dependency-1": "dev-version-1"
+        },
+        "suggest": {
+          "suggest-1": "description-1"
+        }
       }
     },
     "vendor3/project3": {
@@ -51,7 +65,21 @@
           "shasum": ""
         },
         "time": "2018-01-09T15:53:01+00:00",
-        "uid": 2
+        "uid": 2,
+        "autoload": {
+          "psr-4": {
+            "psr-2-key": "psr-2-value"
+          }
+        },
+        "require": {
+          "dependency-2": "version-2"
+        },
+        "require-dev": {
+          "dev-dependency-2": "dev-version-2"
+        },
+        "suggest": {
+          "suggest-2": "description-2"
+        }
       }
     }
   }

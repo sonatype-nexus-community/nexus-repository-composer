@@ -9,7 +9,21 @@
           "type" : "zip"
         },
         "uid" : 2734715359,
-        "time" : "2008-05-15T16:30:00+00:00"
+        "time" : "2008-05-15T16:30:00+00:00",
+        "autoload": {
+          "psr-4": {
+            "psr-1-key": "psr-1-value"
+          }
+        },
+        "require": {
+          "dependency-1": "version-1"
+        },
+        "require-dev": {
+          "dev-dependency-1": "dev-version-1"
+        },
+        "suggest": {
+          "suggest-1": "description-1"
+        }
       },
       "2.0.0" : {
         "name": "vendor1/project1",
@@ -19,7 +33,21 @@
           "type" : "zip"
         },
         "uid" : 4088247242,
-        "time" : "2008-05-15T16:30:00+00:00"
+        "time" : "2008-05-15T16:30:00+00:00",
+        "autoload": {
+          "psr-4": {
+            "psr-4-key": "psr-4-value"
+          }
+        },
+        "require": {
+          "dependency-4": "version-4"
+        },
+        "require-dev": {
+          "dev-dependency-4": "dev-version-4"
+        },
+        "suggest": {
+          "suggest-4": "description-4"
+        }
       }
     },
     "vendor2/project2" : {
@@ -31,7 +59,21 @@
           "type" : "zip"
         },
         "uid" : 592576497,
-        "time" : "2008-05-15T16:30:00+00:00"
+        "time" : "2008-05-15T16:30:00+00:00",
+        "autoload": {
+          "psr-4": {
+            "psr-5-key": "psr-5-value"
+          }
+        },
+        "require": {
+          "dependency-5": "version-5"
+        },
+        "require-dev": {
+          "dev-dependency-5": "dev-version-5"
+        },
+        "suggest": {
+          "suggest-5": "description-5"
+        }
       },
       "4.0.0" : {
         "name": "vendor2/project2",
@@ -41,7 +83,21 @@
           "type" : "zip"
         },
         "uid" : 1702476377,
-        "time" : "2008-05-15T16:30:00+00:00"
+        "time" : "2008-05-15T16:30:00+00:00",
+        "autoload": {
+          "psr-4": {
+            "psr-6-key": "psr-6-value"
+          }
+        },
+        "require": {
+          "dependency-6": "version-6"
+        },
+        "require-dev": {
+          "dev-dependency-6": "dev-version-6"
+        },
+        "suggest": {
+          "suggest-6": "description-6"
+        }
       }
     },
     "vendor3/project3" : {
@@ -53,7 +109,21 @@
           "type": "zip"
         },
         "uid": 384657117,
-        "time": "2008-05-15T16:30:00+00:00"
+        "time": "2008-05-15T16:30:00+00:00",
+        "autoload": {
+          "psr-4": {
+            "psr-2-key": "psr-2-value"
+          }
+        },
+        "require": {
+          "dependency-2": "version-2"
+        },
+        "require-dev": {
+          "dev-dependency-2": "dev-version-2"
+        },
+        "suggest": {
+          "suggest-2": "description-2"
+        }
       }
     }
   }

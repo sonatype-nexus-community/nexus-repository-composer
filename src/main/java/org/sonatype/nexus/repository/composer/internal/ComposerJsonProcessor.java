@@ -303,12 +303,25 @@ public class ComposerJsonProcessor
                     .hash()
                     .asInt()));
 
+            if (versionInfo.containsKey(AUTOLOAD_KEY)) {
+              newPackageInfo.put(AUTOLOAD_KEY, versionInfo.get(AUTOLOAD_KEY));
+            }
+            if (versionInfo.containsKey(REQUIRE_KEY)) {
+              newPackageInfo.put(REQUIRE_KEY, versionInfo.get(REQUIRE_KEY));
+            }
+            if (versionInfo.containsKey(REQUIRE_DEV_KEY)) {
+              newPackageInfo.put(REQUIRE_DEV_KEY, versionInfo.get(REQUIRE_DEV_KEY));
+            }
+            if (versionInfo.containsKey(SUGGEST_KEY)) {
+              newPackageInfo.put(SUGGEST_KEY, versionInfo.get(SUGGEST_KEY));
+            }
+
             if (!packages.containsKey(packageName)) {
               packages.put(packageName, new LinkedHashMap<>());
             }
 
             Map<String, Object> packagesForName = packages.get(packageName);
-            packagesForName.put(packageVersion, newPackageInfo);
+            packagesForName.putIfAbsent(packageVersion, newPackageInfo);
           }
         }
       }
