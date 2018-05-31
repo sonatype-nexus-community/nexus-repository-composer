@@ -50,6 +50,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Collections.singletonMap;
 import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.buildZipballPath;
 
 /**
@@ -143,7 +144,7 @@ public class ComposerJsonProcessor
     Map<String, Object> packagesJson = new LinkedHashMap<>();
     packagesJson.put(PROVIDERS_URL_KEY, repository.getUrl() + PACKAGE_JSON_PATH);
     packagesJson.put(PROVIDERS_KEY, names.stream()
-        .collect(Collectors.toMap((each) -> each, (each) -> Collections.singletonMap(SHA256_KEY, null))));
+        .collect(Collectors.toMap((each) -> each, (each) -> singletonMap(SHA256_KEY, null))));
     return new Content(new StringPayload(mapper.writeValueAsString(packagesJson), ContentTypes.APPLICATION_JSON));
   }
 
@@ -202,7 +203,7 @@ public class ComposerJsonProcessor
       packagesForName.put(version, buildPackageInfo(repository, name, version, ZIP_TYPE, time, composerJson));
     }
 
-    return new Content(new StringPayload(mapper.writeValueAsString(Collections.singletonMap(PACKAGES_KEY, packages)),
+    return new Content(new StringPayload(mapper.writeValueAsString(singletonMap(PACKAGES_KEY, packages)),
         ContentTypes.APPLICATION_JSON));
   }
 
@@ -259,7 +260,7 @@ public class ComposerJsonProcessor
       }
     }
 
-    return new Content(new StringPayload(mapper.writeValueAsString(Collections.singletonMap(PACKAGES_KEY, packages)),
+    return new Content(new StringPayload(mapper.writeValueAsString(singletonMap(PACKAGES_KEY, packages)),
         ContentTypes.APPLICATION_JSON));
   }
 
