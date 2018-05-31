@@ -8,7 +8,7 @@
           "url": "http://nexus.repo/base/repo/vendor1/project1/1.0.0/vendor1-project1-1.0.0.zip",
           "type": "zip"
         },
-        "uid": 1345846687,
+        "uid": 4034385470,
         "time": "1982-06-04T16:30:00+00:00",
         "autoload": {
           "psr-4": {
@@ -32,7 +32,7 @@
           "url": "http://nexus.repo/base/repo/vendor1/project1/2.0.0/vendor1-project1-2.0.0.zip",
           "type": "zip"
         },
-        "uid": 1700253429,
+        "uid": 4088247242,
         "time": "2008-05-15T16:30:00+00:00",
         "autoload": {
           "psr-0": {
@@ -58,7 +58,7 @@
           "url": "http://nexus.repo/base/repo/vendor2/project2/3.0.0/vendor2-project2-3.0.0.zip",
           "type": "zip"
         },
-        "uid": 1398386772,
+        "uid": 861509421,
         "time": "1979-07-11T16:30:00+00:00",
         "autoload": {
           "psr-4": {
@@ -82,7 +82,7 @@
           "url": "http://nexus.repo/base/repo/vendor2/project2/4.0.0/vendor2-project2-4.0.0.zip",
           "type": "zip"
         },
-        "uid": 237122898,
+        "uid": 1702476377,
         "time": "2008-05-15T16:30:00+00:00",
         "autoload": {
           "psr-0": {

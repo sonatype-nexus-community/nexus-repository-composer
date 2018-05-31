@@ -200,43 +200,12 @@ public class ComposerJsonProcessor
       String name = vendor + "/" + project;
       String time = component.requireLastUpdated().withZone(DateTimeZone.UTC).toString(timeFormatter);
 
-      Map<String, Object> dist = new LinkedHashMap<>();
-      dist.put(URL_KEY, repository.getUrl() + "/" + buildZipballPath(vendor, project, version));
-      dist.put(TYPE_KEY, ZIP_TYPE);
-
-      Map<String, Object> pkg = new LinkedHashMap<>();
-      pkg.put(NAME_KEY, name);
-      pkg.put(VERSION_KEY, version);
-      pkg.put(DIST_KEY, dist);
-      pkg.put(TIME_KEY, time);
-      pkg.put(UID_KEY, Integer.toUnsignedLong(
-          Hashing.md5().newHasher()
-              .putString(vendor, StandardCharsets.UTF_8)
-              .putString(project, StandardCharsets.UTF_8)
-              .putString(version, StandardCharsets.UTF_8)
-              .putString(time, StandardCharsets.UTF_8)
-              .hash()
-              .asInt()));
-
-      if (composerJson.containsKey(AUTOLOAD_KEY)) {
-        pkg.put(AUTOLOAD_KEY, composerJson.get(AUTOLOAD_KEY));
-      }
-      if (composerJson.containsKey(REQUIRE_KEY)) {
-        pkg.put(REQUIRE_KEY, composerJson.get(REQUIRE_KEY));
-      }
-      if (composerJson.containsKey(REQUIRE_DEV_KEY)) {
-        pkg.put(REQUIRE_DEV_KEY, composerJson.get(REQUIRE_DEV_KEY));
-      }
-      if (composerJson.containsKey(SUGGEST_KEY)) {
-        pkg.put(SUGGEST_KEY, composerJson.get(SUGGEST_KEY));
-      }
-
       if (!packages.containsKey(name)) {
         packages.put(name, new LinkedHashMap<>());
       }
 
       Map<String, Object> packagesForName = packages.get(name);
-      packagesForName.put(version, pkg);
+      packagesForName.put(version, buildPackageInfo(repository, name, version, ZIP_TYPE, time, composerJson));
     }
 
     return new Content(new StringPayload(mapper.writeValueAsString(Collections.singletonMap(PACKAGES_KEY, packages)),
@@ -284,44 +253,13 @@ public class ComposerJsonProcessor
               continue;
             }
 
-            Map<String, Object> newDistInfo = new LinkedHashMap<>();
-            newDistInfo.put(URL_KEY, String
-                .format(REWRITE_URL, repository.getUrl(), packageName, packageVersion, packageName.replace('/', '-'),
-                    packageVersion));
-            newDistInfo.put(TYPE_KEY, distInfo.get(TYPE_KEY));
-
-            Map<String, Object> newPackageInfo = new LinkedHashMap<>();
-            newPackageInfo.put(NAME_KEY, versionInfo.get(NAME_KEY));
-            newPackageInfo.put(VERSION_KEY, versionInfo.get(VERSION_KEY));
-            newPackageInfo.put(DIST_KEY, newDistInfo);
-            newPackageInfo.put(TIME_KEY, time);
-            newPackageInfo.put(UID_KEY, Integer.toUnsignedLong(
-                Hashing.md5().newHasher()
-                    .putString(packageName, StandardCharsets.UTF_8)
-                    .putString(packageVersion, StandardCharsets.UTF_8)
-                    .putString(time, StandardCharsets.UTF_8)
-                    .hash()
-                    .asInt()));
-
-            if (versionInfo.containsKey(AUTOLOAD_KEY)) {
-              newPackageInfo.put(AUTOLOAD_KEY, versionInfo.get(AUTOLOAD_KEY));
-            }
-            if (versionInfo.containsKey(REQUIRE_KEY)) {
-              newPackageInfo.put(REQUIRE_KEY, versionInfo.get(REQUIRE_KEY));
-            }
-            if (versionInfo.containsKey(REQUIRE_DEV_KEY)) {
-              newPackageInfo.put(REQUIRE_DEV_KEY, versionInfo.get(REQUIRE_DEV_KEY));
-            }
-            if (versionInfo.containsKey(SUGGEST_KEY)) {
-              newPackageInfo.put(SUGGEST_KEY, versionInfo.get(SUGGEST_KEY));
-            }
-
             if (!packages.containsKey(packageName)) {
               packages.put(packageName, new LinkedHashMap<>());
             }
 
             Map<String, Object> packagesForName = packages.get(packageName);
-            packagesForName.putIfAbsent(packageVersion, newPackageInfo);
+            packagesForName.putIfAbsent(packageVersion, buildPackageInfo(repository, packageName, packageVersion,
+                (String) distInfo.get(TYPE_KEY), time, versionInfo));
           }
         }
       }
@@ -329,6 +267,57 @@ public class ComposerJsonProcessor
 
     return new Content(new StringPayload(mapper.writeValueAsString(Collections.singletonMap(PACKAGES_KEY, packages)),
         ContentTypes.APPLICATION_JSON));
+  }
+
+  private Map<String, Object> buildPackageInfo(final Repository repository,
+                                               final String packageName,
+                                               final String packageVersion,
+                                               final String type,
+                                               final String time,
+                                               final Map<String, Object> versionInfo)
+  {
+    Map<String, Object> newPackageInfo = new LinkedHashMap<>();
+    newPackageInfo.put(NAME_KEY, packageName);
+    newPackageInfo.put(VERSION_KEY, packageVersion);
+    newPackageInfo.put(DIST_KEY, buildDistInfo(repository, packageName, packageVersion, type));
+    newPackageInfo.put(TIME_KEY, time);
+    newPackageInfo.put(UID_KEY, Integer.toUnsignedLong(
+        Hashing.md5().newHasher()
+            .putString(packageName, StandardCharsets.UTF_8)
+            .putString(packageVersion, StandardCharsets.UTF_8)
+            .putString(time, StandardCharsets.UTF_8)
+            .hash()
+            .asInt()));
+
+    if (versionInfo.containsKey(AUTOLOAD_KEY)) {
+      newPackageInfo.put(AUTOLOAD_KEY, versionInfo.get(AUTOLOAD_KEY));
+    }
+    if (versionInfo.containsKey(REQUIRE_KEY)) {
+      newPackageInfo.put(REQUIRE_KEY, versionInfo.get(REQUIRE_KEY));
+    }
+    if (versionInfo.containsKey(REQUIRE_DEV_KEY)) {
+      newPackageInfo.put(REQUIRE_DEV_KEY, versionInfo.get(REQUIRE_DEV_KEY));
+    }
+    if (versionInfo.containsKey(SUGGEST_KEY)) {
+      newPackageInfo.put(SUGGEST_KEY, versionInfo.get(SUGGEST_KEY));
+    }
+
+    return newPackageInfo;
+  }
+
+  private Map<String, Object> buildDistInfo(final Repository repository,
+                                            final String packageName,
+                                            final String packageVersion,
+                                            final String type)
+  {
+    String packageNameParts[] = packageName.split("/");
+    String packageVendor = packageNameParts[0];
+    String packageProject = packageNameParts[1];
+    Map<String, Object> newDistInfo = new LinkedHashMap<>();
+    newDistInfo
+        .put(URL_KEY, repository.getUrl() + "/" + buildZipballPath(packageVendor, packageProject, packageVersion));
+    newDistInfo.put(TYPE_KEY, type);
+    return newDistInfo;
   }
 
   /**
