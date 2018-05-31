@@ -55,13 +55,13 @@ public class ComposerGroupPackagesJsonHandler
     Repository repository = context.getRepository();
     GroupFacet groupFacet = repository.facet(GroupFacet.class);
     Map<Repository, Response> responses = getAll(context, groupFacet.members(), dispatched);
-    List<Response> successfulResponses = responses.values().stream()
+    List<Payload> payloads = responses.values().stream()
         .filter(response -> response.getStatus().getCode() == HttpStatus.OK && response.getPayload() != null)
+        .map(Response::getPayload)
         .collect(Collectors.toList());
-    if (successfulResponses.isEmpty()) {
+    if (payloads.isEmpty()) {
       return notFoundResponse(context);
     }
-    List<Payload> payloads = successfulResponses.stream().map(Response::getPayload).collect(Collectors.toList());
     return HttpResponses.ok(composerJsonProcessor.mergePackagesJson(repository, payloads));
   }
 }
