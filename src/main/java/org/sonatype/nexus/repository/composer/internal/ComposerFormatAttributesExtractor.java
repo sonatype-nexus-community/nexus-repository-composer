@@ -13,12 +13,12 @@
 package org.sonatype.nexus.repository.composer.internal;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
@@ -26,15 +26,10 @@ import org.sonatype.goodies.common.ComponentSupport;
 import org.sonatype.nexus.common.collect.NestedAttributesMap;
 import org.sonatype.nexus.repository.storage.TempBlob;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.compress.archivers.ArchiveEntry;
-import org.apache.commons.compress.archivers.ArchiveException;
-import org.apache.commons.compress.archivers.ArchiveInputStream;
-import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 
+import static jline.internal.Preconditions.checkNotNull;
 import static org.sonatype.nexus.repository.composer.internal.ComposerAttributes.*;
 
 /**
@@ -109,11 +104,12 @@ public class ComposerFormatAttributesExtractor
       .put(SUPPORT_RSS, P_SUPPORT_RSS)
       .build();
 
-  private final TypeReference<Map<String, Object>> typeReference = new TypeReference<Map<String, Object>>() { };
+  private ComposerJsonExtractor composerJsonExtractor;
 
-  private final ObjectMapper mapper = new ObjectMapper();
-
-  private final ArchiveStreamFactory archiveStreamFactory = new ArchiveStreamFactory();
+  @Inject
+  public ComposerFormatAttributesExtractor(final ComposerJsonExtractor composerJsonExtractor) {
+    this.composerJsonExtractor = checkNotNull(composerJsonExtractor);
+  }
 
   /**
    * Populates an asset's format attributes with the content contained in a composer.json file in the zip archive. This
@@ -121,41 +117,12 @@ public class ComposerFormatAttributesExtractor
    * the standpoint of the repository manager.
    */
   public void extractFromZip(final TempBlob tempBlob, final NestedAttributesMap formatAttributes) throws IOException {
-    try (InputStream is = tempBlob.getBlob().getInputStream()) {
-      try (ArchiveInputStream ais = archiveStreamFactory.createArchiveInputStream(ArchiveStreamFactory.ZIP, is)) {
-        ArchiveEntry entry = ais.getNextEntry();
-        while (entry != null) {
-          if (processEntry(ais, entry, formatAttributes)) {
-            return;
-          }
-          entry = ais.getNextEntry();
-        }
-      }
-    }
-    catch (ArchiveException e) {
-      throw new IOException("Error reading from archive", e);
-    }
-  }
-
-  /**
-   * Processes a single entry in the archive. If the entry is the composer.json then the attributes will be extracted.
-   * If not, the entry is skipped.
-   */
-  private boolean processEntry(final ArchiveInputStream stream,
-                               final ArchiveEntry entry,
-                               final NestedAttributesMap formatAttributes) throws IOException
-  {
-    String name = entry.getName();
-    int filenameIndex = name.indexOf("/composer.json");
-    int separatorIndex = name.indexOf("/");
-    if (filenameIndex >= 0 && filenameIndex == separatorIndex) {
-      Map<String, Object> contents = mapper.readValue(stream, typeReference);
+    Map<String, Object> contents = composerJsonExtractor.extractFromZip(tempBlob.getBlob());
+    if (!contents.isEmpty()) {
       extractStrings(contents, formatAttributes, STRINGS_MAPPING);
       extractAuthors(contents, formatAttributes);
       extractSupport(contents, formatAttributes);
-      return true;
     }
-    return false;
   }
 
   /**

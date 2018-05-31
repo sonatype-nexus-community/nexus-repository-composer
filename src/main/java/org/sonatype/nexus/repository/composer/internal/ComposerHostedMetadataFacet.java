@@ -12,29 +12,14 @@
  */
 package org.sonatype.nexus.repository.composer.internal;
 
-import java.io.IOException;
-
-import javax.annotation.Nullable;
-
 import org.sonatype.nexus.repository.Facet;
-import org.sonatype.nexus.repository.view.Content;
-import org.sonatype.nexus.repository.view.Payload;
 
 /**
- * Interface defining the features supported by Composer repository hosted facets.
+ * Tagging interface indicating that a facet is an implementation of a {@code ComposerHostedMetadataFacet}. This facet
+ * is responsible for maintaining the internal metadata (currently just the provider.json file).
  */
 @Facet.Exposed
-public interface ComposerHostedFacet
+public interface ComposerHostedMetadataFacet
     extends Facet
 {
-  void upload(String vendor, String project, String version, Payload payload) throws IOException;
-
-  Content getPackagesJson() throws IOException;
-
-  Content getProviderJson(String vendor, String project) throws IOException;
-
-  void rebuildProviderJson(String vendor, String project) throws IOException;
-
-  @Nullable
-  Content getZipball(String path) throws IOException;
 }

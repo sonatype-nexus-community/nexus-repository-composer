@@ -35,16 +35,21 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonatype.nexus.repository.composer.internal.AssetKind.PROVIDER;
 import static org.sonatype.nexus.repository.composer.internal.AssetKind.ZIPBALL;
 
 public class ComposerHostedFacetImplTest
     extends TestSupport
 {
-  private static final String VENDOR = "test-vendor";
+  private static final String VENDOR = "vendor";
 
-  private static final String PROJECT = "test-project";
+  private static final String PROJECT = "project";
 
-  private static final String ZIPBALL_PATH = "test-vendor/test-project/version/vendor-project-version.zip";
+  private static final String VERSION = "version";
+
+  private static final String ZIPBALL_PATH = "vendor/project/version/vendor-project-version.zip";
+
+  private static final String PROVIDER_PATH = "p/vendor/project.json";
 
   @Mock
   private Repository repository;
@@ -93,7 +98,7 @@ public class ComposerHostedFacetImplTest
 
   @Test
   public void testUpload() throws Exception {
-    underTest.upload(ZIPBALL_PATH, payload);
+    underTest.upload(VENDOR, PROJECT, VERSION, payload);
     verify(composerContentFacet).put(ZIPBALL_PATH, payload, ZIPBALL);
   }
 
@@ -112,10 +117,17 @@ public class ComposerHostedFacetImplTest
 
   @Test
   public void testGetProviderJson() throws Exception {
+    when(composerContentFacet.get(PROVIDER_PATH)).thenReturn(content);
+    assertThat(underTest.getProviderJson(VENDOR, PROJECT), is(content));
+  }
+
+  @Test
+  public void testBuildProviderJson() throws Exception {
     when(underTest.buildQuery(VENDOR, PROJECT)).thenReturn(query);
     when(tx.findComponents(eq(query), eq(singletonList(repository)))).thenReturn(components);
-    when(composerJsonProcessor.buildProviderJson(repository, components)).thenReturn(content);
-    assertThat(underTest.getProviderJson(VENDOR, PROJECT), is(content));
+    when(composerJsonProcessor.buildProviderJson(repository, tx, components)).thenReturn(content);
+    underTest.rebuildProviderJson(VENDOR, PROJECT);
+    verify(composerContentFacet).put(PROVIDER_PATH, content, PROVIDER);
   }
 
   @Test

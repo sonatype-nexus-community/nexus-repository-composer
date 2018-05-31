@@ -50,4 +50,8 @@ public final class ComposerAttributes
   public static final String P_SUPPORT_DOCS = "support_docs";
 
   public static final String P_SUPPORT_RSS = "support_rss";
+
+  public static final String P_VENDOR = "vendor";
+
+  public static final String P_PROJECT = "project";
 }

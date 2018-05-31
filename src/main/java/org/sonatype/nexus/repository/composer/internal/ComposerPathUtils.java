@@ -53,6 +53,14 @@ public final class ComposerPathUtils
   }
 
   /**
+   * Returns the version token from a path in a context. The version token must be present or the operation will fail.
+   */
+  public static String getVersionToken(final Context context) {
+    TokenMatcher.State state = context.getAttributes().require(TokenMatcher.State.class);
+    return checkNotNull(state.getTokens().get(VERSION_TOKEN));
+  }
+
+  /**
    * Builds the path to a zipball based on the path contained in a particular context. For download routes the full
    * path including the name token will be present and will be constructed accordingly. For upload routes the full
    * path will not be known because the filename will not be present, so the name portion will be constructed from

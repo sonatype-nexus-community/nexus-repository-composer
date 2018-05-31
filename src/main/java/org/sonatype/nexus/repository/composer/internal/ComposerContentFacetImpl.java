@@ -47,6 +47,8 @@ import static java.util.Collections.singletonList;
 import static org.sonatype.nexus.common.hash.HashAlgorithm.MD5;
 import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA1;
 import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA256;
+import static org.sonatype.nexus.repository.composer.internal.ComposerAttributes.P_PROJECT;
+import static org.sonatype.nexus.repository.composer.internal.ComposerAttributes.P_VENDOR;
 import static org.sonatype.nexus.repository.storage.AssetEntityAdapter.P_ASSET_KIND;
 import static org.sonatype.nexus.repository.storage.ComponentEntityAdapter.P_GROUP;
 import static org.sonatype.nexus.repository.storage.ComponentEntityAdapter.P_VERSION;
@@ -136,7 +138,9 @@ public class ComposerContentFacetImpl
   {
     StorageTx tx = UnitOfWork.currentTx();
 
-    Asset asset = getOrCreateAsset(path, assetKind);
+    Asset asset = getOrCreateAsset(path);
+
+    asset.formatAttributes().set(P_ASSET_KIND, assetKind.toString());
 
     if (payload instanceof Content) {
       Content.applyToAsset(asset, Content.maintainLastModified(asset, ((Content) payload).getAttributes()));
@@ -157,7 +161,7 @@ public class ComposerContentFacetImpl
   }
 
   @TransactionalStoreMetadata
-  public Asset getOrCreateAsset(final String path, final AssetKind assetKind) {
+  public Asset getOrCreateAsset(final String path) {
     final StorageTx tx = UnitOfWork.currentTx();
     final Bucket bucket = tx.findBucket(getRepository());
 
@@ -165,7 +169,6 @@ public class ComposerContentFacetImpl
     if (asset == null) {
       asset = tx.createAsset(bucket, format);
       asset.name(path);
-      asset.formatAttributes().set(P_ASSET_KIND, assetKind);
     }
 
     asset.markAsDownloaded();
@@ -187,7 +190,7 @@ public class ComposerContentFacetImpl
 
     StorageTx tx = UnitOfWork.currentTx();
 
-    Asset asset = getOrCreateAsset(path, assetKind, group, name, version);
+    Asset asset = getOrCreateAsset(path, group, name, version);
 
     if (payload instanceof Content) {
       Content.applyToAsset(asset, Content.maintainLastModified(asset, ((Content) payload).getAttributes()));
@@ -204,6 +207,10 @@ public class ComposerContentFacetImpl
 
     try {
       asset.formatAttributes().clear();
+      asset.formatAttributes().set(P_ASSET_KIND, assetKind.toString());
+      asset.formatAttributes().set(P_VENDOR, group);
+      asset.formatAttributes().set(P_PROJECT, name);
+      asset.formatAttributes().set(P_VERSION, version);
       composerFormatAttributesExtractor.extractFromZip(tempBlob, asset.formatAttributes());
     }
     catch (Exception e) {
@@ -217,7 +224,6 @@ public class ComposerContentFacetImpl
 
   @TransactionalStoreMetadata
   public Asset getOrCreateAsset(final String path,
-                                final AssetKind assetKind,
                                 final String group,
                                 final String name,
                                 final String version)
@@ -235,7 +241,6 @@ public class ComposerContentFacetImpl
     if (asset == null) {
       asset = tx.createAsset(bucket, component);
       asset.name(path);
-      asset.formatAttributes().set(P_ASSET_KIND, assetKind);
     }
 
     asset.markAsDownloaded();
