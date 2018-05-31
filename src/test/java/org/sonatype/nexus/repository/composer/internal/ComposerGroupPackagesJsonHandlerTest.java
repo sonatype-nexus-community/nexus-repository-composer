@@ -18,6 +18,7 @@ import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.group.GroupFacet;
 import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Context;
+import org.sonatype.nexus.repository.view.Headers;
 import org.sonatype.nexus.repository.view.Payload;
 import org.sonatype.nexus.repository.view.Request;
 import org.sonatype.nexus.repository.view.Response;
@@ -104,6 +105,7 @@ public class ComposerGroupPackagesJsonHandlerTest
 
     when(request.getAction()).thenReturn(GET);
     when(request.getAttributes()).thenReturn(new AttributesMap());
+    when(request.getHeaders()).thenReturn(new Headers());
 
     when(repository.facet(GroupFacet.class)).thenReturn(groupFacet);
     when(groupFacet.members()).thenReturn(asList(memberRepository1, memberRepository2));

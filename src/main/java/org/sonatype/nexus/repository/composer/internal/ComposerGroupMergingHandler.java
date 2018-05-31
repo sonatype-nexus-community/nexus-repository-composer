@@ -28,6 +28,9 @@ import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.Payload;
 import org.sonatype.nexus.repository.view.Response;
 
+import static org.sonatype.nexus.repository.http.HttpConditions.makeConditional;
+import static org.sonatype.nexus.repository.http.HttpConditions.makeUnconditional;
+
 /**
  * Abstract handler for merging in the context of a Composer group repository, with merging left to concrete
  * implementations of the class.
@@ -42,7 +45,16 @@ public abstract class ComposerGroupMergingHandler
   {
     Repository repository = context.getRepository();
     GroupFacet groupFacet = repository.facet(GroupFacet.class);
-    Map<Repository, Response> responses = getAll(context, groupFacet.members(), dispatched);
+
+    makeUnconditional(context.getRequest());
+    Map<Repository, Response> responses;
+    try {
+      responses = getAll(context, groupFacet.members(), dispatched);
+    }
+    finally {
+      makeConditional(context.getRequest());
+    }
+
     List<Payload> payloads = responses.values().stream()
         .filter(response -> response.getStatus().getCode() == HttpStatus.OK && response.getPayload() != null)
         .map(Response::getPayload)
