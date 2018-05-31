@@ -50,7 +50,6 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.buildZipballPath;
 
 /**
