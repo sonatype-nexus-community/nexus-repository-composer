@@ -163,13 +163,8 @@ public class ComposerJsonProcessor
           versionInfo.remove(SOURCE_KEY); // TODO: For now don't allow sources, probably should make this configurable?
 
           Map<String, Object> distInfo = (Map<String, Object>) versionInfo.get(DIST_KEY);
-          if (distInfo != null) {
-            String distType = (String) distInfo.get(TYPE_KEY);
-            checkState(ZIP_TYPE.equals(distInfo.get(TYPE_KEY)), "Invalid dist type %s for package %s version %s",
-                distType, packageName, packageVersion);
-            distInfo.put(URL_KEY, String
-                .format(REWRITE_URL, repository.getUrl(), packageName, packageVersion, packageName.replace('/', '-'),
-                    packageVersion));
+          if (distInfo != null && ZIP_TYPE.equals(distInfo.get(TYPE_KEY))) {
+            versionInfo.put(DIST_KEY, buildDistInfo(repository, packageName, packageVersion, ZIP_TYPE));
           }
         }
       }
