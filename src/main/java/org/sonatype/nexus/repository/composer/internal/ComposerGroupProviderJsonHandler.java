@@ -12,23 +12,16 @@
  */
 package org.sonatype.nexus.repository.composer.internal;
 
+import java.io.IOException;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
-import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.sonatype.nexus.repository.Repository;
-import org.sonatype.nexus.repository.group.GroupFacet;
-import org.sonatype.nexus.repository.group.GroupHandler;
-import org.sonatype.nexus.repository.http.HttpResponses;
-import org.sonatype.nexus.repository.http.HttpStatus;
-import org.sonatype.nexus.repository.view.Context;
+import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Payload;
-import org.sonatype.nexus.repository.view.Response;
 
 import org.joda.time.DateTime;
 
@@ -40,7 +33,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @Named
 @Singleton
 public class ComposerGroupProviderJsonHandler
-    extends GroupHandler
+    extends ComposerGroupMergingHandler
 {
   private final ComposerJsonProcessor composerJsonProcessor;
 
@@ -50,20 +43,7 @@ public class ComposerGroupProviderJsonHandler
   }
 
   @Override
-  protected Response doGet(@Nonnull final Context context,
-                           @Nonnull final GroupHandler.DispatchedRepositories dispatched)
-      throws Exception
-  {
-    Repository repository = context.getRepository();
-    GroupFacet groupFacet = repository.facet(GroupFacet.class);
-    Map<Repository, Response> responses = getAll(context, groupFacet.members(), dispatched);
-    List<Payload> payloads = responses.values().stream()
-        .filter(response -> response.getStatus().getCode() == HttpStatus.OK && response.getPayload() != null)
-        .map(Response::getPayload)
-        .collect(Collectors.toList());
-    if (payloads.isEmpty()) {
-      return notFoundResponse(context);
-    }
-    return HttpResponses.ok(composerJsonProcessor.mergeProviderJson(repository, payloads, DateTime.now()));
+  protected Content merge(final Repository repository, final List<Payload> payloads) throws IOException {
+    return composerJsonProcessor.mergeProviderJson(repository, payloads, DateTime.now());
   }
 }
