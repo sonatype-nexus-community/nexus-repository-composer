@@ -23,4 +23,4 @@ Sonatype internal people, in alphabetical order by username:
 
 External contributors:
 
-![Possibly You!](http://i.imgur.com/A3eScYul.jpg)
+* [@TheBay0r](https://github.com/TheBay0r) (Stefan Schacherl)
