@@ -21,6 +21,7 @@ import java.util.Arrays;
 import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.blobstore.api.Blob;
 import org.sonatype.nexus.blobstore.api.BlobRef;
+import org.sonatype.nexus.common.hash.HashAlgorithm;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.repository.storage.Component;
@@ -29,6 +30,7 @@ import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Payload;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.hash.HashCode;
 import com.google.common.io.CharStreams;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -42,6 +44,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
+import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA1;
 
 public class ComposerJsonProcessorTest
     extends TestSupport
@@ -191,6 +194,7 @@ public class ComposerJsonProcessorTest
     when(component1.requireLastUpdated()).thenReturn(new DateTime(392056200000L, DateTimeZone.forOffsetHours(-4)));
     when(storageTx.firstAsset(component1)).thenReturn(asset1);
     when(asset1.requireBlobRef()).thenReturn(blobRef1);
+    when(asset1.getChecksum(SHA1)).thenReturn(HashCode.fromLong(1L));
     when(storageTx.requireBlob(blobRef1)).thenReturn(blob1);
     when(composerJsonExtractor.extractFromZip(blob1)).thenReturn(new ImmutableMap.Builder<String, Object>()
         .put("autoload", singletonMap("psr-4", singletonMap("psr-1-key", "psr-1-value")))
@@ -206,6 +210,7 @@ public class ComposerJsonProcessorTest
     when(component2.requireLastUpdated()).thenReturn(new DateTime(1210869000000L, DateTimeZone.forOffsetHours(-4)));
     when(storageTx.firstAsset(component2)).thenReturn(asset2);
     when(asset2.requireBlobRef()).thenReturn(blobRef2);
+    when(asset2.getChecksum(SHA1)).thenReturn(HashCode.fromLong(2L));
     when(storageTx.requireBlob(blobRef2)).thenReturn(blob2);
     when(composerJsonExtractor.extractFromZip(blob2)).thenReturn(new ImmutableMap.Builder<String, Object>()
         .put("autoload", singletonMap("psr-0", singletonMap("psr-2-key", "psr-2-value")))
@@ -221,6 +226,7 @@ public class ComposerJsonProcessorTest
     when(component3.requireLastUpdated()).thenReturn(new DateTime(300558600000L, DateTimeZone.forOffsetHours(-4)));
     when(storageTx.firstAsset(component3)).thenReturn(asset3);
     when(asset3.requireBlobRef()).thenReturn(blobRef3);
+    when(asset3.getChecksum(SHA1)).thenReturn(HashCode.fromLong(3L));
     when(storageTx.requireBlob(blobRef3)).thenReturn(blob3);
     when(composerJsonExtractor.extractFromZip(blob3)).thenReturn(new ImmutableMap.Builder<String, Object>()
         .put("autoload", singletonMap("psr-4", singletonMap("psr-3-key", "psr-3-value")))
@@ -236,6 +242,7 @@ public class ComposerJsonProcessorTest
     when(component4.requireLastUpdated()).thenReturn(new DateTime(1210869000000L, DateTimeZone.forOffsetHours(-4)));
     when(storageTx.firstAsset(component4)).thenReturn(asset4);
     when(asset4.requireBlobRef()).thenReturn(blobRef4);
+    when(asset4.getChecksum(SHA1)).thenReturn(HashCode.fromLong(4L));
     when(storageTx.requireBlob(blobRef4)).thenReturn(blob4);
     when(composerJsonExtractor.extractFromZip(blob4)).thenReturn(new ImmutableMap.Builder<String, Object>()
         .put("autoload", singletonMap("psr-0", singletonMap("psr-4-key", "psr-4-value")))

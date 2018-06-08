@@ -6,7 +6,9 @@
         "version": "1.0.0",
         "dist": {
           "url": "http://nexus.repo/base/repo/vendor1/project1/1.0.0/vendor1-project1-1.0.0.zip",
-          "type": "zip"
+          "type": "zip",
+          "reference" : "0100000000000000",
+          "shasum" : "0100000000000000"
         },
         "uid": 4034385470,
         "time": "1982-06-04T16:30:00+00:00",
@@ -30,7 +32,9 @@
         "version": "2.0.0",
         "dist": {
           "url": "http://nexus.repo/base/repo/vendor1/project1/2.0.0/vendor1-project1-2.0.0.zip",
-          "type": "zip"
+          "type": "zip",
+          "reference" : "0200000000000000",
+          "shasum" : "0200000000000000"
         },
         "uid": 4088247242,
         "time": "2008-05-15T16:30:00+00:00",
@@ -56,7 +60,9 @@
         "version": "3.0.0",
         "dist": {
           "url": "http://nexus.repo/base/repo/vendor2/project2/3.0.0/vendor2-project2-3.0.0.zip",
-          "type": "zip"
+          "type": "zip",
+          "reference" : "0300000000000000",
+          "shasum" : "0300000000000000"
         },
         "uid": 861509421,
         "time": "1979-07-11T16:30:00+00:00",
@@ -80,7 +86,9 @@
         "version": "4.0.0",
         "dist": {
           "url": "http://nexus.repo/base/repo/vendor2/project2/4.0.0/vendor2-project2-4.0.0.zip",
-          "type": "zip"
+          "type": "zip",
+          "reference" : "0400000000000000",
+          "shasum" : "0400000000000000"
         },
         "uid": 1702476377,
         "time": "2008-05-15T16:30:00+00:00",

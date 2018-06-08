@@ -31,6 +31,7 @@ import javax.inject.Singleton;
 
 import org.sonatype.nexus.blobstore.api.Blob;
 import org.sonatype.nexus.blobstore.api.BlobRef;
+import org.sonatype.nexus.common.hash.HashAlgorithm;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.repository.storage.Component;
@@ -78,11 +79,15 @@ public class ComposerJsonProcessor
 
   private static final String PACKAGE_NAMES_KEY = "packageNames";
 
+  private static final String REFERENCE_KEY = "reference";
+
   private static final String REQUIRE_KEY = "require";
 
   private static final String REQUIRE_DEV_KEY = "require-dev";
 
   private static final String SHA256_KEY = "sha256";
+
+  private static final String SHASUM_KEY = "shasum";
 
   private static final String SOURCE_KEY = "source";
 
@@ -163,7 +168,9 @@ public class ComposerJsonProcessor
 
           Map<String, Object> distInfo = (Map<String, Object>) versionInfo.get(DIST_KEY);
           if (distInfo != null && ZIP_TYPE.equals(distInfo.get(TYPE_KEY))) {
-            versionInfo.put(DIST_KEY, buildDistInfo(repository, packageName, packageVersion, ZIP_TYPE));
+            versionInfo.put(DIST_KEY,
+                buildDistInfo(repository, packageName, packageVersion, (String) distInfo.get(REFERENCE_KEY),
+                    (String) distInfo.get(SHASUM_KEY), ZIP_TYPE));
           }
         }
       }
@@ -198,8 +205,10 @@ public class ComposerJsonProcessor
         packages.put(name, new LinkedHashMap<>());
       }
 
+      String sha1 = asset.getChecksum(HashAlgorithm.SHA1).toString();
       Map<String, Object> packagesForName = packages.get(name);
-      packagesForName.put(version, buildPackageInfo(repository, name, version, ZIP_TYPE, time, composerJson));
+      packagesForName
+          .put(version, buildPackageInfo(repository, name, version, sha1, sha1, ZIP_TYPE, time, composerJson));
     }
 
     return new Content(new StringPayload(mapper.writeValueAsString(singletonMap(PACKAGES_KEY, packages)),
@@ -253,6 +262,7 @@ public class ComposerJsonProcessor
 
             Map<String, Object> packagesForName = packages.get(packageName);
             packagesForName.putIfAbsent(packageVersion, buildPackageInfo(repository, packageName, packageVersion,
+                (String) distInfo.get(REFERENCE_KEY), (String) distInfo.get(SHASUM_KEY),
                 (String) distInfo.get(TYPE_KEY), time, versionInfo));
           }
         }
@@ -266,6 +276,8 @@ public class ComposerJsonProcessor
   private Map<String, Object> buildPackageInfo(final Repository repository,
                                                final String packageName,
                                                final String packageVersion,
+                                               final String reference,
+                                               final String shasum,
                                                final String type,
                                                final String time,
                                                final Map<String, Object> versionInfo)
@@ -273,7 +285,7 @@ public class ComposerJsonProcessor
     Map<String, Object> newPackageInfo = new LinkedHashMap<>();
     newPackageInfo.put(NAME_KEY, packageName);
     newPackageInfo.put(VERSION_KEY, packageVersion);
-    newPackageInfo.put(DIST_KEY, buildDistInfo(repository, packageName, packageVersion, type));
+    newPackageInfo.put(DIST_KEY, buildDistInfo(repository, packageName, packageVersion, reference, shasum, type));
     newPackageInfo.put(TIME_KEY, time);
     newPackageInfo.put(UID_KEY, Integer.toUnsignedLong(
         Hashing.md5().newHasher()
@@ -302,6 +314,8 @@ public class ComposerJsonProcessor
   private Map<String, Object> buildDistInfo(final Repository repository,
                                             final String packageName,
                                             final String packageVersion,
+                                            final String reference,
+                                            final String shasum,
                                             final String type)
   {
     String packageNameParts[] = packageName.split("/");
@@ -311,6 +325,8 @@ public class ComposerJsonProcessor
     newDistInfo
         .put(URL_KEY, repository.getUrl() + "/" + buildZipballPath(packageVendor, packageProject, packageVersion));
     newDistInfo.put(TYPE_KEY, type);
+    newDistInfo.put(REFERENCE_KEY, reference);
+    newDistInfo.put(SHASUM_KEY, shasum);
     return newDistInfo;
   }
 
