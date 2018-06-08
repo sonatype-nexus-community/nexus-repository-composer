@@ -117,6 +117,8 @@ public class ComposerJsonProcessor
 
   private static final String VERSION_KEY = "version";
 
+  private static final String TARGET_DIR_KEY = "target-dir";
+
   private static final String TIME_KEY = "time";
 
   private static final String UID_KEY = "uid";
@@ -353,6 +355,9 @@ public class ComposerJsonProcessor
     }
     if (versionInfo.containsKey(PROVIDE_KEY)) {
       newPackageInfo.put(PROVIDE_KEY, versionInfo.get(PROVIDE_KEY));
+    }
+    if (versionInfo.containsKey(TARGET_DIR_KEY)) {
+      newPackageInfo.put(TARGET_DIR_KEY, versionInfo.get(TARGET_DIR_KEY));
     }
 
     return newPackageInfo;

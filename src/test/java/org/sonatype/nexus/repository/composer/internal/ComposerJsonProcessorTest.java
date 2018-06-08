@@ -209,6 +209,7 @@ public class ComposerJsonProcessorTest
         .put("description", "description-1")
         .put("homepage", "homepage-1")
         .put("provide", singletonMap("provide-1", "version-1"))
+        .put("target-dir", "target-dir-1")
         .put("foo", singletonMap("foo-key", "foo-value"))
         .build());
 
@@ -233,6 +234,7 @@ public class ComposerJsonProcessorTest
         .put("description", "description-2")
         .put("homepage", "homepage-2")
         .put("provide", singletonMap("provide-2", "version-2"))
+        .put("target-dir", "target-dir-2")
         .put("foo", singletonMap("foo-key", "foo-value"))
         .build());
 
@@ -257,6 +259,7 @@ public class ComposerJsonProcessorTest
         .put("description", "description-3")
         .put("homepage", "homepage-3")
         .put("provide", singletonMap("provide-3", "version-3"))
+        .put("target-dir", "target-dir-3")
         .put("foo", singletonMap("foo-key", "foo-value"))
         .build());
 
@@ -281,6 +284,7 @@ public class ComposerJsonProcessorTest
         .put("description", "description-4")
         .put("homepage", "homepage-4")
         .put("provide", singletonMap("provide-4", "version-4"))
+        .put("target-dir", "target-dir-4")
         .put("foo", singletonMap("foo-key", "foo-value"))
         .build());
 

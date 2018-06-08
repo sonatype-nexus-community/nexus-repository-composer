@@ -51,7 +51,8 @@
         },
         "provide" : {
           "provide-1" : "version-1"
-        }
+        },
+        "target-dir" : "target-dir-1"
       },
       "2.0.0" : {
         "name": "vendor1/project1",

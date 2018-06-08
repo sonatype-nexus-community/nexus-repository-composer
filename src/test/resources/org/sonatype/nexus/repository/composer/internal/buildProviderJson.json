@@ -49,7 +49,8 @@
         ],
         "provide" : {
           "provide-1" : "version-1"
-        }
+        },
+        "target-dir" : "target-dir-1"
       },
       "2.0.0": {
         "name": "vendor1/project1",
@@ -99,7 +100,8 @@
         ],
         "provide" : {
           "provide-2" : "version-2"
-        }
+        },
+        "target-dir" : "target-dir-2"
       }
     },
     "vendor2/project2": {
@@ -151,7 +153,8 @@
         ],
         "provide" : {
           "provide-3" : "version-3"
-        }
+        },
+        "target-dir" : "target-dir-3"
       },
       "4.0.0": {
         "name": "vendor2/project2",
@@ -201,7 +204,8 @@
         ],
         "provide" : {
           "provide-4" : "version-4"
-        }
+        },
+        "target-dir" : "target-dir-4"
       }
     }
   }
