@@ -4,8 +4,8 @@
       "1.0.0": {
         "name": "vendor1/project1",
         "description": "Description 1",
-        "keywords": [],
-        "homepage": "",
+        "keywords": ["keyword1"],
+        "homepage": "http://www.example.com/homepage1",
         "version": "1.0.0",
         "version_normalized": "1.0.0",
         "license": [
@@ -38,6 +38,20 @@
         },
         "suggest": {
           "suggest-1": "description-1"
+        },
+        "bin": [
+          "bin-1"
+        ],
+        "conflict": {
+          "conflict-1": "version-1"
+        },
+        "extra": {
+          "branch-alias": {
+            "branch-1": "version-1"
+          }
+        },
+        "provide" : {
+          "provide-1" : "version-1"
         }
       }
     },
@@ -45,8 +59,8 @@
       "2.0.0": {
         "name": "vendor3/project3",
         "description": "Description 3",
-        "keywords": [],
-        "homepage": "",
+        "keywords": ["keyword3"],
+        "homepage": "http://www.example.com/homepage3",
         "version": "2.0.0",
         "version_normalized": "2.0.0",
         "license": [

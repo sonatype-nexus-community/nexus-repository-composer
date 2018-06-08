@@ -4,6 +4,18 @@
       "1.0.0" : {
         "name": "vendor1/project1",
         "version": "1.0.0",
+        "description": "Description 1",
+        "keywords": ["keyword1"],
+        "homepage": "http://www.example.com/homepage1",
+        "authors": [
+          {
+            "name": "Author 1",
+            "homepage": "http://example.com/author1"
+          }
+        ],
+        "license": [
+          "MIT"
+        ],
         "dist" : {
           "url" : "http://nexus.repo/base/repo/vendor1/project1/1.0.0/vendor1-project1-1.0.0.zip",
           "type" : "zip",
@@ -25,6 +37,20 @@
         },
         "suggest": {
           "suggest-1": "description-1"
+        },
+        "bin": [
+          "bin-1"
+        ],
+        "conflict": {
+          "conflict-1": "version-1"
+        },
+        "extra": {
+          "branch-alias": {
+            "branch-1": "version-1"
+          }
+        },
+        "provide" : {
+          "provide-1" : "version-1"
         }
       },
       "2.0.0" : {
@@ -112,6 +138,18 @@
       "2.0.0": {
         "name": "vendor3/project3",
         "version": "2.0.0",
+        "description": "Description 3",
+        "keywords": ["keyword3"],
+        "homepage": "http://www.example.com/homepage3",
+        "authors": [
+          {
+            "name": "Author 2",
+            "homepage": "http://example.com/author2"
+          }
+        ],
+        "license": [
+          "MIT"
+        ],
         "dist": {
           "url": "http://nexus.repo/base/repo/vendor3/project3/2.0.0/vendor3-project3-2.0.0.zip",
           "type": "zip",

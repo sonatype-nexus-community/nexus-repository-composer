@@ -67,7 +67,23 @@ public class ComposerJsonProcessor
 
   private static final String AUTOLOAD_KEY = "autoload";
 
+  private static final String AUTHORS_KEY = "authors";
+
+  private static final String BIN_KEY = "bin";
+
+  private static final String CONFLICT_KEY = "conflict";
+
+  private static final String DESCRIPTION_KEY = "description";
+
   private static final String DIST_KEY = "dist";
+
+  private static final String EXTRA_KEY = "extra";
+
+  private static final String HOMEPAGE_KEY = "homepage";
+
+  private static final String KEYWORDS_KEY = "keywords";
+
+  private static final String LICENSE_KEY = "license";
 
   private static final String PROVIDERS_URL_KEY = "providers-url";
 
@@ -76,6 +92,8 @@ public class ComposerJsonProcessor
   private static final String PACKAGES_KEY = "packages";
 
   private static final String PACKAGE_NAMES_KEY = "packageNames";
+
+  private static final String PROVIDE_KEY = "provide";
 
   private static final String REFERENCE_KEY = "reference";
 
@@ -304,6 +322,37 @@ public class ComposerJsonProcessor
     }
     if (versionInfo.containsKey(SUGGEST_KEY)) {
       newPackageInfo.put(SUGGEST_KEY, versionInfo.get(SUGGEST_KEY));
+    }
+
+    if (versionInfo.containsKey(AUTHORS_KEY)) {
+      newPackageInfo.put(AUTHORS_KEY, versionInfo.get(AUTHORS_KEY));
+    }
+    if (versionInfo.containsKey(BIN_KEY)) {
+      newPackageInfo.put(BIN_KEY, versionInfo.get(BIN_KEY));
+    }
+    if (versionInfo.containsKey(CONFLICT_KEY)) {
+      newPackageInfo.put(CONFLICT_KEY, versionInfo.get(CONFLICT_KEY));
+    }
+    if (versionInfo.containsKey(DESCRIPTION_KEY)) {
+      newPackageInfo.put(DESCRIPTION_KEY, versionInfo.get(DESCRIPTION_KEY));
+    }
+    if (versionInfo.containsKey(EXTRA_KEY)) {
+      newPackageInfo.put(EXTRA_KEY, versionInfo.get(EXTRA_KEY));
+    }
+    if (versionInfo.containsKey(DESCRIPTION_KEY)) {
+      newPackageInfo.put(DESCRIPTION_KEY, versionInfo.get(DESCRIPTION_KEY));
+    }
+    if (versionInfo.containsKey(HOMEPAGE_KEY)) {
+      newPackageInfo.put(HOMEPAGE_KEY, versionInfo.get(HOMEPAGE_KEY));
+    }
+    if (versionInfo.containsKey(KEYWORDS_KEY)) {
+      newPackageInfo.put(KEYWORDS_KEY, versionInfo.get(KEYWORDS_KEY));
+    }
+    if (versionInfo.containsKey(LICENSE_KEY)) {
+      newPackageInfo.put(LICENSE_KEY, versionInfo.get(LICENSE_KEY));
+    }
+    if (versionInfo.containsKey(PROVIDE_KEY)) {
+      newPackageInfo.put(PROVIDE_KEY, versionInfo.get(PROVIDE_KEY));
     }
 
     return newPackageInfo;
