@@ -198,6 +198,7 @@ public class ComposerJsonProcessorTest
     when(storageTx.requireBlob(blobRef1)).thenReturn(blob1);
     when(composerJsonExtractor.extractFromZip(blob1)).thenReturn(new ImmutableMap.Builder<String, Object>()
         .put("autoload", singletonMap("psr-4", singletonMap("psr-1-key", "psr-1-value")))
+        .put("autoload-dev", singletonMap("psr-4", singletonMap("psr-1-key", "psr-1-value")))
         .put("require", singletonMap("dependency-1", "version-1"))
         .put("require-dev", singletonMap("dev-dependency-1", "dev-version-1"))
         .put("suggest", singletonMap("suggest-1", "description-1"))
@@ -210,6 +211,8 @@ public class ComposerJsonProcessorTest
         .put("homepage", "homepage-1")
         .put("provide", singletonMap("provide-1", "version-1"))
         .put("target-dir", "target-dir-1")
+        .put("scripts", singletonMap("scripts-1", asList("script-1")))
+        .put("support", singletonMap("support-1", "support-1-value"))
         .put("foo", singletonMap("foo-key", "foo-value"))
         .build());
 
@@ -223,6 +226,7 @@ public class ComposerJsonProcessorTest
     when(storageTx.requireBlob(blobRef2)).thenReturn(blob2);
     when(composerJsonExtractor.extractFromZip(blob2)).thenReturn(new ImmutableMap.Builder<String, Object>()
         .put("autoload", singletonMap("psr-0", singletonMap("psr-2-key", "psr-2-value")))
+        .put("autoload-dev", singletonMap("psr-4", singletonMap("psr-2-key", "psr-2-value")))
         .put("require", singletonMap("dependency-2", "version-2"))
         .put("require-dev", singletonMap("dev-dependency-2", "dev-version-2"))
         .put("suggest", singletonMap("suggest-2", "description-2"))
@@ -235,6 +239,8 @@ public class ComposerJsonProcessorTest
         .put("homepage", "homepage-2")
         .put("provide", singletonMap("provide-2", "version-2"))
         .put("target-dir", "target-dir-2")
+        .put("scripts", singletonMap("scripts-2", asList("script-2")))
+        .put("support", singletonMap("support-2", "support-2-value"))
         .put("foo", singletonMap("foo-key", "foo-value"))
         .build());
 
@@ -248,6 +254,7 @@ public class ComposerJsonProcessorTest
     when(storageTx.requireBlob(blobRef3)).thenReturn(blob3);
     when(composerJsonExtractor.extractFromZip(blob3)).thenReturn(new ImmutableMap.Builder<String, Object>()
         .put("autoload", singletonMap("psr-4", singletonMap("psr-3-key", "psr-3-value")))
+        .put("autoload-dev", singletonMap("psr-4", singletonMap("psr-3-key", "psr-3-value")))
         .put("require", singletonMap("dependency-3", "version-3"))
         .put("require-dev", singletonMap("dev-dependency-3", "dev-version-3"))
         .put("suggest", singletonMap("suggest-3", "description-3"))
@@ -260,6 +267,8 @@ public class ComposerJsonProcessorTest
         .put("homepage", "homepage-3")
         .put("provide", singletonMap("provide-3", "version-3"))
         .put("target-dir", "target-dir-3")
+        .put("scripts", singletonMap("scripts-3", asList("script-3")))
+        .put("support", singletonMap("support-3", "support-3-value"))
         .put("foo", singletonMap("foo-key", "foo-value"))
         .build());
 
@@ -273,6 +282,7 @@ public class ComposerJsonProcessorTest
     when(storageTx.requireBlob(blobRef4)).thenReturn(blob4);
     when(composerJsonExtractor.extractFromZip(blob4)).thenReturn(new ImmutableMap.Builder<String, Object>()
         .put("autoload", singletonMap("psr-0", singletonMap("psr-4-key", "psr-4-value")))
+        .put("autoload-dev", singletonMap("psr-4", singletonMap("psr-4-key", "psr-4-value")))
         .put("require", singletonMap("dependency-4", "version-4"))
         .put("require-dev", singletonMap("dev-dependency-4", "dev-version-4"))
         .put("suggest", singletonMap("suggest-4", "description-4"))
@@ -285,6 +295,8 @@ public class ComposerJsonProcessorTest
         .put("homepage", "homepage-4")
         .put("provide", singletonMap("provide-4", "version-4"))
         .put("target-dir", "target-dir-4")
+        .put("scripts", singletonMap("scripts-4", asList("script-4")))
+        .put("support", singletonMap("support-4", "support-4-value"))
         .put("foo", singletonMap("foo-key", "foo-value"))
         .build());
 

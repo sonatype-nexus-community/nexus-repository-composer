@@ -67,6 +67,8 @@ public class ComposerJsonProcessor
 
   private static final String AUTOLOAD_KEY = "autoload";
 
+  private static final String AUTOLOAD_DEV_KEY = "autoload-dev";
+
   private static final String AUTHORS_KEY = "authors";
 
   private static final String BIN_KEY = "bin";
@@ -105,9 +107,13 @@ public class ComposerJsonProcessor
 
   private static final String SHASUM_KEY = "shasum";
 
+  private static final String SCRIPTS_KEY = "scripts";
+
   private static final String SOURCE_KEY = "source";
 
   private static final String SUGGEST_KEY = "suggest";
+
+  private static final String SUPPORT_KEY = "support";
 
   private static final String TYPE_KEY = "type";
 
@@ -316,6 +322,9 @@ public class ComposerJsonProcessor
     if (versionInfo.containsKey(AUTOLOAD_KEY)) {
       newPackageInfo.put(AUTOLOAD_KEY, versionInfo.get(AUTOLOAD_KEY));
     }
+    if (versionInfo.containsKey(AUTOLOAD_DEV_KEY)) {
+      newPackageInfo.put(AUTOLOAD_DEV_KEY, versionInfo.get(AUTOLOAD_DEV_KEY));
+    }
     if (versionInfo.containsKey(REQUIRE_KEY)) {
       newPackageInfo.put(REQUIRE_KEY, versionInfo.get(REQUIRE_KEY));
     }
@@ -358,6 +367,12 @@ public class ComposerJsonProcessor
     }
     if (versionInfo.containsKey(TARGET_DIR_KEY)) {
       newPackageInfo.put(TARGET_DIR_KEY, versionInfo.get(TARGET_DIR_KEY));
+    }
+    if (versionInfo.containsKey(SCRIPTS_KEY)) {
+      newPackageInfo.put(SCRIPTS_KEY, versionInfo.get(SCRIPTS_KEY));
+    }
+    if (versionInfo.containsKey(SUPPORT_KEY)) {
+      newPackageInfo.put(SUPPORT_KEY, versionInfo.get(SUPPORT_KEY));
     }
 
     return newPackageInfo;

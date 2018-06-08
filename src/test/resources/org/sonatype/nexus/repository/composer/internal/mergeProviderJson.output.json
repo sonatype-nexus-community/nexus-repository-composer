@@ -29,6 +29,11 @@
             "psr-1-key": "psr-1-value"
           }
         },
+        "autoload-dev": {
+          "psr-4": {
+            "psr-1-key": "psr-1-value"
+          }
+        },
         "require": {
           "dependency-1": "version-1"
         },
@@ -52,7 +57,12 @@
         "provide" : {
           "provide-1" : "version-1"
         },
-        "target-dir" : "target-dir-1"
+        "target-dir" : "target-dir-1",
+        "scripts": {
+          "scripts-1": [
+            "script-1"
+          ]
+        }
       },
       "2.0.0" : {
         "name": "vendor1/project1",
