@@ -61,8 +61,6 @@ import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.
 @Singleton
 public class ComposerJsonProcessor
 {
-  private static final String REWRITE_URL = "%s/%s/%s/%s-%s.zip";
-
   private static final String PACKAGE_JSON_PATH = "/p/%package%.json";
 
   private static final String VENDOR_AND_PROJECT = "%s/%s";
