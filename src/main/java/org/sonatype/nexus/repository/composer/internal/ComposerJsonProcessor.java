@@ -350,9 +350,6 @@ public class ComposerJsonProcessor
     if (versionInfo.containsKey(EXTRA_KEY)) {
       newPackageInfo.put(EXTRA_KEY, versionInfo.get(EXTRA_KEY));
     }
-    if (versionInfo.containsKey(DESCRIPTION_KEY)) {
-      newPackageInfo.put(DESCRIPTION_KEY, versionInfo.get(DESCRIPTION_KEY));
-    }
     if (versionInfo.containsKey(HOMEPAGE_KEY)) {
       newPackageInfo.put(HOMEPAGE_KEY, versionInfo.get(HOMEPAGE_KEY));
     }
