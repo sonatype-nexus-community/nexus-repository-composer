@@ -259,7 +259,7 @@ public class ComposerJsonProcessor
   public Content mergeProviderJson(final Repository repository, final List<Payload> payloads, final DateTime now)
       throws IOException
   {
-    String time = now.withZone(DateTimeZone.UTC).toString(timeFormatter);
+    String currentTime = now.withZone(DateTimeZone.UTC).toString(timeFormatter);
 
     // TODO: Make this more robust, right now it makes a lot of assumptions and doesn't deal with bad things well,
     // can probably consolidate this with the handling for rewrites for proxy (or at least make it more rational).
@@ -282,6 +282,11 @@ public class ComposerJsonProcessor
 
             if (!packages.containsKey(packageName)) {
               packages.put(packageName, new LinkedHashMap<>());
+            }
+
+            String time = (String) versionInfo.get(TIME_KEY);
+            if (time == null) {
+              time = currentTime;
             }
 
             Map<String, Object> packagesForName = packages.get(packageName);
