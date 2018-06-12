@@ -6,11 +6,18 @@
         "version": "1.0.0",
         "dist": {
           "url": "http://nexus.repo/base/repo/vendor1/project1/1.0.0/vendor1-project1-1.0.0.zip",
-          "type": "zip"
+          "type": "zip",
+          "reference" : "0100000000000000",
+          "shasum" : "0100000000000000"
         },
-        "uid": 1345846687,
+        "uid": 4034385470,
         "time": "1982-06-04T16:30:00+00:00",
         "autoload": {
+          "psr-4": {
+            "psr-1-key": "psr-1-value"
+          }
+        },
+        "autoload-dev": {
           "psr-4": {
             "psr-1-key": "psr-1-value"
           }
@@ -23,6 +30,39 @@
         },
         "suggest": {
           "suggest-1": "description-1"
+        },
+        "authors": [
+          {
+            "name": "author-1"
+          }
+        ],
+        "bin": [
+          "bin-1"
+        ],
+        "conflict": {
+          "conflict-1": "version-1"
+        },
+        "description": "description-1",
+        "extra": {
+          "branch-alias": {
+            "branch-1": "version-1"
+          }
+        },
+        "homepage": "homepage-1",
+        "license": [
+          "license-1"
+        ],
+        "provide" : {
+          "provide-1" : "version-1"
+        },
+        "target-dir" : "target-dir-1",
+        "scripts": {
+          "scripts-1": [
+            "script-1"
+          ]
+        },
+        "support" : {
+          "support-1" : "support-1-value"
         }
       },
       "2.0.0": {
@@ -30,12 +70,19 @@
         "version": "2.0.0",
         "dist": {
           "url": "http://nexus.repo/base/repo/vendor1/project1/2.0.0/vendor1-project1-2.0.0.zip",
-          "type": "zip"
+          "type": "zip",
+          "reference" : "0200000000000000",
+          "shasum" : "0200000000000000"
         },
-        "uid": 1700253429,
+        "uid": 4088247242,
         "time": "2008-05-15T16:30:00+00:00",
         "autoload": {
           "psr-0": {
+            "psr-2-key": "psr-2-value"
+          }
+        },
+        "autoload-dev": {
+          "psr-4": {
             "psr-2-key": "psr-2-value"
           }
         },
@@ -47,6 +94,39 @@
         },
         "suggest": {
           "suggest-2": "description-2"
+        },
+        "authors": [
+          {
+            "name": "author-2"
+          }
+        ],
+        "bin": [
+          "bin-2"
+        ],
+        "conflict": {
+          "conflict-2": "version-2"
+        },
+        "description": "description-2",
+        "extra": {
+          "branch-alias": {
+            "branch-2": "version-2"
+          }
+        },
+        "homepage": "homepage-2",
+        "license": [
+          "license-2"
+        ],
+        "provide" : {
+          "provide-2" : "version-2"
+        },
+        "target-dir" : "target-dir-2",
+        "scripts": {
+          "scripts-2": [
+            "script-2"
+          ]
+        },
+        "support" : {
+          "support-2" : "support-2-value"
         }
       }
     },
@@ -56,11 +136,18 @@
         "version": "3.0.0",
         "dist": {
           "url": "http://nexus.repo/base/repo/vendor2/project2/3.0.0/vendor2-project2-3.0.0.zip",
-          "type": "zip"
+          "type": "zip",
+          "reference" : "0300000000000000",
+          "shasum" : "0300000000000000"
         },
-        "uid": 1398386772,
+        "uid": 861509421,
         "time": "1979-07-11T16:30:00+00:00",
         "autoload": {
+          "psr-4": {
+            "psr-3-key": "psr-3-value"
+          }
+        },
+        "autoload-dev": {
           "psr-4": {
             "psr-3-key": "psr-3-value"
           }
@@ -73,6 +160,39 @@
         },
         "suggest": {
           "suggest-3": "description-3"
+        },
+        "authors": [
+          {
+            "name": "author-3"
+          }
+        ],
+        "bin": [
+          "bin-3"
+        ],
+        "conflict": {
+          "conflict-3": "version-3"
+        },
+        "description": "description-3",
+        "extra": {
+          "branch-alias": {
+            "branch-3": "version-3"
+          }
+        },
+        "homepage": "homepage-3",
+        "license": [
+          "license-3"
+        ],
+        "provide" : {
+          "provide-3" : "version-3"
+        },
+        "target-dir" : "target-dir-3",
+        "scripts": {
+          "scripts-3": [
+            "script-3"
+          ]
+        },
+        "support" : {
+          "support-3" : "support-3-value"
         }
       },
       "4.0.0": {
@@ -80,12 +200,19 @@
         "version": "4.0.0",
         "dist": {
           "url": "http://nexus.repo/base/repo/vendor2/project2/4.0.0/vendor2-project2-4.0.0.zip",
-          "type": "zip"
+          "type": "zip",
+          "reference" : "0400000000000000",
+          "shasum" : "0400000000000000"
         },
-        "uid": 237122898,
+        "uid": 1702476377,
         "time": "2008-05-15T16:30:00+00:00",
         "autoload": {
           "psr-0": {
+            "psr-4-key": "psr-4-value"
+          }
+        },
+        "autoload-dev": {
+          "psr-4": {
             "psr-4-key": "psr-4-value"
           }
         },
@@ -97,6 +224,39 @@
         },
         "suggest": {
           "suggest-4": "description-4"
+        },
+        "authors": [
+          {
+            "name": "author-4"
+          }
+        ],
+        "bin": [
+          "bin-4"
+        ],
+        "conflict": {
+          "conflict-4": "version-4"
+        },
+        "description": "description-4",
+        "extra": {
+          "branch-alias": {
+            "branch-4": "version-4"
+          }
+        },
+        "homepage": "homepage-4",
+        "license": [
+          "license-4"
+        ],
+        "provide" : {
+          "provide-4" : "version-4"
+        },
+        "target-dir" : "target-dir-4",
+        "scripts": {
+          "scripts-4": [
+            "script-4"
+          ]
+        },
+        "support" : {
+          "support-4" : "support-4-value"
         }
       }
     }

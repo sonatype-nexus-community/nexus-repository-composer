@@ -1,0 +1,189 @@
+{
+  "packages" : {
+    "vendor1/project1" : {
+      "1.0.0" : {
+        "name": "vendor1/project1",
+        "version": "1.0.0",
+        "description": "Description 1",
+        "keywords": ["keyword1"],
+        "homepage": "http://www.example.com/homepage1",
+        "authors": [
+          {
+            "name": "Author 1",
+            "homepage": "http://example.com/author1"
+          }
+        ],
+        "license": [
+          "MIT"
+        ],
+        "dist" : {
+          "url" : "http://nexus.repo/base/repo/vendor1/project1/1.0.0/vendor1-project1-1.0.0.zip",
+          "type" : "zip",
+          "reference": "48954c0fa210437795be418e708b379598333d0a",
+          "shasum": ""
+        },
+        "uid" : 3457661917,
+        "time" : "2018-01-09T15:53:01+00:00",
+        "autoload": {
+          "psr-4": {
+            "psr-1-key": "psr-1-value"
+          }
+        },
+        "autoload-dev": {
+          "psr-4": {
+            "psr-1-key": "psr-1-value"
+          }
+        },
+        "require": {
+          "dependency-1": "version-1"
+        },
+        "require-dev": {
+          "dev-dependency-1": "dev-version-1"
+        },
+        "suggest": {
+          "suggest-1": "description-1"
+        },
+        "bin": [
+          "bin-1"
+        ],
+        "conflict": {
+          "conflict-1": "version-1"
+        },
+        "extra": {
+          "branch-alias": {
+            "branch-1": "version-1"
+          }
+        },
+        "provide" : {
+          "provide-1" : "version-1"
+        },
+        "target-dir" : "target-dir-1",
+        "scripts": {
+          "scripts-1": [
+            "script-1"
+          ]
+        }
+      },
+      "2.0.0" : {
+        "name": "vendor1/project1",
+        "version": "2.0.0",
+        "dist" : {
+          "url" : "http://nexus.repo/base/repo/vendor1/project1/2.0.0/vendor1-project1-2.0.0.zip",
+          "type" : "zip",
+          "reference": "ref2",
+          "shasum": "sha2"
+        },
+        "uid" : 4088247242,
+        "time" : "2008-05-15T16:30:00+00:00",
+        "autoload": {
+          "psr-4": {
+            "psr-4-key": "psr-4-value"
+          }
+        },
+        "require": {
+          "dependency-4": "version-4"
+        },
+        "require-dev": {
+          "dev-dependency-4": "dev-version-4"
+        },
+        "suggest": {
+          "suggest-4": "description-4"
+        }
+      }
+    },
+    "vendor2/project2" : {
+      "3.0.0" : {
+        "name": "vendor2/project2",
+        "version": "3.0.0",
+        "dist" : {
+          "url" : "http://nexus.repo/base/repo/vendor2/project2/3.0.0/vendor2-project2-3.0.0.zip",
+          "type" : "zip",
+          "reference": "ref3",
+          "shasum": "sha3"
+        },
+        "uid" : 861509421,
+        "time" : "1979-07-11T16:30:00+00:00",
+        "autoload": {
+          "psr-4": {
+            "psr-5-key": "psr-5-value"
+          }
+        },
+        "require": {
+          "dependency-5": "version-5"
+        },
+        "require-dev": {
+          "dev-dependency-5": "dev-version-5"
+        },
+        "suggest": {
+          "suggest-5": "description-5"
+        }
+      },
+      "4.0.0" : {
+        "name": "vendor2/project2",
+        "version": "4.0.0",
+        "dist" : {
+          "url" : "http://nexus.repo/base/repo/vendor2/project2/4.0.0/vendor2-project2-4.0.0.zip",
+          "type" : "zip",
+          "reference": "ref4",
+          "shasum": "sha4"
+        },
+        "uid" : 1702476377,
+        "time" : "2008-05-15T16:30:00+00:00",
+        "autoload": {
+          "psr-4": {
+            "psr-6-key": "psr-6-value"
+          }
+        },
+        "require": {
+          "dependency-6": "version-6"
+        },
+        "require-dev": {
+          "dev-dependency-6": "dev-version-6"
+        },
+        "suggest": {
+          "suggest-6": "description-6"
+        }
+      }
+    },
+    "vendor3/project3" : {
+      "2.0.0": {
+        "name": "vendor3/project3",
+        "version": "2.0.0",
+        "description": "Description 3",
+        "keywords": ["keyword3"],
+        "homepage": "http://www.example.com/homepage3",
+        "authors": [
+          {
+            "name": "Author 2",
+            "homepage": "http://example.com/author2"
+          }
+        ],
+        "license": [
+          "MIT"
+        ],
+        "dist": {
+          "url": "http://nexus.repo/base/repo/vendor3/project3/2.0.0/vendor3-project3-2.0.0.zip",
+          "type": "zip",
+          "reference": "be418e708b379598333d0a48954c0fa210437795",
+          "shasum": ""
+        },
+        "uid": 3572654212,
+        "time": "2018-01-09T15:53:01+00:00",
+        "autoload": {
+          "psr-4": {
+            "psr-2-key": "psr-2-value"
+          }
+        },
+        "require": {
+          "dependency-2": "version-2"
+        },
+        "require-dev": {
+          "dev-dependency-2": "dev-version-2"
+        },
+        "suggest": {
+          "suggest-2": "description-2"
+        }
+      }
+    }
+  }
+}

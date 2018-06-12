@@ -16,11 +16,12 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Collections;
+import java.util.Arrays;
 
 import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.blobstore.api.Blob;
 import org.sonatype.nexus.blobstore.api.BlobRef;
+import org.sonatype.nexus.common.hash.HashAlgorithm;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.repository.storage.Component;
@@ -29,6 +30,7 @@ import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Payload;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.hash.HashCode;
 import com.google.common.io.CharStreams;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -42,6 +44,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
+import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA1;
 
 public class ComposerJsonProcessorTest
     extends TestSupport
@@ -50,7 +53,10 @@ public class ComposerJsonProcessorTest
   private Repository repository;
 
   @Mock
-  private Payload payload;
+  private Payload payload1;
+
+  @Mock
+  private Payload payload2;
 
   @Mock
   private Component component1;
@@ -112,10 +118,10 @@ public class ComposerJsonProcessorTest
     String packagesJson = readStreamToString(getClass().getResourceAsStream("generatePackagesFromList.packages.json"));
 
     when(repository.getUrl()).thenReturn("http://nexus.repo/base/repo");
-    when(payload.openInputStream()).thenReturn(new ByteArrayInputStream(listJson.getBytes(UTF_8)));
+    when(payload1.openInputStream()).thenReturn(new ByteArrayInputStream(listJson.getBytes(UTF_8)));
 
     ComposerJsonProcessor underTest = new ComposerJsonProcessor(composerJsonExtractor);
-    Content output = underTest.generatePackagesFromList(repository, payload);
+    Content output = underTest.generatePackagesFromList(repository, payload1);
 
     assertEquals(packagesJson, readStreamToString(output.openInputStream()), true);
   }
@@ -150,10 +156,28 @@ public class ComposerJsonProcessorTest
     String outputJson = readStreamToString(getClass().getResourceAsStream("rewriteProviderJson.output.json"));
 
     when(repository.getUrl()).thenReturn("http://nexus.repo/base/repo");
-    when(payload.openInputStream()).thenReturn(new ByteArrayInputStream(inputJson.getBytes(UTF_8)));
+    when(payload1.openInputStream()).thenReturn(new ByteArrayInputStream(inputJson.getBytes(UTF_8)));
 
     ComposerJsonProcessor underTest = new ComposerJsonProcessor(composerJsonExtractor);
-    Payload output = underTest.rewriteProviderJson(repository, payload);
+    Payload output = underTest.rewriteProviderJson(repository, payload1);
+
+    assertEquals(outputJson, readStreamToString(output.openInputStream()), true);
+  }
+
+  @Test
+  public void mergeProviderJson() throws Exception {
+    DateTime time = new DateTime(1210869000000L, DateTimeZone.forOffsetHours(-4));
+
+    String inputJson1 = readStreamToString(getClass().getResourceAsStream("mergeProviderJson.input1.json"));
+    String inputJson2 = readStreamToString(getClass().getResourceAsStream("mergeProviderJson.input2.json"));
+    String outputJson = readStreamToString(getClass().getResourceAsStream("mergeProviderJson.output.json"));
+
+    when(repository.getUrl()).thenReturn("http://nexus.repo/base/repo");
+    when(payload1.openInputStream()).thenReturn(new ByteArrayInputStream(inputJson1.getBytes(UTF_8)));
+    when(payload2.openInputStream()).thenReturn(new ByteArrayInputStream(inputJson2.getBytes(UTF_8)));
+
+    ComposerJsonProcessor underTest = new ComposerJsonProcessor(composerJsonExtractor);
+    Payload output = underTest.mergeProviderJson(repository, Arrays.asList(payload1, payload2), time);
 
     assertEquals(outputJson, readStreamToString(output.openInputStream()), true);
   }
@@ -170,12 +194,25 @@ public class ComposerJsonProcessorTest
     when(component1.requireLastUpdated()).thenReturn(new DateTime(392056200000L, DateTimeZone.forOffsetHours(-4)));
     when(storageTx.firstAsset(component1)).thenReturn(asset1);
     when(asset1.requireBlobRef()).thenReturn(blobRef1);
+    when(asset1.getChecksum(SHA1)).thenReturn(HashCode.fromLong(1L));
     when(storageTx.requireBlob(blobRef1)).thenReturn(blob1);
     when(composerJsonExtractor.extractFromZip(blob1)).thenReturn(new ImmutableMap.Builder<String, Object>()
         .put("autoload", singletonMap("psr-4", singletonMap("psr-1-key", "psr-1-value")))
+        .put("autoload-dev", singletonMap("psr-4", singletonMap("psr-1-key", "psr-1-value")))
         .put("require", singletonMap("dependency-1", "version-1"))
         .put("require-dev", singletonMap("dev-dependency-1", "dev-version-1"))
         .put("suggest", singletonMap("suggest-1", "description-1"))
+        .put("authors", asList(singletonMap("name", "author-1")))
+        .put("bin", asList("bin-1"))
+        .put("conflict", singletonMap("conflict-1", "version-1"))
+        .put("extra", singletonMap("branch-alias", singletonMap("branch-1", "version-1")))
+        .put("license", asList("license-1"))
+        .put("description", "description-1")
+        .put("homepage", "homepage-1")
+        .put("provide", singletonMap("provide-1", "version-1"))
+        .put("target-dir", "target-dir-1")
+        .put("scripts", singletonMap("scripts-1", asList("script-1")))
+        .put("support", singletonMap("support-1", "support-1-value"))
         .put("foo", singletonMap("foo-key", "foo-value"))
         .build());
 
@@ -185,12 +222,25 @@ public class ComposerJsonProcessorTest
     when(component2.requireLastUpdated()).thenReturn(new DateTime(1210869000000L, DateTimeZone.forOffsetHours(-4)));
     when(storageTx.firstAsset(component2)).thenReturn(asset2);
     when(asset2.requireBlobRef()).thenReturn(blobRef2);
+    when(asset2.getChecksum(SHA1)).thenReturn(HashCode.fromLong(2L));
     when(storageTx.requireBlob(blobRef2)).thenReturn(blob2);
     when(composerJsonExtractor.extractFromZip(blob2)).thenReturn(new ImmutableMap.Builder<String, Object>()
         .put("autoload", singletonMap("psr-0", singletonMap("psr-2-key", "psr-2-value")))
+        .put("autoload-dev", singletonMap("psr-4", singletonMap("psr-2-key", "psr-2-value")))
         .put("require", singletonMap("dependency-2", "version-2"))
         .put("require-dev", singletonMap("dev-dependency-2", "dev-version-2"))
         .put("suggest", singletonMap("suggest-2", "description-2"))
+        .put("authors", asList(singletonMap("name", "author-2")))
+        .put("bin", asList("bin-2"))
+        .put("conflict", singletonMap("conflict-2", "version-2"))
+        .put("extra", singletonMap("branch-alias", singletonMap("branch-2", "version-2")))
+        .put("license", asList("license-2"))
+        .put("description", "description-2")
+        .put("homepage", "homepage-2")
+        .put("provide", singletonMap("provide-2", "version-2"))
+        .put("target-dir", "target-dir-2")
+        .put("scripts", singletonMap("scripts-2", asList("script-2")))
+        .put("support", singletonMap("support-2", "support-2-value"))
         .put("foo", singletonMap("foo-key", "foo-value"))
         .build());
 
@@ -200,12 +250,25 @@ public class ComposerJsonProcessorTest
     when(component3.requireLastUpdated()).thenReturn(new DateTime(300558600000L, DateTimeZone.forOffsetHours(-4)));
     when(storageTx.firstAsset(component3)).thenReturn(asset3);
     when(asset3.requireBlobRef()).thenReturn(blobRef3);
+    when(asset3.getChecksum(SHA1)).thenReturn(HashCode.fromLong(3L));
     when(storageTx.requireBlob(blobRef3)).thenReturn(blob3);
     when(composerJsonExtractor.extractFromZip(blob3)).thenReturn(new ImmutableMap.Builder<String, Object>()
         .put("autoload", singletonMap("psr-4", singletonMap("psr-3-key", "psr-3-value")))
+        .put("autoload-dev", singletonMap("psr-4", singletonMap("psr-3-key", "psr-3-value")))
         .put("require", singletonMap("dependency-3", "version-3"))
         .put("require-dev", singletonMap("dev-dependency-3", "dev-version-3"))
         .put("suggest", singletonMap("suggest-3", "description-3"))
+        .put("authors", asList(singletonMap("name", "author-3")))
+        .put("bin", asList("bin-3"))
+        .put("conflict", singletonMap("conflict-3", "version-3"))
+        .put("extra", singletonMap("branch-alias", singletonMap("branch-3", "version-3")))
+        .put("license", asList("license-3"))
+        .put("description", "description-3")
+        .put("homepage", "homepage-3")
+        .put("provide", singletonMap("provide-3", "version-3"))
+        .put("target-dir", "target-dir-3")
+        .put("scripts", singletonMap("scripts-3", asList("script-3")))
+        .put("support", singletonMap("support-3", "support-3-value"))
         .put("foo", singletonMap("foo-key", "foo-value"))
         .build());
 
@@ -215,12 +278,25 @@ public class ComposerJsonProcessorTest
     when(component4.requireLastUpdated()).thenReturn(new DateTime(1210869000000L, DateTimeZone.forOffsetHours(-4)));
     when(storageTx.firstAsset(component4)).thenReturn(asset4);
     when(asset4.requireBlobRef()).thenReturn(blobRef4);
+    when(asset4.getChecksum(SHA1)).thenReturn(HashCode.fromLong(4L));
     when(storageTx.requireBlob(blobRef4)).thenReturn(blob4);
     when(composerJsonExtractor.extractFromZip(blob4)).thenReturn(new ImmutableMap.Builder<String, Object>()
         .put("autoload", singletonMap("psr-0", singletonMap("psr-4-key", "psr-4-value")))
+        .put("autoload-dev", singletonMap("psr-4", singletonMap("psr-4-key", "psr-4-value")))
         .put("require", singletonMap("dependency-4", "version-4"))
         .put("require-dev", singletonMap("dev-dependency-4", "dev-version-4"))
         .put("suggest", singletonMap("suggest-4", "description-4"))
+        .put("authors", asList(singletonMap("name", "author-4")))
+        .put("bin", asList("bin-4"))
+        .put("conflict", singletonMap("conflict-4", "version-4"))
+        .put("extra", singletonMap("branch-alias", singletonMap("branch-4", "version-4")))
+        .put("license", asList("license-4"))
+        .put("description", "description-4")
+        .put("homepage", "homepage-4")
+        .put("provide", singletonMap("provide-4", "version-4"))
+        .put("target-dir", "target-dir-4")
+        .put("scripts", singletonMap("scripts-4", asList("script-4")))
+        .put("support", singletonMap("support-4", "support-4-value"))
         .put("foo", singletonMap("foo-key", "foo-value"))
         .build());
 
@@ -232,12 +308,28 @@ public class ComposerJsonProcessorTest
   }
 
   @Test
-  public void getDistUrl() throws Exception {
-    String inputJson = readStreamToString(getClass().getResourceAsStream("getDistUrl.json"));
-    when(payload.openInputStream()).thenReturn(new ByteArrayInputStream(inputJson.getBytes(UTF_8)));
+  public void mergePackagesJson() throws Exception {
+    String inputJson1 = readStreamToString(getClass().getResourceAsStream("mergePackagesJson.input1.json"));
+    String inputJson2 = readStreamToString(getClass().getResourceAsStream("mergePackagesJson.input2.json"));
+    String outputJson = readStreamToString(getClass().getResourceAsStream("mergePackagesJson.output.json"));
+
+    when(repository.getUrl()).thenReturn("http://nexus.repo/base/repo");
+    when(payload1.openInputStream()).thenReturn(new ByteArrayInputStream(inputJson1.getBytes(UTF_8)));
+    when(payload2.openInputStream()).thenReturn(new ByteArrayInputStream(inputJson2.getBytes(UTF_8)));
 
     ComposerJsonProcessor underTest = new ComposerJsonProcessor(composerJsonExtractor);
-    String distUrl = underTest.getDistUrl("vendor1", "project1", "2.0.0", payload);
+    Payload output = underTest.mergePackagesJson(repository, Arrays.asList(payload1, payload2));
+
+    assertEquals(outputJson, readStreamToString(output.openInputStream()), true);
+  }
+
+  @Test
+  public void getDistUrl() throws Exception {
+    String inputJson = readStreamToString(getClass().getResourceAsStream("getDistUrl.json"));
+    when(payload1.openInputStream()).thenReturn(new ByteArrayInputStream(inputJson.getBytes(UTF_8)));
+
+    ComposerJsonProcessor underTest = new ComposerJsonProcessor(composerJsonExtractor);
+    String distUrl = underTest.getDistUrl("vendor1", "project1", "2.0.0", payload1);
 
     assertThat(distUrl, is("https://git.example.com/zipball/418e708b379598333d0a48954c0fa210437795be"));
   }

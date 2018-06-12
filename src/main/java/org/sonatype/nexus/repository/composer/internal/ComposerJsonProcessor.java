@@ -16,9 +16,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,6 +31,7 @@ import javax.inject.Singleton;
 
 import org.sonatype.nexus.blobstore.api.Blob;
 import org.sonatype.nexus.blobstore.api.BlobRef;
+import org.sonatype.nexus.common.hash.HashAlgorithm;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.repository.storage.Component;
@@ -42,12 +44,13 @@ import org.sonatype.nexus.repository.view.payloads.StringPayload;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.hash.Hashing;
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import static java.util.Collections.singletonMap;
 import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.buildZipballPath;
 
 /**
@@ -58,15 +61,31 @@ import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.
 @Singleton
 public class ComposerJsonProcessor
 {
-  private static final String REWRITE_URL = "%s/%s/%s/%s-%s.zip";
-
   private static final String PACKAGE_JSON_PATH = "/p/%package%.json";
 
   private static final String VENDOR_AND_PROJECT = "%s/%s";
 
   private static final String AUTOLOAD_KEY = "autoload";
 
+  private static final String AUTOLOAD_DEV_KEY = "autoload-dev";
+
+  private static final String AUTHORS_KEY = "authors";
+
+  private static final String BIN_KEY = "bin";
+
+  private static final String CONFLICT_KEY = "conflict";
+
+  private static final String DESCRIPTION_KEY = "description";
+
   private static final String DIST_KEY = "dist";
+
+  private static final String EXTRA_KEY = "extra";
+
+  private static final String HOMEPAGE_KEY = "homepage";
+
+  private static final String KEYWORDS_KEY = "keywords";
+
+  private static final String LICENSE_KEY = "license";
 
   private static final String PROVIDERS_URL_KEY = "providers-url";
 
@@ -76,15 +95,25 @@ public class ComposerJsonProcessor
 
   private static final String PACKAGE_NAMES_KEY = "packageNames";
 
+  private static final String PROVIDE_KEY = "provide";
+
+  private static final String REFERENCE_KEY = "reference";
+
   private static final String REQUIRE_KEY = "require";
 
   private static final String REQUIRE_DEV_KEY = "require-dev";
 
   private static final String SHA256_KEY = "sha256";
 
+  private static final String SHASUM_KEY = "shasum";
+
+  private static final String SCRIPTS_KEY = "scripts";
+
   private static final String SOURCE_KEY = "source";
 
   private static final String SUGGEST_KEY = "suggest";
+
+  private static final String SUPPORT_KEY = "support";
 
   private static final String TYPE_KEY = "type";
 
@@ -93,6 +122,8 @@ public class ComposerJsonProcessor
   private static final String NAME_KEY = "name";
 
   private static final String VERSION_KEY = "version";
+
+  private static final String TARGET_DIR_KEY = "target-dir";
 
   private static final String TIME_KEY = "time";
 
@@ -141,7 +172,7 @@ public class ComposerJsonProcessor
     Map<String, Object> packagesJson = new LinkedHashMap<>();
     packagesJson.put(PROVIDERS_URL_KEY, repository.getUrl() + PACKAGE_JSON_PATH);
     packagesJson.put(PROVIDERS_KEY, names.stream()
-        .collect(Collectors.toMap((each) -> each, (each) -> Collections.singletonMap(SHA256_KEY, null))));
+        .collect(Collectors.toMap((each) -> each, (each) -> singletonMap(SHA256_KEY, null))));
     return new Content(new StringPayload(mapper.writeValueAsString(packagesJson), ContentTypes.APPLICATION_JSON));
   }
 
@@ -160,13 +191,10 @@ public class ComposerJsonProcessor
           versionInfo.remove(SOURCE_KEY); // TODO: For now don't allow sources, probably should make this configurable?
 
           Map<String, Object> distInfo = (Map<String, Object>) versionInfo.get(DIST_KEY);
-          if (distInfo != null) {
-            String distType = (String) distInfo.get(TYPE_KEY);
-            checkState(ZIP_TYPE.equals(distInfo.get(TYPE_KEY)), "Invalid dist type %s for package %s version %s",
-                distType, packageName, packageVersion);
-            distInfo.put(URL_KEY, String
-                .format(REWRITE_URL, repository.getUrl(), packageName, packageVersion, packageName.replace('/', '-'),
-                    packageVersion));
+          if (distInfo != null && ZIP_TYPE.equals(distInfo.get(TYPE_KEY))) {
+            versionInfo.put(DIST_KEY,
+                buildDistInfo(repository, packageName, packageVersion, (String) distInfo.get(REFERENCE_KEY),
+                    (String) distInfo.get(SHASUM_KEY), ZIP_TYPE));
           }
         }
       }
@@ -197,46 +225,178 @@ public class ComposerJsonProcessor
       String name = vendor + "/" + project;
       String time = component.requireLastUpdated().withZone(DateTimeZone.UTC).toString(timeFormatter);
 
-      Map<String, Object> dist = new LinkedHashMap<>();
-      dist.put(URL_KEY, repository.getUrl() + "/" + buildZipballPath(vendor, project, version));
-      dist.put(TYPE_KEY, ZIP_TYPE);
-
-      Map<String, Object> pkg = new LinkedHashMap<>();
-      pkg.put(NAME_KEY, name);
-      pkg.put(VERSION_KEY, version);
-      pkg.put(DIST_KEY, dist);
-      pkg.put(TIME_KEY, time);
-      pkg.put(UID_KEY, Hashing.md5().newHasher()
-          .putString(vendor, StandardCharsets.UTF_8)
-          .putString(project, StandardCharsets.UTF_8)
-          .putString(version, StandardCharsets.UTF_8)
-          .putString(time, StandardCharsets.UTF_8)
-          .hash()
-          .asInt());
-
-      if (composerJson.containsKey(AUTOLOAD_KEY)) {
-        pkg.put(AUTOLOAD_KEY, composerJson.get(AUTOLOAD_KEY));
-      }
-      if (composerJson.containsKey(REQUIRE_KEY)) {
-        pkg.put(REQUIRE_KEY, composerJson.get(REQUIRE_KEY));
-      }
-      if (composerJson.containsKey(REQUIRE_DEV_KEY)) {
-        pkg.put(REQUIRE_DEV_KEY, composerJson.get(REQUIRE_DEV_KEY));
-      }
-      if (composerJson.containsKey(SUGGEST_KEY)) {
-        pkg.put(SUGGEST_KEY, composerJson.get(SUGGEST_KEY));
-      }
-
       if (!packages.containsKey(name)) {
         packages.put(name, new LinkedHashMap<>());
       }
 
+      String sha1 = asset.getChecksum(HashAlgorithm.SHA1).toString();
       Map<String, Object> packagesForName = packages.get(name);
-      packagesForName.put(version, pkg);
+      packagesForName
+          .put(version, buildPackageInfo(repository, name, version, sha1, sha1, ZIP_TYPE, time, composerJson));
     }
 
-    return new Content(new StringPayload(mapper.writeValueAsString(Collections.singletonMap(PACKAGES_KEY, packages)),
+    return new Content(new StringPayload(mapper.writeValueAsString(singletonMap(PACKAGES_KEY, packages)),
         ContentTypes.APPLICATION_JSON));
+  }
+
+  /**
+   * Merges an incoming set of packages.json files.
+   */
+  public Content mergePackagesJson(final Repository repository, final List<Payload> payloads) throws IOException {
+    Set<String> names = new HashSet<>();
+    for (Payload payload : payloads) {
+      Map<String, Object> json = parseJson(payload);
+      Map<String, Object> providers = (Map<String, Object>) json.get(PROVIDERS_KEY);
+      names.addAll(providers.keySet());
+    }
+    return buildPackagesJson(repository, names);
+  }
+
+  /**
+   * Merges incoming provider JSON files, producing a merged file containing only the minimal subset of fields that we
+   * need to download artifacts.
+   */
+  public Content mergeProviderJson(final Repository repository, final List<Payload> payloads, final DateTime now)
+      throws IOException
+  {
+    String currentTime = now.withZone(DateTimeZone.UTC).toString(timeFormatter);
+
+    // TODO: Make this more robust, right now it makes a lot of assumptions and doesn't deal with bad things well,
+    // can probably consolidate this with the handling for rewrites for proxy (or at least make it more rational).
+    Map<String, Map<String, Object>> packages = new LinkedHashMap<>();
+    for (Payload payload : payloads) {
+      Map<String, Object> json = parseJson(payload);
+      if (json.get(PACKAGES_KEY) instanceof Map) {
+
+        Map<String, Object> packagesMap = (Map<String, Object>) json.get(PACKAGES_KEY);
+        for (String packageName : packagesMap.keySet()) {
+
+          Map<String, Object> packageVersions = (Map<String, Object>) packagesMap.get(packageName);
+          for (String packageVersion : packageVersions.keySet()) {
+
+            Map<String, Object> versionInfo = (Map<String, Object>) packageVersions.get(packageVersion);
+            Map<String, Object> distInfo = (Map<String, Object>) versionInfo.get(DIST_KEY);
+            if (distInfo == null) {
+              continue;
+            }
+
+            if (!packages.containsKey(packageName)) {
+              packages.put(packageName, new LinkedHashMap<>());
+            }
+
+            String time = (String) versionInfo.get(TIME_KEY);
+            if (time == null) {
+              time = currentTime;
+            }
+
+            Map<String, Object> packagesForName = packages.get(packageName);
+            packagesForName.putIfAbsent(packageVersion, buildPackageInfo(repository, packageName, packageVersion,
+                (String) distInfo.get(REFERENCE_KEY), (String) distInfo.get(SHASUM_KEY),
+                (String) distInfo.get(TYPE_KEY), time, versionInfo));
+          }
+        }
+      }
+    }
+
+    return new Content(new StringPayload(mapper.writeValueAsString(singletonMap(PACKAGES_KEY, packages)),
+        ContentTypes.APPLICATION_JSON));
+  }
+
+  private Map<String, Object> buildPackageInfo(final Repository repository,
+                                               final String packageName,
+                                               final String packageVersion,
+                                               final String reference,
+                                               final String shasum,
+                                               final String type,
+                                               final String time,
+                                               final Map<String, Object> versionInfo)
+  {
+    Map<String, Object> newPackageInfo = new LinkedHashMap<>();
+    newPackageInfo.put(NAME_KEY, packageName);
+    newPackageInfo.put(VERSION_KEY, packageVersion);
+    newPackageInfo.put(DIST_KEY, buildDistInfo(repository, packageName, packageVersion, reference, shasum, type));
+    newPackageInfo.put(TIME_KEY, time);
+    newPackageInfo.put(UID_KEY, Integer.toUnsignedLong(
+        Hashing.md5().newHasher()
+            .putString(packageName, StandardCharsets.UTF_8)
+            .putString(packageVersion, StandardCharsets.UTF_8)
+            .putString(time, StandardCharsets.UTF_8)
+            .hash()
+            .asInt()));
+
+    if (versionInfo.containsKey(AUTOLOAD_KEY)) {
+      newPackageInfo.put(AUTOLOAD_KEY, versionInfo.get(AUTOLOAD_KEY));
+    }
+    if (versionInfo.containsKey(AUTOLOAD_DEV_KEY)) {
+      newPackageInfo.put(AUTOLOAD_DEV_KEY, versionInfo.get(AUTOLOAD_DEV_KEY));
+    }
+    if (versionInfo.containsKey(REQUIRE_KEY)) {
+      newPackageInfo.put(REQUIRE_KEY, versionInfo.get(REQUIRE_KEY));
+    }
+    if (versionInfo.containsKey(REQUIRE_DEV_KEY)) {
+      newPackageInfo.put(REQUIRE_DEV_KEY, versionInfo.get(REQUIRE_DEV_KEY));
+    }
+    if (versionInfo.containsKey(SUGGEST_KEY)) {
+      newPackageInfo.put(SUGGEST_KEY, versionInfo.get(SUGGEST_KEY));
+    }
+
+    if (versionInfo.containsKey(AUTHORS_KEY)) {
+      newPackageInfo.put(AUTHORS_KEY, versionInfo.get(AUTHORS_KEY));
+    }
+    if (versionInfo.containsKey(BIN_KEY)) {
+      newPackageInfo.put(BIN_KEY, versionInfo.get(BIN_KEY));
+    }
+    if (versionInfo.containsKey(CONFLICT_KEY)) {
+      newPackageInfo.put(CONFLICT_KEY, versionInfo.get(CONFLICT_KEY));
+    }
+    if (versionInfo.containsKey(DESCRIPTION_KEY)) {
+      newPackageInfo.put(DESCRIPTION_KEY, versionInfo.get(DESCRIPTION_KEY));
+    }
+    if (versionInfo.containsKey(EXTRA_KEY)) {
+      newPackageInfo.put(EXTRA_KEY, versionInfo.get(EXTRA_KEY));
+    }
+    if (versionInfo.containsKey(HOMEPAGE_KEY)) {
+      newPackageInfo.put(HOMEPAGE_KEY, versionInfo.get(HOMEPAGE_KEY));
+    }
+    if (versionInfo.containsKey(KEYWORDS_KEY)) {
+      newPackageInfo.put(KEYWORDS_KEY, versionInfo.get(KEYWORDS_KEY));
+    }
+    if (versionInfo.containsKey(LICENSE_KEY)) {
+      newPackageInfo.put(LICENSE_KEY, versionInfo.get(LICENSE_KEY));
+    }
+    if (versionInfo.containsKey(PROVIDE_KEY)) {
+      newPackageInfo.put(PROVIDE_KEY, versionInfo.get(PROVIDE_KEY));
+    }
+    if (versionInfo.containsKey(TARGET_DIR_KEY)) {
+      newPackageInfo.put(TARGET_DIR_KEY, versionInfo.get(TARGET_DIR_KEY));
+    }
+    if (versionInfo.containsKey(SCRIPTS_KEY)) {
+      newPackageInfo.put(SCRIPTS_KEY, versionInfo.get(SCRIPTS_KEY));
+    }
+    if (versionInfo.containsKey(SUPPORT_KEY)) {
+      newPackageInfo.put(SUPPORT_KEY, versionInfo.get(SUPPORT_KEY));
+    }
+
+    return newPackageInfo;
+  }
+
+  private Map<String, Object> buildDistInfo(final Repository repository,
+                                            final String packageName,
+                                            final String packageVersion,
+                                            final String reference,
+                                            final String shasum,
+                                            final String type)
+  {
+    String packageNameParts[] = packageName.split("/");
+    String packageVendor = packageNameParts[0];
+    String packageProject = packageNameParts[1];
+    Map<String, Object> newDistInfo = new LinkedHashMap<>();
+    newDistInfo
+        .put(URL_KEY, repository.getUrl() + "/" + buildZipballPath(packageVendor, packageProject, packageVersion));
+    newDistInfo.put(TYPE_KEY, type);
+    newDistInfo.put(REFERENCE_KEY, reference);
+    newDistInfo.put(SHASUM_KEY, shasum);
+    return newDistInfo;
   }
 
   /**

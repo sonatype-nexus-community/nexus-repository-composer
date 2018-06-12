@@ -1,0 +1,11 @@
+{
+  "providers-url": "http://nexus.repo/base/repo/p/%package%.json",
+  "providers": {
+    "vendor1/project1": {
+      "sha256": null
+    },
+    "vendor2/project2": {
+      "sha256": null
+    }
+  }
+}

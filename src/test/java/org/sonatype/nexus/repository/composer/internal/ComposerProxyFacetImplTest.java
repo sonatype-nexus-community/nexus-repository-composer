@@ -16,6 +16,7 @@ import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.cache.CacheInfo;
+import org.sonatype.nexus.repository.composer.internal.ComposerProxyFacetImpl.NonResolvableProviderJsonException;
 import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.Payload;
@@ -301,5 +302,23 @@ public class ComposerProxyFacetImplTest
         .build());
 
     assertThat(underTest.getUrl(context), is("distUrl"));
+  }
+
+  @Test(expected = NonResolvableProviderJsonException.class)
+  public void getUrlZipballMissingProviderJson() throws Exception {
+    when(contextAttributes.require(AssetKind.class)).thenReturn(ZIPBALL);
+    when(contextAttributes.require(TokenMatcher.State.class)).thenReturn(state);
+
+    when(viewFacet.dispatch(any(Request.class), eq(context))).thenReturn(response);
+    when(response.getPayload()).thenReturn(null);
+
+    when(state.getTokens()).thenReturn(new ImmutableMap.Builder<String, String>()
+        .put("vendor", "vendor")
+        .put("project", "project")
+        .put("version", "version")
+        .put("name", "project-version")
+        .build());
+
+    underTest.getUrl(context);
   }
 }
