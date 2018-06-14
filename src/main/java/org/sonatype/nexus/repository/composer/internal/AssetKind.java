@@ -24,7 +24,7 @@ public enum AssetKind
 {
   ZIPBALL(CONTENT),
   PACKAGES(METADATA),
-  LIST(METADATA),
+  PACKAGES_WITH_HASHES(METADATA),
   PROVIDER(METADATA);
 
   private final CacheType cacheType;

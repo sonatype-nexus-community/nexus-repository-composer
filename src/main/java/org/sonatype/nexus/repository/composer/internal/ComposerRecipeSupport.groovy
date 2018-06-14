@@ -118,11 +118,11 @@ abstract class ComposerRecipeSupport
         ))
   }
 
-  static Builder listMatcher() {
+  static Builder packagesWithHashesMatcher() {
     new Builder().matcher(
         LogicMatchers.and(
             new ActionMatcher(GET, HEAD),
-            new LiteralMatcher('/packages/list.json')
+            new LiteralMatcher('/packages-with-hashes.json')
         ))
   }
 

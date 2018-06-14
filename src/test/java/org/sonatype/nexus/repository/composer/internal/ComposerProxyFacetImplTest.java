@@ -37,15 +37,15 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonatype.nexus.repository.composer.internal.AssetKind.LIST;
 import static org.sonatype.nexus.repository.composer.internal.AssetKind.PACKAGES;
+import static org.sonatype.nexus.repository.composer.internal.AssetKind.PACKAGES_WITH_HASHES;
 import static org.sonatype.nexus.repository.composer.internal.AssetKind.PROVIDER;
 import static org.sonatype.nexus.repository.composer.internal.AssetKind.ZIPBALL;
 
 public class ComposerProxyFacetImplTest
     extends TestSupport
 {
-  private static final String LIST_PATH = "packages/list.json";
+  private static final String PACKAGES_WITH_HASHES_PATH = "packages-with-hashes.json";
 
   private static final String PACKAGES_PATH = "packages.json";
 
@@ -115,9 +115,9 @@ public class ComposerProxyFacetImplTest
   }
 
   @Test
-  public void getCachedContentList() throws Exception {
-    when(contextAttributes.require(AssetKind.class)).thenReturn(LIST);
-    when(composerContentFacet.get(LIST_PATH)).thenReturn(content);
+  public void getCachedContentPackagesWithHashes() throws Exception {
+    when(contextAttributes.require(AssetKind.class)).thenReturn(PACKAGES_WITH_HASHES);
+    when(composerContentFacet.get(PACKAGES_WITH_HASHES_PATH)).thenReturn(content);
 
     assertThat(underTest.getCachedContent(context), is(content));
   }
@@ -164,12 +164,12 @@ public class ComposerProxyFacetImplTest
   }
 
   @Test
-  public void indicateVerifiedList() throws Exception {
-    when(contextAttributes.require(AssetKind.class)).thenReturn(LIST);
+  public void indicateVerifiedPackagesWithHashes() throws Exception {
+    when(contextAttributes.require(AssetKind.class)).thenReturn(PACKAGES_WITH_HASHES);
 
     underTest.indicateVerified(context, content, cacheInfo);
 
-    verify(composerContentFacet).setCacheInfo(LIST_PATH, content, cacheInfo);
+    verify(composerContentFacet).setCacheInfo(PACKAGES_WITH_HASHES_PATH, content, cacheInfo);
   }
 
   @Test
@@ -219,13 +219,13 @@ public class ComposerProxyFacetImplTest
 
   @Ignore
   @Test
-  public void storeList() throws Exception {
-    when(contextAttributes.require(AssetKind.class)).thenReturn(LIST);
-    when(composerContentFacet.put(LIST_PATH, content, LIST)).thenReturn(content);
+  public void storePackagesWithHashes() throws Exception {
+    when(contextAttributes.require(AssetKind.class)).thenReturn(PACKAGES_WITH_HASHES);
+    when(composerContentFacet.put(PACKAGES_WITH_HASHES_PATH, content, PACKAGES_WITH_HASHES)).thenReturn(content);
 
     assertThat(underTest.store(context, content), is(content));
 
-    verify(composerContentFacet).put(LIST_PATH, content, LIST);
+    verify(composerContentFacet).put(PACKAGES_WITH_HASHES_PATH, content, PACKAGES_WITH_HASHES);
   }
 
   @Test
@@ -266,23 +266,23 @@ public class ComposerProxyFacetImplTest
 
   @Test
   public void getUrlPackages() throws Exception {
-    when(contextAttributes.require(AssetKind.class)).thenReturn(LIST);
+    when(contextAttributes.require(AssetKind.class)).thenReturn(PACKAGES);
     when(request.getPath()).thenReturn("/" + PACKAGES_PATH);
 
     assertThat(underTest.getUrl(context), is(PACKAGES_PATH));
   }
 
   @Test
-  public void getUrlList() throws Exception {
-    when(contextAttributes.require(AssetKind.class)).thenReturn(LIST);
-    when(request.getPath()).thenReturn("/" + LIST_PATH);
+  public void getUrlPackagesWithHashes() throws Exception {
+    when(contextAttributes.require(AssetKind.class)).thenReturn(PACKAGES_WITH_HASHES);
+    when(request.getPath()).thenReturn("/" + PACKAGES_PATH);
 
-    assertThat(underTest.getUrl(context), is(LIST_PATH));
+    assertThat(underTest.getUrl(context), is(PACKAGES_PATH));
   }
 
   @Test
   public void getUrlProvider() throws Exception {
-    when(contextAttributes.require(AssetKind.class)).thenReturn(LIST);
+    when(contextAttributes.require(AssetKind.class)).thenReturn(PROVIDER);
     when(request.getPath()).thenReturn("/" + PROVIDER_PATH);
 
     assertThat(underTest.getUrl(context), is(PROVIDER_PATH));
