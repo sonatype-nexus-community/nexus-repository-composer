@@ -27,6 +27,7 @@ import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -216,6 +217,7 @@ public class ComposerProxyFacetImplTest
     verify(composerContentFacet).put(PACKAGES_PATH, content, PACKAGES);
   }
 
+  @Ignore
   @Test
   public void storeList() throws Exception {
     when(contextAttributes.require(AssetKind.class)).thenReturn(LIST);

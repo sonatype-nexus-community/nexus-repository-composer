@@ -14,6 +14,9 @@ package org.sonatype.nexus.repository.composer.internal;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
@@ -105,7 +108,7 @@ public class ComposerProxyFacetImpl
       case PACKAGES:
         return content().put(PACKAGES_JSON, generatePackagesJson(context), assetKind);
       case LIST:
-        return content().put(LIST_JSON, content, assetKind);
+        return content().put(LIST_JSON, generateList(context), assetKind);
       case PROVIDER:
         return content().put(buildProviderPath(context), content, assetKind);
       case ZIPBALL:
@@ -163,6 +166,25 @@ public class ComposerProxyFacetImpl
       Response response = getRepository().facet(ViewFacet.class).dispatch(request, context);
       Payload payload = checkNotNull(response.getPayload());
       return composerJsonProcessor.generatePackagesFromList(getRepository(), payload);
+    }
+    catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+    catch (Exception e) {
+      Throwables.throwIfUnchecked(e);
+      throw new RuntimeException(e);
+    }
+  }
+
+  private Content generateList(final Context context) throws IOException {
+    try {
+      Map<String, String> providersAndHashes = new LinkedHashMap<>();
+      Content packagesJsonContent = fetch("/" + PACKAGES_JSON, context, null);
+      for (String providerIncludesUrl : composerJsonProcessor.extractProviderIncludesUrls(packagesJsonContent)) {
+        providersAndHashes
+            .putAll(composerJsonProcessor.extractProvidersAndHashes(fetch("/" + providerIncludesUrl, context, null)));
+      }
+      return composerJsonProcessor.generateListFromProvidersAndHashes(providersAndHashes);
     }
     catch (IOException e) {
       throw new UncheckedIOException(e);

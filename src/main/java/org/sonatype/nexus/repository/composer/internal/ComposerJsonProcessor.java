@@ -15,6 +15,7 @@ package org.sonatype.nexus.repository.composer.internal;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -87,6 +88,8 @@ public class ComposerJsonProcessor
 
   private static final String LICENSE_KEY = "license";
 
+  private static final String PROVIDER_INCLUDES_KEY = "provider-includes";
+
   private static final String PROVIDERS_URL_KEY = "providers-url";
 
   private static final String PROVIDERS_KEY = "providers";
@@ -150,7 +153,7 @@ public class ComposerJsonProcessor
   public Content generatePackagesFromList(final Repository repository, final Payload payload) throws IOException {
     // TODO: Parse using JSON tokens rather than loading all this into memory, it "should" work but I'd be careful.
     Map<String, Object> listJson = parseJson(payload);
-    return buildPackagesJson(repository, new LinkedHashSet<>((Collection<String>) listJson.get(PACKAGE_NAMES_KEY)));
+    return buildPackagesJson(repository, listJson.keySet());
   }
 
   /**
@@ -419,5 +422,41 @@ public class ComposerJsonProcessor
       TypeReference<Map<String, Object>> typeReference = new TypeReference<Map<String, Object>>() { };
       return mapper.readValue(in, typeReference);
     }
+  }
+
+  /**
+   * Extracts the provider includes urls from a packages.json file.
+   */
+  public List<String> extractProviderIncludesUrls(final Payload payload) throws IOException {
+    Map<String, Object> packagesJson = parseJson(payload);
+    Map<String, Object> providerIncludes = (Map<String, Object>) packagesJson.get(PROVIDER_INCLUDES_KEY);
+    return providerIncludes.entrySet().stream().map(
+        entry -> entry.getKey().replace("%hash%", (String) ((Map<String, Object>) entry.getValue()).get(SHA256_KEY)))
+        .collect(Collectors.toList());
+  }
+
+  /**
+   * Extracts the providers and hashes and from a provider-includes file.
+   */
+  public Map<String, String> extractProvidersAndHashes(final Payload payload) throws IOException {
+    // TODO: Parse using JSON tokens rather than loading all this into memory
+    Map<String, String> results = new LinkedHashMap<>();
+    Map<String, Object> json = parseJson(payload);
+    Map<String, Object> currentProviders = (Map<String, Object>) json.get(PROVIDERS_KEY);
+    for (Map.Entry<String, Object> provider : currentProviders.entrySet()) {
+      results.put(provider.getKey(), (String) ((Map<String, Object>) provider.getValue()).get(SHA256_KEY));
+    }
+    return results;
+  }
+
+  /**
+   * Generates a "list" of all providers and their hashes suitable for quick scanning on a line by line basis. This
+   * could be stored in a database under other circumstances, but we've encountered performance issues with such a
+   * large number of attributes in OrientDB maps.
+   */
+  public Content generateListFromProvidersAndHashes(final Map<String, String> providers)
+      throws IOException
+  {
+    return new Content(new StringPayload(mapper.writeValueAsString(providers), ContentTypes.APPLICATION_JSON));
   }
 }
