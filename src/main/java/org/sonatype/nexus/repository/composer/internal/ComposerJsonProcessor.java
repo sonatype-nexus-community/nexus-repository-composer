@@ -427,10 +427,16 @@ public class ComposerJsonProcessor
   }
 
   /**
-   * Extracts the provider includes urls from a packages.json file.
+   * Parses the composer.json.
    */
-  public List<String> extractProviderIncludesUrls(final Payload payload) throws IOException {
-    ComposerPackagesJson packagesJson = parseJson(payload, ComposerPackagesJson.class);
+  public ComposerPackagesJson parseComposerJson(final Payload payload) throws IOException {
+    return parseJson(payload, ComposerPackagesJson.class);
+  }
+
+  /**
+   * Builds the provider-includes urls from a packages file by replacing the hash placeholder with the sha256 value.
+   */
+  public List<String> buildProviderIncludesUrls(final ComposerPackagesJson packagesJson) {
     return packagesJson.getProviderIncludes().entrySet().stream().map(
         entry -> entry.getKey().replace("%hash%", entry.getValue().getSha256()))
         .collect(Collectors.toList());

@@ -182,8 +182,9 @@ public class ComposerProxyFacetImpl
   private Content generatePackagesWithHashesJson(final Context context, final Content content) throws IOException {
     try {
       // TODO: Better logging and error checking on failure/non-200 scenarios
+      ComposerPackagesJson packagesJson = composerJsonProcessor.parseComposerJson(content);
       Map<String, String> providersAndHashes = new LinkedHashMap<>();
-      for (String providerIncludesUrl : composerJsonProcessor.extractProviderIncludesUrls(content)) {
+      for (String providerIncludesUrl : composerJsonProcessor.buildProviderIncludesUrls(packagesJson)) {
         Content providerContent = fetch(providerIncludesUrl, context, null);
         if (providerContent == null) {
           log.error("Unable to read provider content from {}, skipping", providerIncludesUrl);
