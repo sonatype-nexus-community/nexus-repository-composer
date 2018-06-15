@@ -1,10 +1,12 @@
 package org.sonatype.nexus.repository.composer.internal;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * JSON entry representing a sha256 key contained in a Composer metadata file.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ComposerDigestEntry
 {
   @JsonProperty("sha256")

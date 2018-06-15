@@ -14,6 +14,7 @@ package org.sonatype.nexus.repository.composer.internal;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -22,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * Data carrier representing Composer packages.json.
  */
 @JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ComposerPackagesJson
 {
   @JsonProperty("providers-url")

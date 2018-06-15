@@ -14,11 +14,13 @@ package org.sonatype.nexus.repository.composer.internal;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Data carrier representing Composer provider-includes json.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ComposerProviderIncludesJson
 {
   @JsonProperty("providers")
