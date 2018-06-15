@@ -150,6 +150,8 @@ public class ComposerProxyFacetImpl
         // but does not exist in actual Composer repositories; this works around our formats framework so that we can
         // fetch valid content from the server rather than fail with a 404 when proxying upstream content.
         return PACKAGES_JSON;
+      case PROVIDER:
+        return getProviderUrl(context);
       default:
         return context.getRequest().getPath().substring(1);
     }
@@ -193,6 +195,35 @@ public class ComposerProxyFacetImpl
         providersAndHashes.putAll(composerJsonProcessor.extractProvidersAndHashes(providerContent));
       }
       return composerJsonProcessor.buildPackagesWithHashesJson(packagesJson, providersAndHashes);
+    }
+    catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+    catch (Exception e) {
+      Throwables.throwIfUnchecked(e);
+      throw new RuntimeException(e);
+    }
+  }
+
+  private String getProviderUrl(final Context context) {
+    try {
+      TokenMatcher.State state = context.getAttributes().require(TokenMatcher.State.class);
+      Map<String, String> tokens = state.getTokens();
+      String vendor = tokens.get(VENDOR_TOKEN);
+      String project = tokens.get(PROJECT_TOKEN);
+
+      Request request = new Request.Builder().action(GET).path("/" + PACKAGES_WITH_HASHES_JSON).build();
+      Response response = getRepository().facet(ViewFacet.class).dispatch(request, context);
+      Payload payload = response.getPayload();
+      if (payload == null) {
+        throw new NonResolvableProviderJsonException(
+            String.format("No packages-with-hashes.json, requesting vendor %s, project %s", vendor, project));
+      }
+      String packageName = String.format("%s/%s", vendor, project);
+      ComposerPackagesJson packagesJson = composerJsonProcessor.parseComposerJson(payload);
+      ComposerDigestEntry providerDigest = packagesJson.getProviders().get(packageName);
+      return packagesJson.getProvidersUrl().replace("%package%", packageName)
+          .replace("%hash%", providerDigest.getSha256());
     }
     catch (IOException e) {
       throw new UncheckedIOException(e);

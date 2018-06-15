@@ -280,6 +280,7 @@ public class ComposerProxyFacetImplTest
     assertThat(underTest.getUrl(context), is(PACKAGES_PATH));
   }
 
+  @Ignore
   @Test
   public void getUrlProvider() throws Exception {
     when(contextAttributes.require(AssetKind.class)).thenReturn(PROVIDER);
