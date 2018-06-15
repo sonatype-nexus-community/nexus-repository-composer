@@ -168,7 +168,7 @@ public class ComposerProxyFacetImpl
       Request request = new Request.Builder().action(GET).path("/" + PACKAGES_WITH_HASHES_JSON).build();
       Response response = getRepository().facet(ViewFacet.class).dispatch(request, context);
       Payload payload = checkNotNull(response.getPayload());
-      return composerJsonProcessor.generatePackagesFromList(getRepository(), payload);
+      return composerJsonProcessor.generatePackagesFromHashes(getRepository(), payload);
     }
     catch (IOException e) {
       throw new UncheckedIOException(e);
@@ -192,7 +192,7 @@ public class ComposerProxyFacetImpl
         }
         providersAndHashes.putAll(composerJsonProcessor.extractProvidersAndHashes(providerContent));
       }
-      return composerJsonProcessor.generateListFromProvidersAndHashes(providersAndHashes);
+      return composerJsonProcessor.buildPackagesWithHashesJson(packagesJson, providersAndHashes);
     }
     catch (IOException e) {
       throw new UncheckedIOException(e);

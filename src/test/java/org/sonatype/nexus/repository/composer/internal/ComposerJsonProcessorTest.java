@@ -21,7 +21,6 @@ import java.util.Arrays;
 import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.blobstore.api.Blob;
 import org.sonatype.nexus.blobstore.api.BlobRef;
-import org.sonatype.nexus.common.hash.HashAlgorithm;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.repository.storage.Component;
@@ -113,15 +112,16 @@ public class ComposerJsonProcessorTest
   private ComposerJsonExtractor composerJsonExtractor;
 
   @Test
-  public void generatePackagesFromList() throws Exception {
-    String listJson = readStreamToString(getClass().getResourceAsStream("generatePackagesFromList.list.json"));
-    String packagesJson = readStreamToString(getClass().getResourceAsStream("generatePackagesFromList.packages.json"));
+  public void generatePackagesFromHashes() throws Exception {
+    String hashesJson = readStreamToString(getClass().getResourceAsStream("generatePackagesFromHashes.hashes.json"));
+    String packagesJson = readStreamToString(
+        getClass().getResourceAsStream("generatePackagesFromHashes.packages.json"));
 
     when(repository.getUrl()).thenReturn("http://nexus.repo/base/repo");
-    when(payload1.openInputStream()).thenReturn(new ByteArrayInputStream(listJson.getBytes(UTF_8)));
+    when(payload1.openInputStream()).thenReturn(new ByteArrayInputStream(hashesJson.getBytes(UTF_8)));
 
     ComposerJsonProcessor underTest = new ComposerJsonProcessor(composerJsonExtractor);
-    Content output = underTest.generatePackagesFromList(repository, payload1);
+    Content output = underTest.generatePackagesFromHashes(repository, payload1);
 
     assertEquals(packagesJson, readStreamToString(output.openInputStream()), true);
   }

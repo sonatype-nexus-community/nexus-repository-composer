@@ -142,14 +142,16 @@ public class ComposerJsonProcessor
   }
 
   /**
-   * Generates a packages.json file (inclusive of all projects) based on the list.json provided as a payload. Expected
-   * usage is to "go remote" on the current repository to fetch a list.json copy, then pass it to this method to build
-   * the packages.json for the client to use.
+   * Generates a packages.json file (inclusive of all projects) based on the packages-with-hashes.json provided as a
+   * payload. Expected usage is to "go remote" on the current repository to force it to fetch and merge all providers
+   * in the provider-includes upstream, then pass it to this method to build the packages.json for the client to use.
    */
-  public Content generatePackagesFromList(final Repository repository, final Payload payload) throws IOException {
+  public Content generatePackagesFromHashes(final Repository repository, final Payload payload)
+      throws IOException
+  {
     // TODO: Parse using JSON tokens rather than loading all this into memory, it "should" work but I'd be careful.
-    Map<String, Object> listJson = parseJson(payload);
-    return buildPackagesJson(repository, listJson.keySet());
+    ComposerPackagesJson packagesJson = parseJson(payload, ComposerPackagesJson.class);
+    return buildPackagesJson(repository, packagesJson.getProviders().keySet());
   }
 
   /**
@@ -458,13 +460,20 @@ public class ComposerJsonProcessor
   }
 
   /**
-   * Generates a "list" of all providers and their hashes suitable for quick scanning on a line by line basis. This
-   * could be stored in a database under other circumstances, but we've encountered performance issues with such a
-   * large number of attributes in OrientDB maps.
+   * Generates a modified packages.json containing the providers and their associated hashes, along with their original
+   * providers url.
+   *
+   * This could be stored in a database under other circumstances, but we've encountered performance issues with such a
+   * large number of attributes in OrientDB maps. If we encounter performance issues reading such large JSON files into
+   * memory, then we will likely need to revisit this approach as well.
    */
-  public Content generateListFromProvidersAndHashes(final Map<String, ComposerDigestEntry> providers)
+  public Content buildPackagesWithHashesJson(final ComposerPackagesJson packagesJson,
+                                             final Map<String, ComposerDigestEntry> providers)
       throws IOException
   {
-    return new Content(new StringPayload(mapper.writeValueAsString(providers), ContentTypes.APPLICATION_JSON));
+    ComposerPackagesJson result = new ComposerPackagesJson();
+    result.setProvidersUrl(packagesJson.getProvidersUrl());
+    result.setProviders(providers);
+    return new Content(new StringPayload(mapper.writeValueAsString(result), ContentTypes.APPLICATION_JSON));
   }
 }
