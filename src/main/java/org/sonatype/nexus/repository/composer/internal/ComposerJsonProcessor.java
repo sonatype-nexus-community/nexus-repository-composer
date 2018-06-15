@@ -88,15 +88,11 @@ public class ComposerJsonProcessor
 
   private static final String LICENSE_KEY = "license";
 
-  private static final String PROVIDER_INCLUDES_KEY = "provider-includes";
-
   private static final String PROVIDERS_URL_KEY = "providers-url";
 
   private static final String PROVIDERS_KEY = "providers";
 
   private static final String PACKAGES_KEY = "packages";
-
-  private static final String PACKAGE_NAMES_KEY = "packageNames";
 
   private static final String PROVIDE_KEY = "provide";
 
@@ -172,10 +168,10 @@ public class ComposerJsonProcessor
    * Builds a packages.json file as a {@code Content} instance containing the actual JSON for the given providers.
    */
   private Content buildPackagesJson(final Repository repository, final Set<String> names) throws IOException {
-    Map<String, Object> packagesJson = new LinkedHashMap<>();
-    packagesJson.put(PROVIDERS_URL_KEY, repository.getUrl() + PACKAGE_JSON_PATH);
-    packagesJson.put(PROVIDERS_KEY, names.stream()
-        .collect(Collectors.toMap((each) -> each, (each) -> singletonMap(SHA256_KEY, null))));
+    ComposerPackagesJson packagesJson = new ComposerPackagesJson();
+    packagesJson.setProvidersUrl(repository.getUrl() + PACKAGE_JSON_PATH);
+    packagesJson.setProviders(names.stream()
+        .collect(Collectors.toMap((each) -> each, (each) -> new ComposerDigestEntry())));
     return new Content(new StringPayload(mapper.writeValueAsString(packagesJson), ContentTypes.APPLICATION_JSON));
   }
 
@@ -424,14 +420,19 @@ public class ComposerJsonProcessor
     }
   }
 
+  private <T> T parseJson(final Payload payload, final Class<T> klass) throws IOException {
+    try (InputStream in = payload.openInputStream()) {
+      return mapper.readValue(in, klass);
+    }
+  }
+
   /**
    * Extracts the provider includes urls from a packages.json file.
    */
   public List<String> extractProviderIncludesUrls(final Payload payload) throws IOException {
-    Map<String, Object> packagesJson = parseJson(payload);
-    Map<String, Object> providerIncludes = (Map<String, Object>) packagesJson.get(PROVIDER_INCLUDES_KEY);
-    return providerIncludes.entrySet().stream().map(
-        entry -> entry.getKey().replace("%hash%", (String) ((Map<String, Object>) entry.getValue()).get(SHA256_KEY)))
+    ComposerPackagesJson packagesJson = parseJson(payload, ComposerPackagesJson.class);
+    return packagesJson.getProviderIncludes().entrySet().stream().map(
+        entry -> entry.getKey().replace("%hash%", entry.getValue().getSha256()))
         .collect(Collectors.toList());
   }
 
