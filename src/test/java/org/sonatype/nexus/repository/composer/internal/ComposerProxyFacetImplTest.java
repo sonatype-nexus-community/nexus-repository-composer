@@ -12,6 +12,8 @@
  */
 package org.sonatype.nexus.repository.composer.internal;
 
+import java.util.Map;
+
 import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.repository.Repository;
@@ -217,11 +219,16 @@ public class ComposerProxyFacetImplTest
     verify(composerContentFacet).put(PACKAGES_PATH, content, PACKAGES);
   }
 
-  @Ignore
   @Test
   public void storePackagesWithHashes() throws Exception {
     when(contextAttributes.require(AssetKind.class)).thenReturn(PACKAGES_WITH_HASHES);
     when(composerContentFacet.put(PACKAGES_WITH_HASHES_PATH, content, PACKAGES_WITH_HASHES)).thenReturn(content);
+
+    when(viewFacet.dispatch(any(Request.class), eq(context))).thenReturn(response);
+
+    ComposerPackagesJson packagesJson = new ComposerPackagesJson();
+    when(composerJsonProcessor.parseComposerJson(content)).thenReturn(packagesJson);
+    when(composerJsonProcessor.buildPackagesWithHashesJson(eq(packagesJson), any(Map.class))).thenReturn(content);
 
     assertThat(underTest.store(context, content), is(content));
 
