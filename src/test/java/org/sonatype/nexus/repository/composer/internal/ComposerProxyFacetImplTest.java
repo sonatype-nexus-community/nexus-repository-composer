@@ -33,6 +33,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import static java.util.Collections.singletonMap;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -287,13 +288,27 @@ public class ComposerProxyFacetImplTest
     assertThat(underTest.getUrl(context), is(PACKAGES_PATH));
   }
 
-  @Ignore
   @Test
   public void getUrlProvider() throws Exception {
-    when(contextAttributes.require(AssetKind.class)).thenReturn(PROVIDER);
-    when(request.getPath()).thenReturn("/" + PROVIDER_PATH);
+    ComposerDigestEntry digest = new ComposerDigestEntry();
+    digest.setSha256("sha-256-value");
 
-    assertThat(underTest.getUrl(context), is(PROVIDER_PATH));
+    ComposerPackagesJson packagesJson = new ComposerPackagesJson();
+    packagesJson.setProvidersUrl("providers-url/%package%$%hash%.json");
+    packagesJson.setProviders(singletonMap("vendor/project", digest));
+
+    when(contextAttributes.require(AssetKind.class)).thenReturn(PROVIDER);
+    when(contextAttributes.require(TokenMatcher.State.class)).thenReturn(state);
+
+    when(viewFacet.dispatch(any(Request.class), eq(context))).thenReturn(response);
+    when(composerJsonProcessor.parseComposerJson(payload)).thenReturn(packagesJson);
+
+    when(state.getTokens()).thenReturn(new ImmutableMap.Builder<String, String>()
+        .put("vendor", "vendor")
+        .put("project", "project")
+        .build());
+
+    assertThat(underTest.getUrl(context), is("providers-url/vendor/project$sha-256-value.json"));
   }
 
   @Test
