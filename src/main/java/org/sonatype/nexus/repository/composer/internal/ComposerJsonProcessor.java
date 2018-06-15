@@ -445,13 +445,14 @@ public class ComposerJsonProcessor
   /**
    * Extracts the providers and hashes and from a provider-includes file.
    */
-  public Map<String, String> extractProvidersAndHashes(final Payload payload) throws IOException {
+  public Map<String, ComposerDigestEntry> extractProvidersAndHashes(final Payload payload) throws IOException {
     // TODO: Parse using JSON tokens rather than loading all this into memory
-    Map<String, String> results = new LinkedHashMap<>();
-    Map<String, Object> json = parseJson(payload);
-    Map<String, Object> currentProviders = (Map<String, Object>) json.get(PROVIDERS_KEY);
-    for (Map.Entry<String, Object> provider : currentProviders.entrySet()) {
-      results.put(provider.getKey(), (String) ((Map<String, Object>) provider.getValue()).get(SHA256_KEY));
+    Map<String, ComposerDigestEntry> results = new LinkedHashMap<>();
+    ComposerProviderIncludesJson providerIncludesJson = parseJson(payload, ComposerProviderIncludesJson.class);
+    if (providerIncludesJson != null) {
+      for (Map.Entry<String, ComposerDigestEntry> provider : providerIncludesJson.getProviders().entrySet()) {
+        results.put(provider.getKey(), provider.getValue());
+      }
     }
     return results;
   }
@@ -461,7 +462,7 @@ public class ComposerJsonProcessor
    * could be stored in a database under other circumstances, but we've encountered performance issues with such a
    * large number of attributes in OrientDB maps.
    */
-  public Content generateListFromProvidersAndHashes(final Map<String, String> providers)
+  public Content generateListFromProvidersAndHashes(final Map<String, ComposerDigestEntry> providers)
       throws IOException
   {
     return new Content(new StringPayload(mapper.writeValueAsString(providers), ContentTypes.APPLICATION_JSON));

@@ -183,7 +183,7 @@ public class ComposerProxyFacetImpl
     try {
       // TODO: Better logging and error checking on failure/non-200 scenarios
       ComposerPackagesJson packagesJson = composerJsonProcessor.parseComposerJson(content);
-      Map<String, String> providersAndHashes = new LinkedHashMap<>();
+      Map<String, ComposerDigestEntry> providersAndHashes = new LinkedHashMap<>();
       for (String providerIncludesUrl : composerJsonProcessor.buildProviderIncludesUrls(packagesJson)) {
         Content providerContent = fetch(providerIncludesUrl, context, null);
         if (providerContent == null) {
