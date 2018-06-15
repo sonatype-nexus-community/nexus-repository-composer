@@ -219,6 +219,11 @@ public class ComposerProxyFacetImpl
         throw new NonResolvableProviderJsonException(
             String.format("No packages-with-hashes.json, requesting vendor %s, project %s", vendor, project));
       }
+      // TODO: Instead of loading the entire file into memory, add a token-based parser to extract just the parts we
+      // need (the providers URL and the matching key/value pair containing the package and sha) to avoid significant
+      // memory overhead and performance issues. We could try to store this in the attributes for the packages with
+      // hashes file but there are serious concerns about database performance with that number of attributes, so we
+      // will do this for now.
       String packageName = String.format("%s/%s", vendor, project);
       ComposerPackagesJson packagesJson = composerJsonProcessor.parseComposerJson(payload);
       ComposerDigestEntry providerDigest = packagesJson.getProviders().get(packageName);
