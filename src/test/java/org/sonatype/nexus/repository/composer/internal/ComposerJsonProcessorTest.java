@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.sonatype.goodies.testsupport.TestSupport;
@@ -347,6 +348,32 @@ public class ComposerJsonProcessorTest
     assertThat(entries.get("vendor1/project1").getSha256(), is("hash1"));
     assertThat(entries.get("vendor2/project2").getSha256(), is("hash2"));
     assertThat(entries.get("vendor3/project3").getSha256(), is("hash3"));
+  }
+
+  @Test
+  public void testBuildPackagesWithHashesJson() throws Exception {
+    ComposerPackagesJson packagesJson = new ComposerPackagesJson();
+    packagesJson.setProvidersUrl("providers-url/%package%$%hash%.json");
+
+    ComposerDigestEntry entry1 = new ComposerDigestEntry();
+    entry1.setSha256("hash1");
+
+    ComposerDigestEntry entry2 = new ComposerDigestEntry();
+    entry2.setSha256("hash2");
+
+    ComposerDigestEntry entry3 = new ComposerDigestEntry();
+    entry3.setSha256("hash3");
+
+    Map<String, ComposerDigestEntry> providers = new LinkedHashMap<>();
+    providers.put("vendor1/project1", entry1);
+    providers.put("vendor2/project2", entry2);
+    providers.put("vendor3/project3", entry3);
+
+    ComposerJsonProcessor underTest = new ComposerJsonProcessor(composerJsonExtractor);
+    Content content = underTest.buildPackagesWithHashesJson(packagesJson, providers);
+
+    String outputJson = readStreamToString(getClass().getResourceAsStream("buildPackagesWithHashes.output.json"));
+    assertEquals(outputJson, readStreamToString(content.openInputStream()), true);
   }
 
   private String readStreamToString(final InputStream in) throws IOException {
