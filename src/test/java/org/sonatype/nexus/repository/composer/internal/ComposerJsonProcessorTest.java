@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.Map;
 
 import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.blobstore.api.Blob;
@@ -332,6 +333,20 @@ public class ComposerJsonProcessorTest
     String distUrl = underTest.getDistUrl("vendor1", "project1", "2.0.0", payload1);
 
     assertThat(distUrl, is("https://git.example.com/zipball/418e708b379598333d0a48954c0fa210437795be"));
+  }
+
+  @Test
+  public void testExtractProvidersAndHashes() throws Exception {
+    String inputJson = readStreamToString(getClass().getResourceAsStream("extractProvidersAndHashes.json"));
+    when(payload1.openInputStream()).thenReturn(new ByteArrayInputStream(inputJson.getBytes(UTF_8)));
+
+    ComposerJsonProcessor underTest = new ComposerJsonProcessor(composerJsonExtractor);
+    Map<String, ComposerDigestEntry> entries = underTest.extractProvidersAndHashes(payload1);
+
+    assertThat(entries.size(), is(3));
+    assertThat(entries.get("vendor1/project1").getSha256(), is("hash1"));
+    assertThat(entries.get("vendor2/project2").getSha256(), is("hash2"));
+    assertThat(entries.get("vendor3/project3").getSha256(), is("hash3"));
   }
 
   private String readStreamToString(final InputStream in) throws IOException {
