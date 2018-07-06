@@ -49,6 +49,9 @@
           }
         },
         "homepage": "homepage-1",
+        "include-path": [
+          "include-path-1"
+        ],
         "license": [
           "license-1"
         ],
@@ -113,6 +116,9 @@
           }
         },
         "homepage": "homepage-2",
+        "include-path": [
+          "include-path-2"
+        ],
         "license": [
           "license-2"
         ],
@@ -179,6 +185,9 @@
           }
         },
         "homepage": "homepage-3",
+        "include-path": [
+          "include-path-3"
+        ],
         "license": [
           "license-3"
         ],
@@ -243,6 +252,9 @@
           }
         },
         "homepage": "homepage-4",
+        "include-path": [
+          "include-path-4"
+        ],
         "license": [
           "license-4"
         ],
