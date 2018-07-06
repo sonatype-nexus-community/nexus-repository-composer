@@ -83,6 +83,8 @@ public class ComposerJsonProcessor
 
   private static final String HOMEPAGE_KEY = "homepage";
 
+  private static final String INCLUDE_PATH_KEY = "include-path";
+
   private static final String KEYWORDS_KEY = "keywords";
 
   private static final String LICENSE_KEY = "license";
@@ -357,6 +359,9 @@ public class ComposerJsonProcessor
     }
     if (versionInfo.containsKey(HOMEPAGE_KEY)) {
       newPackageInfo.put(HOMEPAGE_KEY, versionInfo.get(HOMEPAGE_KEY));
+    }
+    if (versionInfo.containsKey(INCLUDE_PATH_KEY)) {
+      newPackageInfo.put(INCLUDE_PATH_KEY, versionInfo.get(INCLUDE_PATH_KEY));
     }
     if (versionInfo.containsKey(KEYWORDS_KEY)) {
       newPackageInfo.put(KEYWORDS_KEY, versionInfo.get(KEYWORDS_KEY));
