@@ -99,6 +99,8 @@ public class ComposerJsonProcessor
 
   private static final String PROVIDE_KEY = "provide";
 
+  private static final String REPLACE_KEY = "replace";
+
   private static final String REFERENCE_KEY = "reference";
 
   private static final String REQUIRE_KEY = "require";
@@ -334,6 +336,9 @@ public class ComposerJsonProcessor
     }
     if (versionInfo.containsKey(REQUIRE_KEY)) {
       newPackageInfo.put(REQUIRE_KEY, versionInfo.get(REQUIRE_KEY));
+    }
+    if (versionInfo.containsKey(REPLACE_KEY)) {
+      newPackageInfo.put(REPLACE_KEY, versionInfo.get(REPLACE_KEY));
     }
     if (versionInfo.containsKey(REQUIRE_DEV_KEY)) {
       newPackageInfo.put(REQUIRE_DEV_KEY, versionInfo.get(REQUIRE_DEV_KEY));
