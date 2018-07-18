@@ -59,6 +59,20 @@ public class ComposerJsonExtractorTest
   }
 
   @Test
+  public void extractInfoFromZipballWithJsonComposerArchived() throws Exception {
+    String expected;
+    try (InputStream in = getClass().getResourceAsStream("extractInfoFromZipballWithJsonComposerArchived.composer.json")) {
+      expected = CharStreams.toString(new InputStreamReader(in, StandardCharsets.UTF_8));
+    }
+    String actual;
+    try (InputStream in = getClass().getResourceAsStream("extractInfoFromTipBallWithJsonComposerArchived.zip")) {
+      when(blob.getInputStream()).thenReturn(in);
+      actual = new ObjectMapper().writeValueAsString(underTest.extractFromZip(blob));
+    }
+    assertEquals(expected, actual, true);
+  }
+
+  @Test
   public void extractInfoFromZipballWithoutJson() throws Exception {
     Map<String, Object> results;
     try (InputStream in = getClass().getResourceAsStream("extractInfoFromZipballWithoutJson.zip")) {
