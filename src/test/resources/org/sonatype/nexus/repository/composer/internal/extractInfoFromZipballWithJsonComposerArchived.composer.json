@@ -1,10 +1,10 @@
 {
     "name": "vendor/project",
-	"version" : "1.2.3",
+    "version" : "1.2.3",
     "description": "Test description",
     "keywords": ["keyword1", "keyword2", "keyword3"],
     "homepage": "http://www.example.com/",
-	"time": "2008-05-15",
+    "time": "2008-05-15",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -20,14 +20,14 @@
         }
     ],
     "support": {
-		"email": "email@example.com",
-		"issues": "http://www.example.com/issues",
-		"forum": "http://www.example.com/forum",
-		"wiki": "http://www.example.com/wiki",
-		"issues": "irc://irc.example.com/irc",
-		"source": "http://www.example.com/source",
-		"docs": "http://www.example.com/docs",
-		"rss": "http://www.example.com/rss"
+        "email": "email@example.com",
+        "issues": "http://www.example.com/issues",
+        "forum": "http://www.example.com/forum",
+        "wiki": "http://www.example.com/wiki",
+        "issues": "irc://irc.example.com/irc",
+        "source": "http://www.example.com/source",
+        "docs": "http://www.example.com/docs",
+        "rss": "http://www.example.com/rss"
     },
     "require": {
         "php": "^5.3.2 || ^7.0",

@@ -65,7 +65,7 @@ public class ComposerJsonExtractorTest
       expected = CharStreams.toString(new InputStreamReader(in, StandardCharsets.UTF_8));
     }
     String actual;
-    try (InputStream in = getClass().getResourceAsStream("extractInfoFromTipBallWithJsonComposerArchived.zip")) {
+    try (InputStream in = getClass().getResourceAsStream("extractInfoFromZipBallWithJsonComposerArchived.zip")) {
       when(blob.getInputStream()).thenReturn(in);
       actual = new ObjectMapper().writeValueAsString(underTest.extractFromZip(blob));
     }
