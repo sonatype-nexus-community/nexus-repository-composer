@@ -87,6 +87,6 @@ public class ComposerJsonExtractor
   private boolean isComposerJsonFilename(final String entryName) {
     int filenameIndex = entryName.indexOf("/composer.json");
     int separatorIndex = entryName.indexOf("/");
-    return filenameIndex >= 0 && filenameIndex == separatorIndex;
+    return entryName.equals("composer.json") || (filenameIndex >= 0 && filenameIndex == separatorIndex);
   }
 }
