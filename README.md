@@ -48,11 +48,11 @@ If everything checks out, the bundle for Composer should be available in the `ta
 
 #### Build with Docker
 
-`docker build -t nexus-repository-composer:0.0.1 .`
+`docker build -t nexus-repository-composer:0.0.2 .`
 
 #### Run as a Docker container
 
-`docker run -d -p 8081:8081 --name nexus nexus-repository-composer:0.0.1` 
+`docker run -d -p 8081:8081 --name nexus nexus-repository-composer:0.0.2` 
 
 For further information like how to persist volumes check out [the GitHub repo for our official image](https://github.com/sonatype/docker-nexus3).
 
@@ -81,7 +81,7 @@ good installation path if you are just testing or doing development on the plugi
   # sudo su - nexus
   $ cd <nexus_dir>/bin
   $ ./nexus run
-  > bundle:install file:///tmp/nexus-repository-composer-0.0.1.jar
+  > bundle:install file:///tmp/nexus-repository-composer-0.0.2.jar
   > bundle:list
   ```
   (look for org.sonatype.nexus.plugins:nexus-repository-composer ID, should be the last one)
@@ -93,7 +93,7 @@ good installation path if you are just testing or doing development on the plugi
 
 For more permanent installs of the nexus-repository-composer plugin, follow these instructions:
 
-* Copy the bundle (nexus-repository-composer-0.0.1.jar) into <nexus_dir>/deploy
+* Copy the bundle (nexus-repository-composer-0.0.2.jar) into <nexus_dir>/deploy
 
 This will cause the plugin to be loaded with each restart of Nexus Repository. As well, this folder is monitored
 by Nexus Repository and the plugin should load within 60 seconds of being copied there if Nexus Repository
@@ -103,7 +103,7 @@ is running. You will still need to start the bundle using the karaf commands men
 
 If you are trying to use the Composer plugin permanently, it likely makes more sense to do the following:
 
-* Copy the bundle into `<nexus_dir>/system/org/sonatype/nexus/plugins/nexus-repository-composer/0.0.1/nexus-repository-composer-0.0.1.jar`
+* Copy the bundle into `<nexus_dir>/system/org/sonatype/nexus/plugins/nexus-repository-composer/0.0.2/nexus-repository-composer-0.0.2.jar`
 * Make the following additions marked with + to `<nexus_dir>/system/org/sonatype/nexus/assemblies/nexus-core-feature/3.x.y/nexus-core-feature-3.x.y-features.xml`
 
    ```
@@ -114,9 +114,9 @@ If you are trying to use the Composer plugin permanently, it likely makes more s
    ```
    And
    ```
-   + <feature name="nexus-repository-composer" description="org.sonatype.nexus.plugins:nexus-repository-composer" version="0.0.1">
+   + <feature name="nexus-repository-composer" description="org.sonatype.nexus.plugins:nexus-repository-composer" version="0.0.2">
    +     <details>org.sonatype.nexus.plugins:nexus-repository-composer</details>
-   +     <bundle>mvn:org.sonatype.nexus.plugins/nexus-repository-composer/0.0.1</bundle>
+   +     <bundle>mvn:org.sonatype.nexus.plugins/nexus-repository-composer/0.0.2</bundle>
    + </feature>
     </features>
    ```
