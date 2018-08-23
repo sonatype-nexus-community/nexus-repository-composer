@@ -1,0 +1,57 @@
+{
+    "name": "vendor/project",
+    "version" : "1.2.3",
+    "description": "Test description",
+    "keywords": ["keyword1", "keyword2", "keyword3"],
+    "homepage": "http://www.example.com/",
+    "time": "2008-05-15",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Author1",
+            "email": "author1@example.com",
+            "homepage": "http://www.example.com/author1"
+        },
+        {
+            "name": "Author2",
+            "email": "author2@example.com",
+            "homepage": "http://www.example.com/author2"
+        }
+    ],
+    "support": {
+        "email": "email@example.com",
+        "issues": "http://www.example.com/issues",
+        "forum": "http://www.example.com/forum",
+        "wiki": "http://www.example.com/wiki",
+        "issues": "irc://irc.example.com/irc",
+        "source": "http://www.example.com/source",
+        "docs": "http://www.example.com/docs",
+        "rss": "http://www.example.com/rss"
+    },
+    "require": {
+        "php": "^5.3.2 || ^7.0",
+        "symfony/console": "^2.7 || ^3.0 || ^4.0",
+        "symfony/finder": "^2.7 || ^3.0 || ^4.0",
+        "symfony/process": "^2.7 || ^3.0 || ^4.0",
+        "symfony/filesystem": "^2.7 || ^3.0 || ^4.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^4.8.35 || ^5.7",
+        "phpunit/phpunit-mock-objects": "^2.3 || ^3.0"
+    },
+    "config": {
+        "platform": {
+            "php": "5.3.9"
+        }
+    },
+    "bin": ["bin/example"],
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.7-dev"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    }
+}

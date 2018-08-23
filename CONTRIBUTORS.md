@@ -24,3 +24,4 @@ Sonatype internal people, in alphabetical order by username:
 External contributors:
 
 * [@TheBay0r](https://github.com/TheBay0r) (Stefan Schacherl)
+* [@Elendev](https://github.com/Elendev) (Jonas Renaudot)
