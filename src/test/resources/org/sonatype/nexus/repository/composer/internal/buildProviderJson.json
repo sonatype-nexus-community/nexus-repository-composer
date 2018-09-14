@@ -52,6 +52,9 @@
         "include-path": [
           "include-path-1"
         ],
+        "replace": {
+          "replace-1": "replace-1-value"
+        },
         "license": [
           "license-1"
         ],
@@ -119,6 +122,9 @@
         "include-path": [
           "include-path-2"
         ],
+        "replace": {
+          "replace-2": "replace-2-value"
+        },
         "license": [
           "license-2"
         ],
@@ -188,6 +194,9 @@
         "include-path": [
           "include-path-3"
         ],
+        "replace": {
+          "replace-3": "replace-3-value"
+        },
         "license": [
           "license-3"
         ],
@@ -255,6 +264,9 @@
         "include-path": [
           "include-path-4"
         ],
+        "replace": {
+          "replace-4": "replace-4-value"
+        },
         "license": [
           "license-4"
         ],

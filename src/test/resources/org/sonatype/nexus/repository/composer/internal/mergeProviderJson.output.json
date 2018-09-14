@@ -37,6 +37,9 @@
         "include-path": [
           "include-path-1"
         ],
+        "replace": {
+          "replace-1": "replace-1-value"
+        },
         "require": {
           "dependency-1": "version-1"
         },
