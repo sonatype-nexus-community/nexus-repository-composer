@@ -386,6 +386,9 @@ public class ComposerJsonProcessor
     if (versionInfo.containsKey(SUPPORT_KEY)) {
       newPackageInfo.put(SUPPORT_KEY, versionInfo.get(SUPPORT_KEY));
     }
+    if (versionInfo.containsKey(TYPE_KEY)) {
+      newPackageInfo.put(TYPE_KEY, versionInfo.get(TYPE_KEY));
+    }
 
     return newPackageInfo;
   }
