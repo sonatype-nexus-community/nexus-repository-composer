@@ -215,6 +215,7 @@ public class ComposerJsonProcessorTest
         .put("target-dir", "target-dir-1")
         .put("scripts", singletonMap("scripts-1", asList("script-1")))
         .put("support", singletonMap("support-1", "support-1-value"))
+        .put("type", "type-1-value")
         .put("foo", singletonMap("foo-key", "foo-value"))
         .build());
 
@@ -245,6 +246,7 @@ public class ComposerJsonProcessorTest
         .put("target-dir", "target-dir-2")
         .put("scripts", singletonMap("scripts-2", asList("script-2")))
         .put("support", singletonMap("support-2", "support-2-value"))
+        .put("type", "type-2-value")
         .put("foo", singletonMap("foo-key", "foo-value"))
         .build());
 
@@ -275,6 +277,7 @@ public class ComposerJsonProcessorTest
         .put("target-dir", "target-dir-3")
         .put("scripts", singletonMap("scripts-3", asList("script-3")))
         .put("support", singletonMap("support-3", "support-3-value"))
+        .put("type", "type-3-value")
         .put("foo", singletonMap("foo-key", "foo-value"))
         .build());
 
@@ -305,6 +308,7 @@ public class ComposerJsonProcessorTest
         .put("target-dir", "target-dir-4")
         .put("scripts", singletonMap("scripts-4", asList("script-4")))
         .put("support", singletonMap("support-4", "support-4-value"))
+        .put("type", "type-4-value")
         .put("foo", singletonMap("foo-key", "foo-value"))
         .build());
 
