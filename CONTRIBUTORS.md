@@ -25,3 +25,4 @@ External contributors:
 
 * [@TheBay0r](https://github.com/TheBay0r) (Stefan Schacherl)
 * [@Elendev](https://github.com/Elendev) (Jonas Renaudot)
+* [@stefaanneyts](https://github.com/stefaanneyts) (Stefaan Neyts)
