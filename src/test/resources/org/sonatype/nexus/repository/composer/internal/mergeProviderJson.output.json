@@ -68,7 +68,8 @@
           "scripts-1": [
             "script-1"
           ]
-        }
+        },
+        "type" : "type-1-value"
       },
       "2.0.0" : {
         "name": "vendor1/project1",
@@ -94,7 +95,8 @@
         },
         "suggest": {
           "suggest-4": "description-4"
-        }
+        },
+        "type" : "type-2-value"
       }
     },
     "vendor2/project2" : {
@@ -122,7 +124,8 @@
         },
         "suggest": {
           "suggest-5": "description-5"
-        }
+        },
+        "type" : "type-3-value"
       },
       "4.0.0" : {
         "name": "vendor2/project2",
@@ -148,7 +151,8 @@
         },
         "suggest": {
           "suggest-6": "description-6"
-        }
+        },
+        "type" : "type-4-value"
       }
     },
     "vendor3/project3" : {
@@ -188,7 +192,8 @@
         },
         "suggest": {
           "suggest-2": "description-2"
-        }
+        },
+        "type" : "type-2-value"
       }
     }
   }

@@ -69,7 +69,8 @@
           "scripts-1": [
             "script-1"
           ]
-        }
+        },
+        "type" : "type-1-value"
       }
     },
     "vendor3/project3": {
@@ -110,7 +111,8 @@
         },
         "suggest": {
           "suggest-2": "description-2"
-        }
+        },
+        "type" : "type-2-value"
       }
     }
   }

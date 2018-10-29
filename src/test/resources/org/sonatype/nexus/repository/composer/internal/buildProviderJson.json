@@ -69,7 +69,8 @@
         },
         "support" : {
           "support-1" : "support-1-value"
-        }
+        },
+        "type" : "type-1-value"
       },
       "2.0.0": {
         "name": "vendor1/project1",
@@ -139,7 +140,8 @@
         },
         "support" : {
           "support-2" : "support-2-value"
-        }
+        },
+        "type" : "type-2-value"
       }
     },
     "vendor2/project2": {
@@ -211,7 +213,8 @@
         },
         "support" : {
           "support-3" : "support-3-value"
-        }
+        },
+        "type" : "type-3-value"
       },
       "4.0.0": {
         "name": "vendor2/project2",
@@ -281,7 +284,8 @@
         },
         "support" : {
           "support-4" : "support-4-value"
-        }
+        },
+        "type" : "type-4-value"
       }
     }
   }

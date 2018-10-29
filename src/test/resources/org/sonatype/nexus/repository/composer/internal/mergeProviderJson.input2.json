@@ -25,7 +25,8 @@
         },
         "suggest": {
           "suggest-3": "description-3"
-        }
+        },
+        "type": "type-1-value"
       },
       "2.0.0" : {
         "name": "vendor1/project1",
@@ -51,7 +52,8 @@
         },
         "suggest": {
           "suggest-4": "description-4"
-        }
+        },
+        "type": "type-2-value"
       }
     },
     "vendor2/project2" : {
@@ -79,7 +81,8 @@
         },
         "suggest": {
           "suggest-5": "description-5"
-        }
+        },
+        "type": "type-3-value"
       },
       "4.0.0" : {
         "name": "vendor2/project2",
@@ -105,7 +108,8 @@
         },
         "suggest": {
           "suggest-6": "description-6"
-        }
+        },
+        "type": "type-4-value"
       }
     }
   }
