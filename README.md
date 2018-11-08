@@ -28,6 +28,7 @@
    * [(most) Permament Install](#most-permanent-install)
 * [The Fine Print](#the-fine-print)
 * [Getting Help](#getting-help)
+* [Composer Plugin](#composer-plugin)
 
 ## Developing
 
@@ -150,3 +151,6 @@ Looking to contribute to our code but need some help? There's a few ways to get 
 * Chat with us on [Gitter](https://gitter.im/sonatype/nexus-developers)
 * Check out the [Nexus3](http://stackoverflow.com/questions/tagged/nexus3) tag on Stack Overflow
 * Check out the [Nexus Repository User List](https://groups.google.com/a/glists.sonatype.com/forum/?hl=en#!forum/nexus-users)
+
+## Composer Plugin
+The composer plugin `elendev/nexus-composer-push` (https://github.com/Elendev/nexus-composer-push) provide a composer command to push to a Nexus Repository using this plugin.
