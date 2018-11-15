@@ -20,6 +20,7 @@
 * [Developing](#developing)
    * [Requirements](#requirements)
    * [Building](#building)
+   * [Travis CI](#travis-ci)
 * [Using Composer with Nexus Repository Manger 3](#using-composer-with-nexus-repository-manager-3)
 * [Installing the plugin](#installing-the-plugin)
    * [Temporary Install](#temporary-install)
@@ -27,6 +28,7 @@
    * [(most) Permament Install](#most-permanent-install)
 * [The Fine Print](#the-fine-print)
 * [Getting Help](#getting-help)
+* [Composer Plugin](#composer-plugin)
 
 ## Developing
 
@@ -45,6 +47,11 @@ To build the project and generate the bundle use Maven
     mvn clean package
 
 If everything checks out, the bundle for Composer should be available in the `target` folder
+
+### Travis CI
+
+This project is built automatically with Travis CI, and you should be able to see build results on your commits, as well
+as directly on [Travis CI](https://travis-ci.org/sonatype-nexus-community/nexus-repository-composer/).
 
 #### Build with Docker
 
@@ -144,3 +151,6 @@ Looking to contribute to our code but need some help? There's a few ways to get 
 * Chat with us on [Gitter](https://gitter.im/sonatype/nexus-developers)
 * Check out the [Nexus3](http://stackoverflow.com/questions/tagged/nexus3) tag on Stack Overflow
 * Check out the [Nexus Repository User List](https://groups.google.com/a/glists.sonatype.com/forum/?hl=en#!forum/nexus-users)
+
+## Composer Plugin
+The composer plugin `elendev/nexus-composer-push` (https://github.com/Elendev/nexus-composer-push) provide a composer command to push to a Nexus Repository using this plugin.

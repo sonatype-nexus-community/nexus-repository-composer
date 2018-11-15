@@ -49,6 +49,12 @@
           }
         },
         "homepage": "homepage-1",
+        "include-path": [
+          "include-path-1"
+        ],
+        "replace": {
+          "replace-1": "replace-1-value"
+        },
         "license": [
           "license-1"
         ],
@@ -63,7 +69,8 @@
         },
         "support" : {
           "support-1" : "support-1-value"
-        }
+        },
+        "type" : "type-1-value"
       },
       "2.0.0": {
         "name": "vendor1/project1",
@@ -113,6 +120,12 @@
           }
         },
         "homepage": "homepage-2",
+        "include-path": [
+          "include-path-2"
+        ],
+        "replace": {
+          "replace-2": "replace-2-value"
+        },
         "license": [
           "license-2"
         ],
@@ -127,7 +140,8 @@
         },
         "support" : {
           "support-2" : "support-2-value"
-        }
+        },
+        "type" : "type-2-value"
       }
     },
     "vendor2/project2": {
@@ -179,6 +193,12 @@
           }
         },
         "homepage": "homepage-3",
+        "include-path": [
+          "include-path-3"
+        ],
+        "replace": {
+          "replace-3": "replace-3-value"
+        },
         "license": [
           "license-3"
         ],
@@ -193,7 +213,8 @@
         },
         "support" : {
           "support-3" : "support-3-value"
-        }
+        },
+        "type" : "type-3-value"
       },
       "4.0.0": {
         "name": "vendor2/project2",
@@ -243,6 +264,12 @@
           }
         },
         "homepage": "homepage-4",
+        "include-path": [
+          "include-path-4"
+        ],
+        "replace": {
+          "replace-4": "replace-4-value"
+        },
         "license": [
           "license-4"
         ],
@@ -257,7 +284,8 @@
         },
         "support" : {
           "support-4" : "support-4-value"
-        }
+        },
+        "type" : "type-4-value"
       }
     }
   }

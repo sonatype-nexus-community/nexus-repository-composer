@@ -211,10 +211,13 @@ public class ComposerJsonProcessorTest
         .put("license", asList("license-1"))
         .put("description", "description-1")
         .put("homepage", "homepage-1")
+        .put("include-path", asList("include-path-1"))
+        .put("replace", singletonMap("replace-1", "replace-1-value"))
         .put("provide", singletonMap("provide-1", "version-1"))
         .put("target-dir", "target-dir-1")
         .put("scripts", singletonMap("scripts-1", asList("script-1")))
         .put("support", singletonMap("support-1", "support-1-value"))
+        .put("type", "type-1-value")
         .put("foo", singletonMap("foo-key", "foo-value"))
         .build());
 
@@ -239,10 +242,13 @@ public class ComposerJsonProcessorTest
         .put("license", asList("license-2"))
         .put("description", "description-2")
         .put("homepage", "homepage-2")
+        .put("include-path", asList("include-path-2"))
+        .put("replace", singletonMap("replace-2", "replace-2-value"))
         .put("provide", singletonMap("provide-2", "version-2"))
         .put("target-dir", "target-dir-2")
         .put("scripts", singletonMap("scripts-2", asList("script-2")))
         .put("support", singletonMap("support-2", "support-2-value"))
+        .put("type", "type-2-value")
         .put("foo", singletonMap("foo-key", "foo-value"))
         .build());
 
@@ -267,10 +273,13 @@ public class ComposerJsonProcessorTest
         .put("license", asList("license-3"))
         .put("description", "description-3")
         .put("homepage", "homepage-3")
+        .put("include-path", asList("include-path-3"))
+        .put("replace", singletonMap("replace-3", "replace-3-value"))
         .put("provide", singletonMap("provide-3", "version-3"))
         .put("target-dir", "target-dir-3")
         .put("scripts", singletonMap("scripts-3", asList("script-3")))
         .put("support", singletonMap("support-3", "support-3-value"))
+        .put("type", "type-3-value")
         .put("foo", singletonMap("foo-key", "foo-value"))
         .build());
 
@@ -295,10 +304,13 @@ public class ComposerJsonProcessorTest
         .put("license", asList("license-4"))
         .put("description", "description-4")
         .put("homepage", "homepage-4")
+        .put("include-path", asList("include-path-4"))
+        .put("replace", singletonMap("replace-4", "replace-4-value"))
         .put("provide", singletonMap("provide-4", "version-4"))
         .put("target-dir", "target-dir-4")
         .put("scripts", singletonMap("scripts-4", asList("script-4")))
         .put("support", singletonMap("support-4", "support-4-value"))
+        .put("type", "type-4-value")
         .put("foo", singletonMap("foo-key", "foo-value"))
         .build());
 
