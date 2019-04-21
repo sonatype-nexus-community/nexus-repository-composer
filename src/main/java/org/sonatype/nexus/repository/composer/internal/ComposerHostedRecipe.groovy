@@ -29,6 +29,7 @@ import org.sonatype.nexus.repository.view.ViewFacet
 
 import static org.sonatype.nexus.repository.composer.internal.AssetKind.PACKAGES
 import static org.sonatype.nexus.repository.composer.internal.AssetKind.PROVIDER
+import static org.sonatype.nexus.repository.composer.internal.AssetKind.TARBALL
 import static org.sonatype.nexus.repository.composer.internal.AssetKind.ZIPBALL
 
 /**
@@ -103,9 +104,22 @@ class ComposerHostedRecipe
         .handler(downloadHandler)
         .create())
 
-    builder.route(zipballMatcher()
+    builder.route(packageMatcher()
         .handler(timingHandler)
         .handler(assetKindHandler.rcurry(ZIPBALL))
+        .handler(securityHandler)
+        .handler(exceptionHandler)
+        .handler(handlerContributor)
+        .handler(conditionalRequestHandler)
+        .handler(partialFetchHandler)
+        .handler(contentHeadersHandler)
+        .handler(unitOfWorkHandler)
+        .handler(downloadHandler)
+        .create())
+
+    builder.route(packageMatcher()
+        .handler(timingHandler)
+        .handler(assetKindHandler.rcurry(TARBALL))
         .handler(securityHandler)
         .handler(exceptionHandler)
         .handler(handlerContributor)
@@ -119,6 +133,19 @@ class ComposerHostedRecipe
     builder.route(uploadMatcher()
         .handler(timingHandler)
         .handler(assetKindHandler.rcurry(ZIPBALL))
+        .handler(securityHandler)
+        .handler(exceptionHandler)
+        .handler(handlerContributor)
+        .handler(conditionalRequestHandler)
+        .handler(partialFetchHandler)
+        .handler(contentHeadersHandler)
+        .handler(unitOfWorkHandler)
+        .handler(uploadHandler)
+        .create())
+
+    builder.route(uploadMatcher()
+        .handler(timingHandler)
+        .handler(assetKindHandler.rcurry(TARBALL))
         .handler(securityHandler)
         .handler(exceptionHandler)
         .handler(handlerContributor)

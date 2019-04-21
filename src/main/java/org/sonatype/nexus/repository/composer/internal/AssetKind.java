@@ -23,6 +23,7 @@ import static org.sonatype.nexus.repository.cache.CacheControllerHolder.METADATA
 public enum AssetKind
 {
   ZIPBALL(CONTENT),
+  TARBALL(CONTENT),
   PACKAGES(METADATA),
   LIST(METADATA),
   PROVIDER(METADATA);
