@@ -25,6 +25,7 @@ import org.sonatype.nexus.common.hash.HashAlgorithm;
 import org.sonatype.nexus.repository.FacetSupport;
 import org.sonatype.nexus.repository.Format;
 import org.sonatype.nexus.repository.cache.CacheInfo;
+import org.sonatype.nexus.repository.config.Configuration;
 import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.repository.storage.AssetBlob;
 import org.sonatype.nexus.repository.storage.Bucket;
@@ -74,6 +75,12 @@ public class ComposerContentFacetImpl
   {
     this.format = checkNotNull(format);
     this.composerFormatAttributesExtractor = checkNotNull(composerFormatAttributesExtractor);
+  }
+
+  @Override
+  protected void doInit(final Configuration configuration) throws Exception {
+    super.doInit(configuration);
+    getRepository().facet(StorageFacet.class).registerWritePolicySelector(new ComposerWritePolicySelector());
   }
 
   @Nullable
