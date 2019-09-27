@@ -1,0 +1,68 @@
+version: 2.1
+
+orbs:
+  github-maven-deploy: github-maven-deploy/github-maven-deploy@1.0.5
+
+mvn-build-test-command: &mvn-build-test-command
+  mvn-build-test-command: mvn clean verify -PbuildKar -Dit
+
+mvn-deploy-command: &mvn-deploy-command
+  mvn-deploy-command: mvn -s .circleci/.maven.xml clean deploy -PbuildKar -DdeployAtEnd=true -DperformRelease=true -DskipTests -Dspotbugs.skip=true
+  context: rso-base
+
+mvn-collect-artifacts-command: &mvn-collect-artifacts-command
+  mvn-collect-artifacts-command: |
+    mkdir -p ~/project/artifacts/junit/
+    find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} ~/project/artifacts/junit/ \;
+    # restore line below after ITs are added
+    #cp ~/project/${rootArtifactId}-it/target/failsafe-reports/*.xml ~/project/artifacts/junit/
+
+workflows:
+  workflow:
+    jobs:
+      - github-maven-deploy/build-and-test:
+          <<: *mvn-build-test-command
+          <<: *mvn-collect-artifacts-command
+
+      - github-maven-deploy/approve-deploy-patch-version:
+          type: approval
+          requires:
+            - github-maven-deploy/build-and-test
+          filters:
+            branches:
+              only: master
+      - github-maven-deploy/approve-deploy-minor-version:
+          type: approval
+          requires:
+            - github-maven-deploy/build-and-test
+          filters:
+            branches:
+              only: master
+      - github-maven-deploy/approve-deploy-major-version:
+          type: approval
+          requires:
+            - github-maven-deploy/build-and-test
+          filters:
+            branches:
+              only: master
+      - github-maven-deploy/deploy-patch-version:
+          requires:
+            - github-maven-deploy/approve-deploy-patch-version
+          <<: *mvn-deploy-command
+          filters:
+            branches:
+              only: master
+      - github-maven-deploy/deploy-minor-version:
+          requires:
+            - github-maven-deploy/approve-deploy-minor-version
+          <<: *mvn-deploy-command
+          filters:
+            branches:
+              only: master
+      - github-maven-deploy/deploy-major-version:
+          requires:
+            - github-maven-deploy/approve-deploy-major-version
+          <<: *mvn-deploy-command
+          filters:
+            branches:
+              only: master
