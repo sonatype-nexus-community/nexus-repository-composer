@@ -27,7 +27,7 @@ make this simpler, as well.
 versus how you fixed it.
 * Try to fix one thing per pull request! Many people work on this code, so the more focused your changes are, the less
 of a headache other people will have when they merge their work in.
-* Ensure your Pull Request passes tests either locally or via TravisCI (it will run automatically on your PR)
+* Ensure your Pull Request passes tests either locally or via CI (it will run automatically on your PR)
 * Make sure to add yourself or your organization to CONTRIBUTORS.md as a part of your PR, if you are new to the project!
 * If you're stuck, ask our [gitter channel](https://gitter.im/sonatype/nexus-developers)! There are a number of
 experienced programmers who are happy to help with learning and troubleshooting.

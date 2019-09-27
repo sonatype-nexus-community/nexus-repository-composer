@@ -14,13 +14,12 @@
 -->
 # Nexus Repository Composer Format
 
-[![Build Status](https://travis-ci.org/sonatype-nexus-community/nexus-repository-composer.svg?branch=master)](https://travis-ci.org/sonatype-nexus-community/nexus-repository-composer) [![Join the chat at https://gitter.im/sonatype/nexus-developers](https://badges.gitter.im/sonatype/nexus-developers.svg)](https://gitter.im/sonatype/nexus-developers?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![DepShield Badge](https://depshield.sonatype.org/badges/sonatype-nexus-community/nexus-repository-composer/depshield.svg)](https://depshield.github.io)
+[![CircleCI](https://circleci.com/gh/sonatype-nexus-community/nexus-repository-composer.svg?style=svg)](https://circleci.com/gh/sonatype-nexus-community/nexus-repository-composer) [![Join the chat at https://gitter.im/sonatype/nexus-developers](https://badges.gitter.im/sonatype/nexus-developers.svg)](https://gitter.im/sonatype/nexus-developers?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![DepShield Badge](https://depshield.sonatype.org/badges/sonatype-nexus-community/nexus-repository-composer/depshield.svg)](https://depshield.github.io)
 
 # Table Of Contents
 * [Developing](#developing)
    * [Requirements](#requirements)
    * [Building](#building)
-   * [Travis CI](#travis-ci)
 * [Using Composer with Nexus Repository Manger 3](#using-composer-with-nexus-repository-manager-3)
 * [Installing the plugin](#installing-the-plugin)
    * [Temporary Install](#temporary-install)
@@ -47,11 +46,6 @@ To build the project and generate the bundle use Maven
     mvn clean package
 
 If everything checks out, the bundle for Composer should be available in the `target` folder
-
-### Travis CI
-
-This project is built automatically with Travis CI, and you should be able to see build results on your commits, as well
-as directly on [Travis CI](https://travis-ci.org/sonatype-nexus-community/nexus-repository-composer/).
 
 #### Build with Docker
 
