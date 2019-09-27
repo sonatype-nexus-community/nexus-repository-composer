@@ -32,7 +32,7 @@ import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import org.joda.time.DateTime;
 
-import static jline.internal.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 import static org.joda.time.DateTime.now;
 import static org.sonatype.nexus.common.stateguard.StateGuardLifecycleSupport.State.STARTED;
 import static org.sonatype.nexus.repository.composer.internal.ComposerAttributes.P_PROJECT;
@@ -53,7 +53,7 @@ public class ComposerHostedMetadataFacetImpl
   @Inject
   public ComposerHostedMetadataFacetImpl(final EventManager eventManager)
   {
-    this.eventManager = checkNotNull(eventManager);
+    this.eventManager = requireNonNull(eventManager);
   }
 
   @Subscribe
