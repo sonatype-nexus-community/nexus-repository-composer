@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.sonatype.nexus.plugins</groupId>
         <artifactId>nexus-plugins</artifactId>
-        <version>3.13.0-01</version>
+        <version>3.18.1-01</version>
     </parent>
     <groupId>org.sonatype.nexus.plugins</groupId>
     <artifactId>nexus-repository-composer</artifactId>
@@ -70,6 +70,14 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.sonatype.nexus.buildsupport</groupId>
                 <artifactId>extjs-maven-plugin</artifactId>
