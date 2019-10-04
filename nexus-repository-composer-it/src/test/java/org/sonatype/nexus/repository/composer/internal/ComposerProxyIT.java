@@ -12,6 +12,9 @@
  */
 package org.sonatype.nexus.repository.composer.internal;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
+
 import org.sonatype.goodies.httpfixture.server.fluent.Behaviours;
 import org.sonatype.goodies.httpfixture.server.fluent.Server;
 import org.sonatype.nexus.pax.exam.NexusPaxExamSupport;
@@ -20,6 +23,9 @@ import org.sonatype.nexus.repository.http.HttpStatus;
 import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.testsuite.testsupport.NexusITSupport;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,6 +63,8 @@ public class ComposerProxyIT
   private static final String FILE_PROVIDER = NAME_PROJECT + EXTENSION_JSON;
 
   private static final String FILE_PACKAGES = NAME_PACKAGES + EXTENSION_JSON;
+
+  private static final String FILE_PACKAGES_CHANGED = NAME_PACKAGES + "-changed" + EXTENSION_JSON;
 
   private static final String FILE_LIST = NAME_LIST + EXTENSION_JSON;
 
@@ -117,6 +125,21 @@ public class ComposerProxyIT
     assertThat(asset.name(), is(equalTo(FILE_PACKAGES)));
     assertThat(asset.contentType(), is(equalTo(MIME_TYPE_JSON)));
     assertThat(asset.format(), is(equalTo(FORMAT_NAME)));
+  }
+
+  @Test
+  public void providersURLChangedToNXRM() throws Exception {
+    assertThat(status(proxyClient.get(FILE_PACKAGES)), is(HttpStatus.OK));
+
+    try (CloseableHttpResponse response = proxyClient.get(FILE_PACKAGES)) {
+      HttpEntity entity = response.getEntity();
+      String result = IOUtils.toString(entity.getContent());
+
+      InputStream targetStream = new FileInputStream(testData.resolveFile(FILE_PACKAGES_CHANGED));
+      String expected = IOUtils.toString(targetStream).replaceAll("\\s+","");
+
+      assertThat(result, equalTo(expected));
+    }
   }
 
   public void retrieveListJSONFromProxyWhenRemoteOnline() throws Exception {
