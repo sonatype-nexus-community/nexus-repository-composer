@@ -40,7 +40,11 @@ public class ComposerProxyIT
 
   private static final String MIME_TYPE_ZIP = "application/zip";
 
+  private static final String NAME_VENDOR = "rjkip";
+
   private static final String NAME_PROJECT = "ftp-php";
+
+  private static final String NAME_VERSION = "v1.1.0";
 
   private static final String NAME_PACKAGES = "packages";
 
@@ -56,9 +60,9 @@ public class ComposerProxyIT
 
   private static final String FILE_LIST = NAME_LIST + EXTENSION_JSON;
 
-  private static final String FILE_ZIPBALL = NAME_LIST + EXTENSION_JSON;
+  private static final String FILE_ZIPBALL = NAME_VENDOR + "-" + NAME_PROJECT + "-" + NAME_VERSION + EXTENSION_ZIP;
 
-  private static final String PACKAGE_BASE_PATH = "p/rjkip/";
+  private static final String PACKAGE_BASE_PATH = "p/" + NAME_VENDOR + "/";
 
   private static final String LIST_BASE_PATH = "packages/";
 
@@ -67,6 +71,8 @@ public class ComposerProxyIT
   private static final String VALID_PROVIDER_URL = PACKAGE_BASE_PATH + FILE_PROVIDER;
 
   private static final String VALID_LIST_URL = LIST_BASE_PATH + FILE_LIST;
+
+  private static final String VALID_ZIPBALL_URL = NAME_VENDOR + "/" + NAME_PROJECT + "/" + NAME_VERSION + "/" + FILE_ZIPBALL;
 
   private ComposerClient proxyClient;
 
@@ -91,6 +97,8 @@ public class ComposerProxyIT
         .withBehaviours(Behaviours.file(testData.resolveFile(FILE_LIST)))
         .serve("/" + VALID_PROVIDER_URL)
         .withBehaviours(Behaviours.file(testData.resolveFile(FILE_PROVIDER)))
+        .serve("/" + VALID_ZIPBALL_URL)
+        .withBehaviours(Behaviours.file(testData.resolveFile(FILE_ZIPBALL)))
         .start();
 
     proxyRepo = repos.createComposerProxy("composer-test-proxy", server.getUrl().toExternalForm());
@@ -121,12 +129,22 @@ public class ComposerProxyIT
   }
 
   @Test
-  public void retrieveProjectJSONFromProxyWhenRemoteOnline() throws Exception {
+  public void retrieveProviderJSONFromProxyWhenRemoteOnline() throws Exception {
     assertThat(status(proxyClient.get(VALID_PROVIDER_URL)), is(HttpStatus.OK));
 
     final Asset asset = findAsset(proxyRepo, VALID_PROVIDER_URL);
     assertThat(asset.name(), is(equalTo(VALID_PROVIDER_URL)));
     assertThat(asset.contentType(), is(equalTo(MIME_TYPE_JSON)));
+    assertThat(asset.format(), is(equalTo(FORMAT_NAME)));
+  }
+
+  @Test
+  public void retrieveZipballFromProxyWhenRemoteOnline() throws Exception {
+    assertThat(status(proxyClient.get(VALID_ZIPBALL_URL)), is(HttpStatus.OK));
+
+    final Asset asset = findAsset(proxyRepo, VALID_ZIPBALL_URL);
+    assertThat(asset.name(), is(equalTo(VALID_ZIPBALL_URL)));
+    assertThat(asset.contentType(), is(equalTo(MIME_TYPE_ZIP)));
     assertThat(asset.format(), is(equalTo(FORMAT_NAME)));
   }
 
