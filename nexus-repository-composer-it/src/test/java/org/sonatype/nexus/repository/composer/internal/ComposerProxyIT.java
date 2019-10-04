@@ -18,7 +18,6 @@ import org.sonatype.nexus.pax.exam.NexusPaxExamSupport;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.http.HttpStatus;
 import org.sonatype.nexus.repository.storage.Asset;
-import org.sonatype.nexus.repository.storage.Component;
 import org.sonatype.nexus.testsuite.testsupport.NexusITSupport;
 
 import org.junit.After;
@@ -39,17 +38,35 @@ public class ComposerProxyIT
 
   private static final String MIME_TYPE_JSON = "application/json";
 
-  private static final String COMPONENT_NAME = "ftp-php";
+  private static final String MIME_TYPE_ZIP = "application/zip";
+
+  private static final String NAME_PROJECT = "ftp-php";
+
+  private static final String NAME_PACKAGES = "packages";
+
+  private static final String NAME_LIST = "list";
 
   private static final String EXTENSION_JSON = ".json";
 
-  private static final String PACKAGE_NAME = COMPONENT_NAME + EXTENSION_JSON;
+  private static final String EXTENSION_ZIP = ".zip";
+
+  private static final String FILE_PROVIDER = NAME_PROJECT + EXTENSION_JSON;
+
+  private static final String FILE_PACKAGES = NAME_PACKAGES + EXTENSION_JSON;
+
+  private static final String FILE_LIST = NAME_LIST + EXTENSION_JSON;
+
+  private static final String FILE_ZIPBALL = NAME_LIST + EXTENSION_JSON;
 
   private static final String PACKAGE_BASE_PATH = "p/rjkip/";
 
+  private static final String LIST_BASE_PATH = "packages/";
+
   private static final String BAD_PATH = "/this/path/is/not/valid";
 
-  private static final String VALID_PACKAGE_URL = PACKAGE_BASE_PATH + PACKAGE_NAME;
+  private static final String VALID_PROVIDER_URL = PACKAGE_BASE_PATH + FILE_PROVIDER;
+
+  private static final String VALID_LIST_URL = LIST_BASE_PATH + FILE_LIST;
 
   private ComposerClient proxyClient;
 
@@ -68,8 +85,12 @@ public class ComposerProxyIT
   @Before
   public void setup() throws Exception {
     server = Server.withPort(0)
-        .serve("/" + VALID_PACKAGE_URL)
-        .withBehaviours(Behaviours.file(testData.resolveFile(PACKAGE_NAME)))
+        .serve("/" + FILE_PACKAGES)
+        .withBehaviours(Behaviours.file(testData.resolveFile(FILE_PACKAGES)))
+        .serve("/" + VALID_LIST_URL)
+        .withBehaviours(Behaviours.file(testData.resolveFile(FILE_LIST)))
+        .serve("/" + VALID_PROVIDER_URL)
+        .withBehaviours(Behaviours.file(testData.resolveFile(FILE_PROVIDER)))
         .start();
 
     proxyRepo = repos.createComposerProxy("composer-test-proxy", server.getUrl().toExternalForm());
@@ -81,12 +102,30 @@ public class ComposerProxyIT
     assertThat(status(proxyClient.get(BAD_PATH)), is(HttpStatus.NOT_FOUND));
   }
 
+  public void retrievePackagesJSONFromProxyWhenRemoteOnline() throws Exception {
+    assertThat(status(proxyClient.get(FILE_PACKAGES)), is(HttpStatus.OK));
+
+    final Asset asset = findAsset(proxyRepo, FILE_PACKAGES);
+    assertThat(asset.name(), is(equalTo(FILE_PACKAGES)));
+    assertThat(asset.contentType(), is(equalTo(MIME_TYPE_JSON)));
+    assertThat(asset.format(), is(equalTo(FORMAT_NAME)));
+  }
+
+  public void retrieveListJSONFromProxyWhenRemoteOnline() throws Exception {
+    assertThat(status(proxyClient.get(VALID_LIST_URL)), is(HttpStatus.OK));
+
+    final Asset asset = findAsset(proxyRepo, FILE_LIST);
+    assertThat(asset.name(), is(equalTo(FILE_LIST)));
+    assertThat(asset.contentType(), is(equalTo(MIME_TYPE_JSON)));
+    assertThat(asset.format(), is(equalTo(FORMAT_NAME)));
+  }
+
   @Test
   public void retrieveProjectJSONFromProxyWhenRemoteOnline() throws Exception {
-    assertThat(status(proxyClient.get(VALID_PACKAGE_URL)), is(HttpStatus.OK));
+    assertThat(status(proxyClient.get(VALID_PROVIDER_URL)), is(HttpStatus.OK));
 
-    final Asset asset = findAsset(proxyRepo, VALID_PACKAGE_URL);
-    assertThat(asset.name(), is(equalTo(VALID_PACKAGE_URL)));
+    final Asset asset = findAsset(proxyRepo, VALID_PROVIDER_URL);
+    assertThat(asset.name(), is(equalTo(VALID_PROVIDER_URL)));
     assertThat(asset.contentType(), is(equalTo(MIME_TYPE_JSON)));
     assertThat(asset.format(), is(equalTo(FORMAT_NAME)));
   }
