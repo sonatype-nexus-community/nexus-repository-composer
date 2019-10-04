@@ -56,6 +56,8 @@ abstract class ComposerRecipeSupport
 
   public static final String NAME_TOKEN = 'name'
 
+  public static final String TYPE_TOKEN = 'type'
+
   @Inject
   Provider<ComposerContentFacet> contentFacet
 
@@ -134,11 +136,11 @@ abstract class ComposerRecipeSupport
         ))
   }
 
-  static Builder zipballMatcher() {
+  static Builder packageMatcher() {
     new Builder().matcher(
         LogicMatchers.and(
             new ActionMatcher(GET, HEAD),
-            new TokenMatcher('/{vendor:.+}/{project:.+}/{version:.+}/{name:.+}.zip')
+            new TokenMatcher('/{vendor:.+}/{project:.+}/{version:.+}/{name:.+}.{type:.+}')
         ))
   }
 

@@ -51,7 +51,7 @@ import org.joda.time.format.DateTimeFormatter;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Collections.singletonMap;
-import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.buildZipballPath;
+import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.buildPackagePath;
 
 /**
  * Class encapsulating JSON processing for Composer-format repositories, including operations for parsing JSON indexes
@@ -405,7 +405,7 @@ public class ComposerJsonProcessor
     String packageProject = packageNameParts[1];
     Map<String, Object> newDistInfo = new LinkedHashMap<>();
     newDistInfo
-        .put(URL_KEY, repository.getUrl() + "/" + buildZipballPath(packageVendor, packageProject, packageVersion));
+        .put(URL_KEY, repository.getUrl() + "/" + buildPackagePath(packageVendor, packageProject, packageVersion, null, type));
     newDistInfo.put(TYPE_KEY, type);
     newDistInfo.put(REFERENCE_KEY, reference);
     newDistInfo.put(SHASUM_KEY, shasum);

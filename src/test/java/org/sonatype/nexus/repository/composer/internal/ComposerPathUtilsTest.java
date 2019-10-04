@@ -25,10 +25,7 @@ import org.mockito.Mock;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.NAME_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.PROJECT_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VENDOR_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VERSION_TOKEN;
+import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.*;
 
 public class ComposerPathUtilsTest
     extends TestSupport
@@ -55,8 +52,9 @@ public class ComposerPathUtilsTest
     when(tokens.get(PROJECT_TOKEN)).thenReturn("testproject");
     when(tokens.get(VERSION_TOKEN)).thenReturn("1.2.3");
     when(tokens.get(NAME_TOKEN)).thenReturn("name");
+    when(tokens.get(TYPE_TOKEN)).thenReturn("zip");
 
-    assertThat(ComposerPathUtils.buildZipballPath(context), is("testvendor/testproject/1.2.3/name.zip"));
+    assertThat(ComposerPathUtils.buildPackagePath(context), is("testvendor/testproject/1.2.3/name.zip"));
   }
 
   @Test
@@ -68,8 +66,9 @@ public class ComposerPathUtilsTest
     when(tokens.get(VENDOR_TOKEN)).thenReturn("testvendor");
     when(tokens.get(PROJECT_TOKEN)).thenReturn("testproject");
     when(tokens.get(VERSION_TOKEN)).thenReturn("1.2.3");
+    when(tokens.get(TYPE_TOKEN)).thenReturn("zip");
 
-    assertThat(ComposerPathUtils.buildZipballPath(context),
+    assertThat(ComposerPathUtils.buildPackagePath(context),
         is("testvendor/testproject/1.2.3/testvendor-testproject-1.2.3.zip"));
   }
 
@@ -79,7 +78,7 @@ public class ComposerPathUtilsTest
     when(contextAttributes.require(TokenMatcher.State.class)).thenReturn(state);
     when(state.getTokens()).thenReturn(tokens);
 
-    assertThat(ComposerPathUtils.buildZipballPath("testvendor", "testproject", "1.2.3"),
+    assertThat(ComposerPathUtils.buildPackagePath("testvendor", "testproject", "1.2.3", null, "zip"),
         is("testvendor/testproject/1.2.3/testvendor-testproject-1.2.3.zip"));
   }
 

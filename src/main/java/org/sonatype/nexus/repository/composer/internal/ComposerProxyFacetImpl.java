@@ -37,8 +37,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.buildPackagePath;
 import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.buildProviderPath;
-import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.buildZipballPath;
 import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.PROJECT_TOKEN;
 import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VENDOR_TOKEN;
 import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VERSION_TOKEN;
@@ -92,7 +92,8 @@ public class ComposerProxyFacetImpl
       case PROVIDER:
         return content().get(buildProviderPath(context));
       case ZIPBALL:
-        return content().get(buildZipballPath(context));
+      case TARBALL:
+        return content().get(buildPackagePath(context));
       default:
         throw new IllegalStateException();
     }
@@ -109,7 +110,8 @@ public class ComposerProxyFacetImpl
       case PROVIDER:
         return content().put(buildProviderPath(context), content, assetKind);
       case ZIPBALL:
-        return content().put(buildZipballPath(context), content, assetKind);
+      case TARBALL:
+        return content().put(buildPackagePath(context), content, assetKind);
       default:
         throw new IllegalStateException();
     }
@@ -131,7 +133,8 @@ public class ComposerProxyFacetImpl
         content().setCacheInfo(buildProviderPath(context), content, cacheInfo);
         break;
       case ZIPBALL:
-        content().setCacheInfo(buildZipballPath(context), content, cacheInfo);
+      case TARBALL:
+        content().setCacheInfo(buildPackagePath(context), content, cacheInfo);
         break;
       default:
         throw new IllegalStateException();

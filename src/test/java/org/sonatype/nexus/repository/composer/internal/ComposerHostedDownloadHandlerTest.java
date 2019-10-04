@@ -33,14 +33,8 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
-import static org.sonatype.nexus.repository.composer.internal.AssetKind.LIST;
-import static org.sonatype.nexus.repository.composer.internal.AssetKind.PACKAGES;
-import static org.sonatype.nexus.repository.composer.internal.AssetKind.PROVIDER;
-import static org.sonatype.nexus.repository.composer.internal.AssetKind.ZIPBALL;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.NAME_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.PROJECT_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VENDOR_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VERSION_TOKEN;
+import static org.sonatype.nexus.repository.composer.internal.AssetKind.*;
+import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.*;
 
 public class ComposerHostedDownloadHandlerTest
     extends TestSupport
@@ -54,6 +48,8 @@ public class ComposerHostedDownloadHandlerTest
   private static final String NAME = "testvendor-testproject-testversion";
 
   private static final String ZIPBALL_PATH = "testvendor/testproject/testversion/testvendor-testproject-testversion.zip";
+
+  private static final String TARBALL_PATH = "testvendor/testproject/testversion/testvendor-testproject-testversion.tar";
 
   @Rule
   public ExpectedException exception = ExpectedException.none();
@@ -128,7 +124,22 @@ public class ComposerHostedDownloadHandlerTest
     when(tokens.get(PROJECT_TOKEN)).thenReturn(PROJECT);
     when(tokens.get(VERSION_TOKEN)).thenReturn(VERSION);
     when(tokens.get(NAME_TOKEN)).thenReturn(NAME);
-    when(composerHostedFacet.getZipball(ZIPBALL_PATH)).thenReturn(content);
+    when(tokens.get(TYPE_TOKEN)).thenReturn("zip");
+    when(composerHostedFacet.getPackage(ZIPBALL_PATH)).thenReturn(content);
+    Response response = underTest.handle(context);
+    assertThat(response.getStatus().getCode(), is(200));
+    assertThat(response.getPayload(), is(content));
+  }
+
+  @Test
+  public void testHandleTarballPresent() throws Exception {
+    when(attributes.require(AssetKind.class)).thenReturn(TARBALL);
+    when(tokens.get(VENDOR_TOKEN)).thenReturn(VENDOR);
+    when(tokens.get(PROJECT_TOKEN)).thenReturn(PROJECT);
+    when(tokens.get(VERSION_TOKEN)).thenReturn(VERSION);
+    when(tokens.get(NAME_TOKEN)).thenReturn(NAME);
+    when(tokens.get(TYPE_TOKEN)).thenReturn("tar");
+    when(composerHostedFacet.getPackage(TARBALL_PATH)).thenReturn(content);
     Response response = underTest.handle(context);
     assertThat(response.getStatus().getCode(), is(200));
     assertThat(response.getPayload(), is(content));
@@ -141,7 +152,7 @@ public class ComposerHostedDownloadHandlerTest
     when(tokens.get(PROJECT_TOKEN)).thenReturn(PROJECT);
     when(tokens.get(VERSION_TOKEN)).thenReturn(VERSION);
     when(tokens.get(NAME_TOKEN)).thenReturn(NAME);
-    when(composerHostedFacet.getZipball(ZIPBALL_PATH)).thenReturn(null);
+    when(composerHostedFacet.getPackage(ZIPBALL_PATH)).thenReturn(null);
     Response response = underTest.handle(context);
     assertThat(response.getStatus().getCode(), is(404));
     assertThat(response.getPayload(), is(nullValue()));

@@ -24,7 +24,7 @@ import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.Handler;
 import org.sonatype.nexus.repository.view.Response;
 
-import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.buildZipballPath;
+import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.buildPackagePath;
 import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.getProjectToken;
 import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.getVendorToken;
 
@@ -50,7 +50,8 @@ public class ComposerHostedDownloadHandler
       case PROVIDER:
         return HttpResponses.ok(hostedFacet.getProviderJson(getVendorToken(context), getProjectToken(context)));
       case ZIPBALL:
-        return responseFor(hostedFacet.getZipball(buildZipballPath(context)));
+      case TARBALL:
+        return responseFor(hostedFacet.getPackage(buildPackagePath(context)));
       default:
         throw new IllegalStateException("Unexpected assetKind: " + assetKind);
     }

@@ -20,17 +20,14 @@ import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 import org.eclipse.sisu.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.NAME_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.PROJECT_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VENDOR_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VERSION_TOKEN;
+import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.*;
 
 /**
  * Utility class containing methods for working with Composer routes and paths.
  */
 public final class ComposerPathUtils
 {
-  private static final String ZIPBALL_PATH = "%s/%s/%s/%s.zip";
+  private static final String PACKAGE_PATH = "%s/%s/%s/%s.%s";
 
   private static final String PROVIDER_JSON_PATH = "p/%s/%s.json";
 
@@ -66,31 +63,26 @@ public final class ComposerPathUtils
    * path will not be known because the filename will not be present, so the name portion will be constructed from
    * the vendor, project, and version information contained in the other path segments.
    */
-  public static String buildZipballPath(final Context context) {
+  public static String buildPackagePath(final Context context) {
     TokenMatcher.State state = context.getAttributes().require(TokenMatcher.State.class);
     Map<String, String> tokens = state.getTokens();
-    return buildZipballPath(
+    return buildPackagePath(
         tokens.get(VENDOR_TOKEN),
         tokens.get(PROJECT_TOKEN),
         tokens.get(VERSION_TOKEN),
-        tokens.get(NAME_TOKEN));
+        tokens.get(NAME_TOKEN),
+        tokens.get(TYPE_TOKEN));
   }
 
-  /**
-   * Builds the zipball path based on the provided vendor, project, and version. The filename will be constructed based
-   * on the values of those parameters.
-   */
-  public static String buildZipballPath(final String vendor, final String project, final String version) {
-    return buildZipballPath(vendor, project, version, null);
-  }
-
-  private static String buildZipballPath(final String vendor,
+  public static String buildPackagePath(final String vendor,
                                          final String project,
                                          final String version,
-                                         @Nullable final String name)
+                                         @Nullable final String name,
+                                         final String type)
   {
-    return String.format(ZIPBALL_PATH, vendor, project, version,
-        name == null ? String.format(NAME_PATTERN, vendor, project, version) : name);
+    return String.format(PACKAGE_PATH, vendor, project, version,
+        name == null ? String.format(NAME_PATTERN, vendor, project, version) : name,
+        type);
   }
 
   /**
