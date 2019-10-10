@@ -21,11 +21,10 @@ import org.apache.http.impl.client.CloseableHttpClient;
 
 public class ComposerClient
     extends FormatClientSupport
-{
-  public ComposerClient(
-      final CloseableHttpClient httpClient,
-      final HttpClientContext httpClientContext,
-      final URI repositoryBaseUri)
+{ public ComposerClient(
+    final CloseableHttpClient httpClient,
+    final HttpClientContext httpClientContext,
+    final URI repositoryBaseUri)
   {
     super(httpClient, httpClientContext, repositoryBaseUri);
   }
