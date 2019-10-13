@@ -12,28 +12,25 @@
  */
 package org.sonatype.nexus.repository.composer.internal;
 
-import org.sonatype.nexus.repository.cache.CacheControllerHolder.CacheType;
+import java.util.Map;
 
-import static org.sonatype.nexus.repository.cache.CacheControllerHolder.CONTENT;
-import static org.sonatype.nexus.repository.cache.CacheControllerHolder.METADATA;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Enumeration defining the valid asset kinds for a Composer-format repository.
+ * Data carrier representing Composer provider-includes json.
  */
-public enum AssetKind
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class ComposerProviderIncludesJson
 {
-  ZIPBALL(CONTENT),
-  PACKAGES(METADATA),
-  PACKAGES_WITH_HASHES(METADATA),
-  PROVIDER(METADATA);
+  @JsonProperty("providers")
+  private Map<String, ComposerDigestEntry> providers;
 
-  private final CacheType cacheType;
-
-  AssetKind(final CacheType cacheType) {
-    this.cacheType = cacheType;
+  public Map<String, ComposerDigestEntry> getProviders() {
+    return providers;
   }
 
-  public CacheType getCacheType() {
-    return cacheType;
+  public void setProviders(final Map<String, ComposerDigestEntry> providers) {
+    this.providers = providers;
   }
 }

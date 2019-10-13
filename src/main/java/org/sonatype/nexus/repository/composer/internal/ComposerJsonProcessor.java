@@ -15,6 +15,7 @@ package org.sonatype.nexus.repository.composer.internal;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -95,8 +96,6 @@ public class ComposerJsonProcessor
 
   private static final String PACKAGES_KEY = "packages";
 
-  private static final String PACKAGE_NAMES_KEY = "packageNames";
-
   private static final String PROVIDE_KEY = "provide";
 
   private static final String REPLACE_KEY = "replace";
@@ -147,14 +146,16 @@ public class ComposerJsonProcessor
   }
 
   /**
-   * Generates a packages.json file (inclusive of all projects) based on the list.json provided as a payload. Expected
-   * usage is to "go remote" on the current repository to fetch a list.json copy, then pass it to this method to build
-   * the packages.json for the client to use.
+   * Generates a packages.json file (inclusive of all projects) based on the packages-with-hashes.json provided as a
+   * payload. Expected usage is to "go remote" on the current repository to force it to fetch and merge all providers
+   * in the provider-includes upstream, then pass it to this method to build the packages.json for the client to use.
    */
-  public Content generatePackagesFromList(final Repository repository, final Payload payload) throws IOException {
+  public Content generatePackagesFromHashes(final Repository repository, final Payload payload)
+      throws IOException
+  {
     // TODO: Parse using JSON tokens rather than loading all this into memory, it "should" work but I'd be careful.
-    Map<String, Object> listJson = parseJson(payload);
-    return buildPackagesJson(repository, new LinkedHashSet<>((Collection<String>) listJson.get(PACKAGE_NAMES_KEY)));
+    ComposerPackagesJson packagesJson = parseJson(payload, ComposerPackagesJson.class);
+    return buildPackagesJson(repository, packagesJson.getProviders().keySet());
   }
 
   /**
@@ -173,10 +174,10 @@ public class ComposerJsonProcessor
    * Builds a packages.json file as a {@code Content} instance containing the actual JSON for the given providers.
    */
   private Content buildPackagesJson(final Repository repository, final Set<String> names) throws IOException {
-    Map<String, Object> packagesJson = new LinkedHashMap<>();
-    packagesJson.put(PROVIDERS_URL_KEY, repository.getUrl() + PACKAGE_JSON_PATH);
-    packagesJson.put(PROVIDERS_KEY, names.stream()
-        .collect(Collectors.toMap((each) -> each, (each) -> singletonMap(SHA256_KEY, null))));
+    ComposerPackagesJson packagesJson = new ComposerPackagesJson();
+    packagesJson.setProvidersUrl(repository.getUrl() + PACKAGE_JSON_PATH);
+    packagesJson.setProviders(names.stream()
+        .collect(Collectors.toMap((each) -> each, (each) -> new ComposerDigestEntry())));
     return new Content(new StringPayload(mapper.writeValueAsString(packagesJson), ContentTypes.APPLICATION_JSON));
   }
 
@@ -432,5 +433,60 @@ public class ComposerJsonProcessor
       TypeReference<Map<String, Object>> typeReference = new TypeReference<Map<String, Object>>() { };
       return mapper.readValue(in, typeReference);
     }
+  }
+
+  private <T> T parseJson(final Payload payload, final Class<T> klass) throws IOException {
+    try (InputStream in = payload.openInputStream()) {
+      return mapper.readValue(in, klass);
+    }
+  }
+
+  /**
+   * Parses the composer.json.
+   */
+  public ComposerPackagesJson parseComposerJson(final Payload payload) throws IOException {
+    return parseJson(payload, ComposerPackagesJson.class);
+  }
+
+  /**
+   * Builds the provider-includes urls from a packages file by replacing the hash placeholder with the sha256 value.
+   */
+  public List<String> buildProviderIncludesUrls(final ComposerPackagesJson packagesJson) {
+    return packagesJson.getProviderIncludes().entrySet().stream().map(
+        entry -> entry.getKey().replace("%hash%", entry.getValue().getSha256()))
+        .collect(Collectors.toList());
+  }
+
+  /**
+   * Extracts the providers and hashes and from a provider-includes file.
+   */
+  public Map<String, ComposerDigestEntry> extractProvidersAndHashes(final Payload payload) throws IOException {
+    // TODO: Parse using JSON tokens rather than loading all this into memory
+    Map<String, ComposerDigestEntry> results = new LinkedHashMap<>();
+    ComposerProviderIncludesJson providerIncludesJson = parseJson(payload, ComposerProviderIncludesJson.class);
+    if (providerIncludesJson != null) {
+      for (Map.Entry<String, ComposerDigestEntry> provider : providerIncludesJson.getProviders().entrySet()) {
+        results.put(provider.getKey(), provider.getValue());
+      }
+    }
+    return results;
+  }
+
+  /**
+   * Generates a modified packages.json containing the providers and their associated hashes, along with their original
+   * providers url.
+   *
+   * This could be stored in a database under other circumstances, but we've encountered performance issues with such a
+   * large number of attributes in OrientDB maps. If we encounter performance issues reading such large JSON files into
+   * memory, then we will likely need to revisit this approach as well.
+   */
+  public Content buildPackagesWithHashesJson(final ComposerPackagesJson packagesJson,
+                                             final Map<String, ComposerDigestEntry> providers)
+      throws IOException
+  {
+    ComposerPackagesJson result = new ComposerPackagesJson();
+    result.setProvidersUrl(packagesJson.getProvidersUrl());
+    result.setProviders(providers);
+    return new Content(new StringPayload(mapper.writeValueAsString(result), ContentTypes.APPLICATION_JSON));
   }
 }

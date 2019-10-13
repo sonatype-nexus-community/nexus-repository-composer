@@ -17,11 +17,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.blobstore.api.Blob;
 import org.sonatype.nexus.blobstore.api.BlobRef;
-import org.sonatype.nexus.common.hash.HashAlgorithm;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.repository.storage.Component;
@@ -113,15 +114,16 @@ public class ComposerJsonProcessorTest
   private ComposerJsonExtractor composerJsonExtractor;
 
   @Test
-  public void generatePackagesFromList() throws Exception {
-    String listJson = readStreamToString(getClass().getResourceAsStream("generatePackagesFromList.list.json"));
-    String packagesJson = readStreamToString(getClass().getResourceAsStream("generatePackagesFromList.packages.json"));
+  public void generatePackagesFromHashes() throws Exception {
+    String hashesJson = readStreamToString(getClass().getResourceAsStream("generatePackagesFromHashes.hashes.json"));
+    String packagesJson = readStreamToString(
+        getClass().getResourceAsStream("generatePackagesFromHashes.packages.json"));
 
     when(repository.getUrl()).thenReturn("http://nexus.repo/base/repo");
-    when(payload1.openInputStream()).thenReturn(new ByteArrayInputStream(listJson.getBytes(UTF_8)));
+    when(payload1.openInputStream()).thenReturn(new ByteArrayInputStream(hashesJson.getBytes(UTF_8)));
 
     ComposerJsonProcessor underTest = new ComposerJsonProcessor(composerJsonExtractor);
-    Content output = underTest.generatePackagesFromList(repository, payload1);
+    Content output = underTest.generatePackagesFromHashes(repository, payload1);
 
     assertEquals(packagesJson, readStreamToString(output.openInputStream()), true);
   }
@@ -344,6 +346,46 @@ public class ComposerJsonProcessorTest
     String distUrl = underTest.getDistUrl("vendor1", "project1", "2.0.0", payload1);
 
     assertThat(distUrl, is("https://git.example.com/zipball/418e708b379598333d0a48954c0fa210437795be"));
+  }
+
+  @Test
+  public void testExtractProvidersAndHashes() throws Exception {
+    String inputJson = readStreamToString(getClass().getResourceAsStream("extractProvidersAndHashes.json"));
+    when(payload1.openInputStream()).thenReturn(new ByteArrayInputStream(inputJson.getBytes(UTF_8)));
+
+    ComposerJsonProcessor underTest = new ComposerJsonProcessor(composerJsonExtractor);
+    Map<String, ComposerDigestEntry> entries = underTest.extractProvidersAndHashes(payload1);
+
+    assertThat(entries.size(), is(3));
+    assertThat(entries.get("vendor1/project1").getSha256(), is("hash1"));
+    assertThat(entries.get("vendor2/project2").getSha256(), is("hash2"));
+    assertThat(entries.get("vendor3/project3").getSha256(), is("hash3"));
+  }
+
+  @Test
+  public void testBuildPackagesWithHashesJson() throws Exception {
+    ComposerPackagesJson packagesJson = new ComposerPackagesJson();
+    packagesJson.setProvidersUrl("providers-url/%package%$%hash%.json");
+
+    ComposerDigestEntry entry1 = new ComposerDigestEntry();
+    entry1.setSha256("hash1");
+
+    ComposerDigestEntry entry2 = new ComposerDigestEntry();
+    entry2.setSha256("hash2");
+
+    ComposerDigestEntry entry3 = new ComposerDigestEntry();
+    entry3.setSha256("hash3");
+
+    Map<String, ComposerDigestEntry> providers = new LinkedHashMap<>();
+    providers.put("vendor1/project1", entry1);
+    providers.put("vendor2/project2", entry2);
+    providers.put("vendor3/project3", entry3);
+
+    ComposerJsonProcessor underTest = new ComposerJsonProcessor(composerJsonExtractor);
+    Content content = underTest.buildPackagesWithHashesJson(packagesJson, providers);
+
+    String outputJson = readStreamToString(getClass().getResourceAsStream("buildPackagesWithHashes.output.json"));
+    assertEquals(outputJson, readStreamToString(content.openInputStream()), true);
   }
 
   private String readStreamToString(final InputStream in) throws IOException {

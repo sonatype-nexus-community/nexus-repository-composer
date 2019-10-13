@@ -58,8 +58,8 @@ import static org.mockito.Mockito.when;
 import static org.sonatype.nexus.common.hash.HashAlgorithm.MD5;
 import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA1;
 import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA256;
-import static org.sonatype.nexus.repository.composer.internal.AssetKind.LIST;
 import static org.sonatype.nexus.repository.composer.internal.AssetKind.PACKAGES;
+import static org.sonatype.nexus.repository.composer.internal.AssetKind.PACKAGES_WITH_HASHES;
 import static org.sonatype.nexus.repository.composer.internal.AssetKind.PROVIDER;
 import static org.sonatype.nexus.repository.composer.internal.AssetKind.ZIPBALL;
 import static org.sonatype.nexus.repository.composer.internal.ComposerAttributes.P_PROJECT;
@@ -84,9 +84,9 @@ public class ComposerContentFacetImplTest
 
   private static final Map<HashAlgorithm, HashCode> CHECKSUMS = singletonMap(SHA256, HashCode.fromInt(1));
 
-  private static final String LIST_PATH = "packages/list.json";
-
   private static final String PACKAGES_PATH = "packages.json";
+
+  private static final String PACKAGES_WITH_HASHES_PATH = "packages-with-hashes.json";
 
   private static final String PROVIDER_PATH = "p/vendor/project.json";
 
@@ -214,8 +214,8 @@ public class ComposerContentFacetImplTest
   }
 
   @Test
-  public void putListJson() throws Exception {
-    testPutOrUpdate(LIST, LIST_PATH, false);
+  public void putPackagesWithHashesJson() throws Exception {
+    testPutOrUpdate(PACKAGES_WITH_HASHES, PACKAGES_WITH_HASHES_PATH, false);
   }
 
   @Test
@@ -234,8 +234,8 @@ public class ComposerContentFacetImplTest
   }
 
   @Test
-  public void updateListJson() throws Exception {
-    testPutOrUpdate(LIST, LIST_PATH, true);
+  public void updatePackagesWithHashesJson() throws Exception {
+    testPutOrUpdate(PACKAGES_WITH_HASHES, PACKAGES_WITH_HASHES_PATH, true);
   }
 
   @Test

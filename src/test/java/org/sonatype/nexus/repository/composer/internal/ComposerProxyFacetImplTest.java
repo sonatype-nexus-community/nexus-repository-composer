@@ -12,6 +12,8 @@
  */
 package org.sonatype.nexus.repository.composer.internal;
 
+import java.util.Map;
+
 import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.repository.Repository;
@@ -27,24 +29,26 @@ import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import static java.util.Collections.singletonMap;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonatype.nexus.repository.composer.internal.AssetKind.LIST;
 import static org.sonatype.nexus.repository.composer.internal.AssetKind.PACKAGES;
+import static org.sonatype.nexus.repository.composer.internal.AssetKind.PACKAGES_WITH_HASHES;
 import static org.sonatype.nexus.repository.composer.internal.AssetKind.PROVIDER;
 import static org.sonatype.nexus.repository.composer.internal.AssetKind.ZIPBALL;
 
 public class ComposerProxyFacetImplTest
     extends TestSupport
 {
-  private static final String LIST_PATH = "packages/list.json";
+  private static final String PACKAGES_WITH_HASHES_PATH = "packages-with-hashes.json";
 
   private static final String PACKAGES_PATH = "packages.json";
 
@@ -114,9 +118,9 @@ public class ComposerProxyFacetImplTest
   }
 
   @Test
-  public void getCachedContentList() throws Exception {
-    when(contextAttributes.require(AssetKind.class)).thenReturn(LIST);
-    when(composerContentFacet.get(LIST_PATH)).thenReturn(content);
+  public void getCachedContentPackagesWithHashes() throws Exception {
+    when(contextAttributes.require(AssetKind.class)).thenReturn(PACKAGES_WITH_HASHES);
+    when(composerContentFacet.get(PACKAGES_WITH_HASHES_PATH)).thenReturn(content);
 
     assertThat(underTest.getCachedContent(context), is(content));
   }
@@ -163,12 +167,12 @@ public class ComposerProxyFacetImplTest
   }
 
   @Test
-  public void indicateVerifiedList() throws Exception {
-    when(contextAttributes.require(AssetKind.class)).thenReturn(LIST);
+  public void indicateVerifiedPackagesWithHashes() throws Exception {
+    when(contextAttributes.require(AssetKind.class)).thenReturn(PACKAGES_WITH_HASHES);
 
     underTest.indicateVerified(context, content, cacheInfo);
 
-    verify(composerContentFacet).setCacheInfo(LIST_PATH, content, cacheInfo);
+    verify(composerContentFacet).setCacheInfo(PACKAGES_WITH_HASHES_PATH, content, cacheInfo);
   }
 
   @Test
@@ -209,7 +213,7 @@ public class ComposerProxyFacetImplTest
     when(composerContentFacet.put(PACKAGES_PATH, content, PACKAGES)).thenReturn(content);
 
     when(viewFacet.dispatch(any(Request.class), eq(context))).thenReturn(response);
-    when(composerJsonProcessor.generatePackagesFromList(repository, payload)).thenReturn(content);
+    when(composerJsonProcessor.generatePackagesFromHashes(repository, payload)).thenReturn(content);
 
     assertThat(underTest.store(context, content), is(content));
 
@@ -217,13 +221,19 @@ public class ComposerProxyFacetImplTest
   }
 
   @Test
-  public void storeList() throws Exception {
-    when(contextAttributes.require(AssetKind.class)).thenReturn(LIST);
-    when(composerContentFacet.put(LIST_PATH, content, LIST)).thenReturn(content);
+  public void storePackagesWithHashes() throws Exception {
+    when(contextAttributes.require(AssetKind.class)).thenReturn(PACKAGES_WITH_HASHES);
+    when(composerContentFacet.put(PACKAGES_WITH_HASHES_PATH, content, PACKAGES_WITH_HASHES)).thenReturn(content);
+
+    when(viewFacet.dispatch(any(Request.class), eq(context))).thenReturn(response);
+
+    ComposerPackagesJson packagesJson = new ComposerPackagesJson();
+    when(composerJsonProcessor.parseComposerJson(content)).thenReturn(packagesJson);
+    when(composerJsonProcessor.buildPackagesWithHashesJson(eq(packagesJson), any(Map.class))).thenReturn(content);
 
     assertThat(underTest.store(context, content), is(content));
 
-    verify(composerContentFacet).put(LIST_PATH, content, LIST);
+    verify(composerContentFacet).put(PACKAGES_WITH_HASHES_PATH, content, PACKAGES_WITH_HASHES);
   }
 
   @Test
@@ -264,26 +274,41 @@ public class ComposerProxyFacetImplTest
 
   @Test
   public void getUrlPackages() throws Exception {
-    when(contextAttributes.require(AssetKind.class)).thenReturn(LIST);
+    when(contextAttributes.require(AssetKind.class)).thenReturn(PACKAGES);
     when(request.getPath()).thenReturn("/" + PACKAGES_PATH);
 
     assertThat(underTest.getUrl(context), is(PACKAGES_PATH));
   }
 
   @Test
-  public void getUrlList() throws Exception {
-    when(contextAttributes.require(AssetKind.class)).thenReturn(LIST);
-    when(request.getPath()).thenReturn("/" + LIST_PATH);
+  public void getUrlPackagesWithHashes() throws Exception {
+    when(contextAttributes.require(AssetKind.class)).thenReturn(PACKAGES_WITH_HASHES);
+    when(request.getPath()).thenReturn("/" + PACKAGES_PATH);
 
-    assertThat(underTest.getUrl(context), is(LIST_PATH));
+    assertThat(underTest.getUrl(context), is(PACKAGES_PATH));
   }
 
   @Test
   public void getUrlProvider() throws Exception {
-    when(contextAttributes.require(AssetKind.class)).thenReturn(LIST);
-    when(request.getPath()).thenReturn("/" + PROVIDER_PATH);
+    ComposerDigestEntry digest = new ComposerDigestEntry();
+    digest.setSha256("sha-256-value");
 
-    assertThat(underTest.getUrl(context), is(PROVIDER_PATH));
+    ComposerPackagesJson packagesJson = new ComposerPackagesJson();
+    packagesJson.setProvidersUrl("providers-url/%package%$%hash%.json");
+    packagesJson.setProviders(singletonMap("vendor/project", digest));
+
+    when(contextAttributes.require(AssetKind.class)).thenReturn(PROVIDER);
+    when(contextAttributes.require(TokenMatcher.State.class)).thenReturn(state);
+
+    when(viewFacet.dispatch(any(Request.class), eq(context))).thenReturn(response);
+    when(composerJsonProcessor.parseComposerJson(payload)).thenReturn(packagesJson);
+
+    when(state.getTokens()).thenReturn(new ImmutableMap.Builder<String, String>()
+        .put("vendor", "vendor")
+        .put("project", "project")
+        .build());
+
+    assertThat(underTest.getUrl(context), is("providers-url/vendor/project$sha-256-value.json"));
   }
 
   @Test

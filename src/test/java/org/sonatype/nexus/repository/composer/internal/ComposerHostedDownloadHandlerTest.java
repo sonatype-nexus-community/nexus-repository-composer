@@ -33,8 +33,8 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
-import static org.sonatype.nexus.repository.composer.internal.AssetKind.LIST;
 import static org.sonatype.nexus.repository.composer.internal.AssetKind.PACKAGES;
+import static org.sonatype.nexus.repository.composer.internal.AssetKind.PACKAGES_WITH_HASHES;
 import static org.sonatype.nexus.repository.composer.internal.AssetKind.PROVIDER;
 import static org.sonatype.nexus.repository.composer.internal.AssetKind.ZIPBALL;
 import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.NAME_TOKEN;
@@ -114,10 +114,10 @@ public class ComposerHostedDownloadHandlerTest
   }
 
   @Test
-  public void testHandleList() throws Exception {
+  public void testHandlePackagesWithHashes() throws Exception {
     exception.expect(IllegalStateException.class);
-    exception.expectMessage("Unsupported assetKind: " + LIST);
-    when(attributes.require(AssetKind.class)).thenReturn(LIST);
+    exception.expectMessage("Unsupported assetKind: " + PACKAGES_WITH_HASHES);
+    when(attributes.require(AssetKind.class)).thenReturn(PACKAGES_WITH_HASHES);
     underTest.handle(context);
   }
 

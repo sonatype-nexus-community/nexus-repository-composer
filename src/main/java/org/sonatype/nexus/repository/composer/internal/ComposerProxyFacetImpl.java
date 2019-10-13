@@ -14,6 +14,7 @@ package org.sonatype.nexus.repository.composer.internal;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
@@ -53,7 +54,7 @@ public class ComposerProxyFacetImpl
 {
   private static final String PACKAGES_JSON = "packages.json";
 
-  private static final String LIST_JSON = "packages/list.json";
+  private static final String PACKAGES_WITH_HASHES_JSON = "packages-with-hashes.json";
 
   private final ComposerJsonProcessor composerJsonProcessor;
 
@@ -87,8 +88,8 @@ public class ComposerProxyFacetImpl
     switch (assetKind) {
       case PACKAGES:
         return content().get(PACKAGES_JSON);
-      case LIST:
-        return content().get(LIST_JSON);
+      case PACKAGES_WITH_HASHES:
+        return content().get(PACKAGES_WITH_HASHES_JSON);
       case PROVIDER:
         return content().get(buildProviderPath(context));
       case ZIPBALL:
@@ -104,8 +105,8 @@ public class ComposerProxyFacetImpl
     switch (assetKind) {
       case PACKAGES:
         return content().put(PACKAGES_JSON, generatePackagesJson(context), assetKind);
-      case LIST:
-        return content().put(LIST_JSON, content, assetKind);
+      case PACKAGES_WITH_HASHES:
+        return content().put(PACKAGES_WITH_HASHES_JSON, generatePackagesWithHashesJson(context, content), assetKind);
       case PROVIDER:
         return content().put(buildProviderPath(context), content, assetKind);
       case ZIPBALL:
@@ -124,8 +125,8 @@ public class ComposerProxyFacetImpl
       case PACKAGES:
         content().setCacheInfo(PACKAGES_JSON, content, cacheInfo);
         break;
-      case LIST:
-        content().setCacheInfo(LIST_JSON, content, cacheInfo);
+      case PACKAGES_WITH_HASHES:
+        content().setCacheInfo(PACKAGES_WITH_HASHES_JSON, content, cacheInfo);
         break;
       case PROVIDER:
         content().setCacheInfo(buildProviderPath(context), content, cacheInfo);
@@ -144,6 +145,13 @@ public class ComposerProxyFacetImpl
     switch (assetKind) {
       case ZIPBALL:
         return getZipballUrl(context);
+      case PACKAGES_WITH_HASHES:
+        // HACK: packages-with-hashes.json is a synthetic file for Nexus to store large maps outside of our database,
+        // but does not exist in actual Composer repositories; this works around our formats framework so that we can
+        // fetch valid content from the server rather than fail with a 404 when proxying upstream content.
+        return PACKAGES_JSON;
+      case PROVIDER:
+        return getProviderUrl(context);
       default:
         return context.getRequest().getPath().substring(1);
     }
@@ -159,10 +167,68 @@ public class ComposerProxyFacetImpl
   private Content generatePackagesJson(final Context context) throws IOException {
     try {
       // TODO: Better logging and error checking on failure/non-200 scenarios
-      Request request = new Request.Builder().action(GET).path("/" + LIST_JSON).build();
+      Request request = new Request.Builder().action(GET).path("/" + PACKAGES_WITH_HASHES_JSON).build();
       Response response = getRepository().facet(ViewFacet.class).dispatch(request, context);
       Payload payload = checkNotNull(response.getPayload());
-      return composerJsonProcessor.generatePackagesFromList(getRepository(), payload);
+      return composerJsonProcessor.generatePackagesFromHashes(getRepository(), payload);
+    }
+    catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+    catch (Exception e) {
+      Throwables.throwIfUnchecked(e);
+      throw new RuntimeException(e);
+    }
+  }
+
+  private Content generatePackagesWithHashesJson(final Context context, final Content content) throws IOException {
+    try {
+      // TODO: Better logging and error checking on failure/non-200 scenarios
+      ComposerPackagesJson packagesJson = composerJsonProcessor.parseComposerJson(content);
+      Map<String, ComposerDigestEntry> providersAndHashes = new LinkedHashMap<>();
+      for (String providerIncludesUrl : composerJsonProcessor.buildProviderIncludesUrls(packagesJson)) {
+        Content providerContent = fetch(providerIncludesUrl, context, null);
+        if (providerContent == null) {
+          log.error("Unable to read provider content from {}, skipping", providerIncludesUrl);
+          continue;
+        }
+        providersAndHashes.putAll(composerJsonProcessor.extractProvidersAndHashes(providerContent));
+      }
+      return composerJsonProcessor.buildPackagesWithHashesJson(packagesJson, providersAndHashes);
+    }
+    catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+    catch (Exception e) {
+      Throwables.throwIfUnchecked(e);
+      throw new RuntimeException(e);
+    }
+  }
+
+  private String getProviderUrl(final Context context) {
+    try {
+      TokenMatcher.State state = context.getAttributes().require(TokenMatcher.State.class);
+      Map<String, String> tokens = state.getTokens();
+      String vendor = tokens.get(VENDOR_TOKEN);
+      String project = tokens.get(PROJECT_TOKEN);
+
+      Request request = new Request.Builder().action(GET).path("/" + PACKAGES_WITH_HASHES_JSON).build();
+      Response response = getRepository().facet(ViewFacet.class).dispatch(request, context);
+      Payload payload = response.getPayload();
+      if (payload == null) {
+        throw new NonResolvableProviderJsonException(
+            String.format("No packages-with-hashes.json, requesting vendor %s, project %s", vendor, project));
+      }
+      // TODO: Instead of loading the entire file into memory, add a token-based parser to extract just the parts we
+      // need (the providers URL and the matching key/value pair containing the package and sha) to avoid significant
+      // memory overhead and performance issues. We could try to store this in the attributes for the packages with
+      // hashes file but there are serious concerns about database performance with that number of attributes, so we
+      // will do this for now.
+      String packageName = String.format("%s/%s", vendor, project);
+      ComposerPackagesJson packagesJson = composerJsonProcessor.parseComposerJson(payload);
+      ComposerDigestEntry providerDigest = packagesJson.getProviders().get(packageName);
+      return packagesJson.getProvidersUrl().replace("%package%", packageName)
+          .replace("%hash%", providerDigest.getSha256());
     }
     catch (IOException e) {
       throw new UncheckedIOException(e);

@@ -100,9 +100,9 @@ class ComposerProxyRecipe
         .handler(proxyHandler)
         .create())
 
-    builder.route(listMatcher()
+    builder.route(packagesWithHashesMatcher()
         .handler(timingHandler)
-        .handler(assetKindHandler.rcurry(AssetKind.LIST))
+        .handler(assetKindHandler.rcurry(AssetKind.PACKAGES_WITH_HASHES))
         .handler(securityHandler)
         .handler(exceptionHandler)
         .handler(handlerContributor)

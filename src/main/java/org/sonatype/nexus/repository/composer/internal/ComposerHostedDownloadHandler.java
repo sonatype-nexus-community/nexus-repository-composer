@@ -45,7 +45,7 @@ public class ComposerHostedDownloadHandler
     switch (assetKind) {
       case PACKAGES:
         return HttpResponses.ok(hostedFacet.getPackagesJson());
-      case LIST:
+      case PACKAGES_WITH_HASHES:
         throw new IllegalStateException("Unsupported assetKind: " + assetKind);
       case PROVIDER:
         return HttpResponses.ok(hostedFacet.getProviderJson(getVendorToken(context), getProjectToken(context)));

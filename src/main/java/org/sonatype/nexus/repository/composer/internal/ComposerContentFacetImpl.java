@@ -103,7 +103,7 @@ public class ComposerContentFacetImpl
           return doPutContent(path, tempBlob, payload, assetKind);
         case PACKAGES:
           return doPutMetadata(path, tempBlob, payload, assetKind);
-        case LIST:
+        case PACKAGES_WITH_HASHES:
           return doPutMetadata(path, tempBlob, payload, assetKind);
         case PROVIDER:
           return doPutMetadata(path, tempBlob, payload, assetKind);

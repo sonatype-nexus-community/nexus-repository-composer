@@ -1,0 +1,14 @@
+{
+  "providers-url" : "http://www.example.com",
+  "providers" : {
+    "vendor1\/project1": {
+      "sha256": "sha1"
+    },
+    "vendor2\/project2": {
+      "sha256": "sha2"
+    },
+    "vendor3\/project3": {
+      "sha256": "sha3"
+    }
+  }
+}
