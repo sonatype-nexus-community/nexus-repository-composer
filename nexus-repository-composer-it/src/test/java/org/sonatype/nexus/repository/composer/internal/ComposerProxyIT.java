@@ -26,6 +26,7 @@ import com.google.gson.JsonParser;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -83,6 +84,18 @@ public class ComposerProxyIT
   private static final String VALID_ZIPBALL_URL = NAME_VENDOR + "/" + NAME_PROJECT + "/" + NAME_VERSION + "/" + FILE_ZIPBALL;
 
   private static final String ZIPBALL_FILE_NAME = "rjkip-ftp-php-v1.1.0.zip";
+
+  private static final String COMPONENT_NAME = "ftp-php";
+
+  private static final String EXTENSION_JSON = ".json";
+
+  private static final String PACKAGE_NAME = COMPONENT_NAME + EXTENSION_JSON;
+
+  private static final String PACKAGE_BASE_PATH = "p/rjkip/";
+
+  private static final String BAD_PATH = "/this/path/is/not/valid";
+
+  private static final String VALID_PACKAGE_URL = PACKAGE_BASE_PATH + PACKAGE_NAME;
 
   private ComposerClient proxyClient;
 
@@ -171,7 +184,7 @@ public class ComposerProxyIT
   //  assertThat(asset.contentType(), is(equalTo(MIME_TYPE_ZIP)));
   //  assertThat(asset.format(), is(equalTo(FORMAT_NAME)));
   //}
-
+  
   @After
   public void tearDown() throws Exception {
     server.stop();
