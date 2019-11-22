@@ -33,5 +33,8 @@ public interface ComposerContentFacet
 
   Content put(String path, Payload payload, AssetKind assetKind) throws IOException;
 
+  Content put(String path, Payload payload, String sourceType, String sourceUrl, String sourceReference)
+      throws IOException;
+
   void setCacheInfo(String path, Content content, CacheInfo cacheInfo) throws IOException;
 }

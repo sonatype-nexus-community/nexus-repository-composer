@@ -12,28 +12,26 @@
  */
 package org.sonatype.nexus.repository.composer.internal;
 
+import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.repository.Repository;
-import org.sonatype.nexus.repository.view.Context;
-import org.sonatype.nexus.repository.view.Payload;
-import org.sonatype.nexus.repository.view.Request;
-import org.sonatype.nexus.repository.view.Response;
+import org.sonatype.nexus.repository.view.*;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 
 import org.junit.Test;
 import org.mockito.Mock;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.PROJECT_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VENDOR_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VERSION_TOKEN;
+import static org.mockito.Mockito.*;
+import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.*;
 
 public class ComposerHostedUploadHandlerTest
     extends TestSupport
@@ -65,7 +63,7 @@ public class ComposerHostedUploadHandlerTest
   private AttributesMap attributes;
 
   @Test
-  public void testHandle() throws Exception {
+  public void testHandleClassic() throws Exception {
     when(repository.facet(ComposerHostedFacet.class)).thenReturn(composerHostedFacet);
     when(request.getPayload()).thenReturn(payload);
     when(context.getRepository()).thenReturn(repository);
@@ -82,6 +80,44 @@ public class ComposerHostedUploadHandlerTest
     assertThat(response.getStatus().getCode(), is(200));
     assertThat(response.getPayload(), is(nullValue()));
 
-    verify(composerHostedFacet).upload("testvendor", "testproject", "testversion", payload);
+    verify(composerHostedFacet).upload("testvendor", "testproject", "testversion", null, null, null, payload);
+  }
+
+  @Test
+  public void testHandleMultipartWithSource() throws Exception {
+    when(repository.facet(ComposerHostedFacet.class)).thenReturn(composerHostedFacet);
+    List<PartPayload> parts = new ArrayList<>();
+    PartPayload sourceTypeField = mock(PartPayload.class);
+    when(sourceTypeField.getFieldName()).thenReturn(SOURCE_TYPE_FIELD_NAME);
+    when(sourceTypeField.openInputStream()).thenReturn(new ByteArrayInputStream("srcType".getBytes(UTF_8)));
+    PartPayload sourceUrlField = mock(PartPayload.class);
+    when(sourceUrlField.getFieldName()).thenReturn(SOURCE_URL_FIELD_NAME);
+    when(sourceUrlField.openInputStream()).thenReturn(new ByteArrayInputStream("srcUrl".getBytes(UTF_8)));
+    PartPayload sourceRefField = mock(PartPayload.class);
+    when(sourceRefField.getFieldName()).thenReturn(SOURCE_REFERENCE_FIELD_NAME);
+    when(sourceRefField.openInputStream()).thenReturn(new ByteArrayInputStream("srcRef".getBytes(UTF_8)));
+    PartPayload packageField = mock(PartPayload.class);
+    when(packageField.getFieldName()).thenReturn(PACKAGE_FIELD_NAME);
+    parts.add(packageField);
+    parts.add(sourceUrlField);
+    parts.add(sourceTypeField);
+    parts.add(sourceRefField);
+    when(request.getMultiparts()).thenReturn(parts);
+    when(request.isMultipart()).thenReturn(true);
+    when(context.getRepository()).thenReturn(repository);
+    when(context.getAttributes()).thenReturn(attributes);
+    when(context.getRequest()).thenReturn(request);
+
+    when(attributes.require(TokenMatcher.State.class)).thenReturn(state);
+    when(state.getTokens()).thenReturn(tokens);
+    when(tokens.get(VENDOR_TOKEN)).thenReturn("testvendor");
+    when(tokens.get(PROJECT_TOKEN)).thenReturn("testproject");
+    when(tokens.get(VERSION_TOKEN)).thenReturn("testversion");
+
+    Response response = underTest.handle(context);
+    assertThat(response.getStatus().getCode(), is(200));
+    assertThat(response.getPayload(), is(nullValue()));
+
+    verify(composerHostedFacet).upload("testvendor", "testproject", "testversion", "srcType", "srcUrl", "srcRef", packageField);
   }
 }

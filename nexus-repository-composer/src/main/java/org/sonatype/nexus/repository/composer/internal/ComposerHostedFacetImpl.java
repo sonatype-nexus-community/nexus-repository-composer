@@ -50,10 +50,16 @@ public class ComposerHostedFacetImpl
 
   @Override
   @TransactionalStoreBlob
-  public void upload(final String vendor, final String project, final String version, final Payload payload)
-      throws IOException
-  {
-    content().put(ComposerPathUtils.buildZipballPath(vendor, project, version), payload, AssetKind.ZIPBALL);
+  public void upload(final String vendor, final String project, final String version, final String sourceType,
+                     final String sourceUrl, final String sourceReference, final Payload payload)
+      throws IOException {
+    content().put(
+        ComposerPathUtils.buildZipballPath(vendor, project, version),
+        payload,
+        sourceType,
+        sourceUrl,
+        sourceReference
+    );
   }
 
   @Override

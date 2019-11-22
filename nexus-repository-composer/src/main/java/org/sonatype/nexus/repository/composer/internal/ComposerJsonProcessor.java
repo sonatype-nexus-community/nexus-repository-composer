@@ -29,6 +29,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sonatype.nexus.blobstore.api.Blob;
 import org.sonatype.nexus.blobstore.api.BlobRef;
 import org.sonatype.nexus.common.hash.HashAlgorithm;
@@ -52,6 +53,8 @@ import org.joda.time.format.DateTimeFormatter;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Collections.singletonMap;
 import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.buildZipballPath;
+import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.SOURCE_REFERENCE_FIELD_NAME;
+import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.SOURCE_URL_FIELD_NAME;
 
 /**
  * Class encapsulating JSON processing for Composer-format repositories, including operations for parsing JSON indexes
@@ -206,6 +209,11 @@ public class ComposerJsonProcessor
     return new StringPayload(mapper.writeValueAsString(json), payload.getContentType());
   }
 
+  private String getAttributeFromAsset(Asset asset, String name) {
+    return asset.formatAttributes() != null && asset.formatAttributes().contains(name) ?
+        asset.formatAttributes().require(name, String.class) : null;
+  }
+
   /**
    * Builds a provider JSON file for a list of components. This minimal subset will contain the packages entries with
    * the name, version, and dist information for each component. A timestamp derived from the component's last updated
@@ -234,9 +242,19 @@ public class ComposerJsonProcessor
       }
 
       String sha1 = asset.getChecksum(HashAlgorithm.SHA1).toString();
+      Map<String, Object> sourceInfo = null;
+      String sourceType = getAttributeFromAsset(asset, SOURCE_URL_FIELD_NAME);
+      String sourceUrl = getAttributeFromAsset(asset, SOURCE_URL_FIELD_NAME);
+      String sourceReference = getAttributeFromAsset(asset, SOURCE_REFERENCE_FIELD_NAME);
+      if (StringUtils.isNotBlank(sourceType) && StringUtils.isNotBlank(sourceUrl) && StringUtils.isNotBlank(sourceReference)) {
+        sourceInfo = new LinkedHashMap<>();
+        sourceInfo.put(TYPE_KEY, sourceType);
+        sourceInfo.put(URL_KEY, sourceUrl);
+        sourceInfo.put(REFERENCE_KEY, sourceReference);
+      }
       Map<String, Object> packagesForName = packages.get(name);
       packagesForName
-          .put(version, buildPackageInfo(repository, name, version, sha1, sha1, ZIP_TYPE, time, composerJson));
+          .put(version, buildPackageInfo(repository, name, version, sha1, sha1, ZIP_TYPE, time, composerJson, sourceInfo));
     }
 
     return new Content(new StringPayload(mapper.writeValueAsString(singletonMap(PACKAGES_KEY, packages)),
@@ -283,6 +301,7 @@ public class ComposerJsonProcessor
             if (distInfo == null) {
               continue;
             }
+            Map<String, Object> sourceInfo = (Map<String, Object>) versionInfo.get(SOURCE_KEY);
 
             if (!packages.containsKey(packageName)) {
               packages.put(packageName, new LinkedHashMap<>());
@@ -296,7 +315,7 @@ public class ComposerJsonProcessor
             Map<String, Object> packagesForName = packages.get(packageName);
             packagesForName.putIfAbsent(packageVersion, buildPackageInfo(repository, packageName, packageVersion,
                 (String) distInfo.get(REFERENCE_KEY), (String) distInfo.get(SHASUM_KEY),
-                (String) distInfo.get(TYPE_KEY), time, versionInfo));
+                (String) distInfo.get(TYPE_KEY), time, versionInfo, sourceInfo));
           }
         }
       }
@@ -313,12 +332,16 @@ public class ComposerJsonProcessor
                                                final String shasum,
                                                final String type,
                                                final String time,
-                                               final Map<String, Object> versionInfo)
+                                               final Map<String, Object> versionInfo,
+                                               final Map<String, Object> sourceInfo)
   {
     Map<String, Object> newPackageInfo = new LinkedHashMap<>();
     newPackageInfo.put(NAME_KEY, packageName);
     newPackageInfo.put(VERSION_KEY, packageVersion);
     newPackageInfo.put(DIST_KEY, buildDistInfo(repository, packageName, packageVersion, reference, shasum, type));
+    if (sourceInfo != null) {
+      newPackageInfo.put(SOURCE_KEY, sourceInfo);
+    }
     newPackageInfo.put(TIME_KEY, time);
     newPackageInfo.put(UID_KEY, Integer.toUnsignedLong(
         Hashing.md5().newHasher()

@@ -56,6 +56,14 @@ abstract class ComposerRecipeSupport
 
   public static final String NAME_TOKEN = 'name'
 
+  public static final String PACKAGE_FIELD_NAME = "package";
+
+  public static final String SOURCE_TYPE_FIELD_NAME = 'src-type';
+
+  public static final String SOURCE_URL_FIELD_NAME = 'src-url';
+
+  public static final String SOURCE_REFERENCE_FIELD_NAME = 'src-ref';
+
   @Inject
   Provider<ComposerContentFacet> contentFacet
 
