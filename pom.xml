@@ -17,7 +17,7 @@
     <version>3.19.1-01</version>
   </parent>
   <artifactId>composer-parent</artifactId>
-  <version>0.0.2</version>
+  <version>0.0.3</version>
   <packaging>pom</packaging>
   <name>${project.groupId}:${project.artifactId}-parent</name>
   <inceptionYear>2018</inceptionYear>
