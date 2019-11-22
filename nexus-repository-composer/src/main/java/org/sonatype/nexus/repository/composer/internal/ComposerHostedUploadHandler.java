@@ -16,7 +16,10 @@ import javax.annotation.Nonnull;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import com.google.common.base.Preconditions;
 import com.google.common.io.CharStreams;
+import org.slf4j.Logger;
+import org.sonatype.goodies.common.Loggers;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.http.HttpResponses;
 import org.sonatype.nexus.repository.view.*;
@@ -39,6 +42,9 @@ import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupp
 @Singleton
 public class ComposerHostedUploadHandler
     implements Handler {
+
+  protected static final Logger log = Preconditions.checkNotNull(Loggers.getLogger(ComposerHostedUploadHandler.class));
+
   @Nonnull
   @Override
   public Response handle(@Nonnull final Context context) throws Exception {
@@ -55,6 +61,12 @@ public class ComposerHostedUploadHandler
     // if we have also the source url and reference which have been sent in data
     if (request.isMultipart() && request.getMultiparts() != null) {
       for (PartPayload part : request.getMultiparts()) {
+        log.trace("Part with fieldName: {}, name: {}, type: {}, isFormField: {}",
+            part.getFieldName(),
+            part.getName(),
+            part.getContentType(),
+            part.isFormField()
+        );
         if (SOURCE_TYPE_FIELD_NAME.equals(part.getFieldName())) {
           sourceType = checkNotNull(readStreamToString(part.openInputStream()));
         } else if (SOURCE_URL_FIELD_NAME.equals(part.getFieldName())) {
@@ -65,6 +77,12 @@ public class ComposerHostedUploadHandler
           payload = part;
         }
       }
+      log.trace("Upload with source data: {} with url {} and reference {} and data exists: {}",
+          sourceType,
+          sourceUrl,
+          sourceRef,
+          payload != null
+      );
     } else {
       payload = request.getPayload();
     }
