@@ -53,8 +53,7 @@ import org.joda.time.format.DateTimeFormatter;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Collections.singletonMap;
 import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.buildZipballPath;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.SOURCE_REFERENCE_FIELD_NAME;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.SOURCE_URL_FIELD_NAME;
+import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.*;
 
 /**
  * Class encapsulating JSON processing for Composer-format repositories, including operations for parsing JSON indexes
@@ -243,7 +242,7 @@ public class ComposerJsonProcessor
 
       String sha1 = asset.getChecksum(HashAlgorithm.SHA1).toString();
       Map<String, Object> sourceInfo = null;
-      String sourceType = getAttributeFromAsset(asset, SOURCE_URL_FIELD_NAME);
+      String sourceType = getAttributeFromAsset(asset, SOURCE_TYPE_FIELD_NAME);
       String sourceUrl = getAttributeFromAsset(asset, SOURCE_URL_FIELD_NAME);
       String sourceReference = getAttributeFromAsset(asset, SOURCE_REFERENCE_FIELD_NAME);
       if (StringUtils.isNotBlank(sourceType) && StringUtils.isNotBlank(sourceUrl) && StringUtils.isNotBlank(sourceReference)) {
