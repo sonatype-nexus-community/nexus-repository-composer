@@ -17,12 +17,14 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 import com.google.common.base.Preconditions;
+import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
 import org.slf4j.Logger;
 import org.sonatype.goodies.common.Loggers;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.http.HttpResponses;
 import org.sonatype.nexus.repository.view.*;
+import org.sonatype.nexus.repository.view.payloads.BytesPayload;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,20 +63,21 @@ public class ComposerHostedUploadHandler
     // if we have also the source url and reference which have been sent in data
     if (request.isMultipart() && request.getMultiparts() != null) {
       for (PartPayload part : request.getMultiparts()) {
-        log.trace("Part with fieldName: {}, name: {}, type: {}, isFormField: {}",
+        log.trace("Part with fieldName: {}, name: {}, type: {}, isFormField: {} and with type: {}",
             part.getFieldName(),
             part.getName(),
             part.getContentType(),
-            part.isFormField()
+            part.isFormField(),
+            part.getClass().getName()
         );
         if (SOURCE_TYPE_FIELD_NAME.equals(part.getFieldName())) {
-          sourceType = checkNotNull(readStreamToString(part.openInputStream()));
+          sourceType = checkNotNull(readPartStreamToString(part));
         } else if (SOURCE_URL_FIELD_NAME.equals(part.getFieldName())) {
-          sourceUrl = checkNotNull(readStreamToString(part.openInputStream()));
+          sourceUrl = checkNotNull(readPartStreamToString(part));
         } else if (SOURCE_REFERENCE_FIELD_NAME.equals(part.getFieldName())) {
-          sourceRef = checkNotNull(readStreamToString(part.openInputStream()));
+          sourceRef = checkNotNull(readPartStreamToString(part));
         } else if (PACKAGE_FIELD_NAME.equals(part.getFieldName())) {
-          payload = part;
+          payload = readPartStreamToBytePayload(part);
         }
       }
       log.trace("Upload with source data: {} with url {} and reference {} and data exists: {}",
@@ -84,18 +87,30 @@ public class ComposerHostedUploadHandler
           payload != null
       );
     } else {
-      payload = request.getPayload();
+      payload = checkNotNull(request.getPayload());
+      log.trace("Payload for single file is of type: {} with content type: {}",
+          payload.getClass().getName(),
+          payload.getContentType()
+      );
     }
 
     ComposerHostedFacet hostedFacet = repository.facet(ComposerHostedFacet.class);
 
-    hostedFacet.upload(vendor, project, version, sourceType, sourceUrl, sourceRef, checkNotNull(payload));
+    hostedFacet.upload(vendor, project, version, sourceType, sourceUrl, sourceRef, payload);
     return HttpResponses.ok();
   }
 
-  private String readStreamToString(final InputStream in) throws IOException {
+  private BytesPayload readPartStreamToBytePayload(final PartPayload in) throws IOException {
+    try (InputStream is = in.openInputStream()) {
+      return new BytesPayload(ByteStreams.toByteArray(is), in.getContentType());
+    } finally {
+      in.close();
+    }
+  }
+
+  private String readPartStreamToString(final PartPayload in) throws IOException {
     try {
-      return CharStreams.toString(new InputStreamReader(in, UTF_8));
+      return CharStreams.toString(new InputStreamReader(in.openInputStream(), UTF_8));
     } finally {
       in.close();
     }
