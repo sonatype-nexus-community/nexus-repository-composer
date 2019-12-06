@@ -87,13 +87,7 @@ public class ComposerProxyIT
 
   private static final String COMPONENT_NAME = "ftp-php";
 
-  private static final String EXTENSION_JSON = ".json";
-
   private static final String PACKAGE_NAME = COMPONENT_NAME + EXTENSION_JSON;
-
-  private static final String PACKAGE_BASE_PATH = "p/rjkip/";
-
-  private static final String BAD_PATH = "/this/path/is/not/valid";
 
   private static final String VALID_PACKAGE_URL = PACKAGE_BASE_PATH + PACKAGE_NAME;
 
