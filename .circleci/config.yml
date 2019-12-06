@@ -11,8 +11,9 @@ workflows:
           mvn-build-test-command: mvn clean verify -PbuildKar -Dit
           mvn-collect-artifacts-command: |
             mkdir -p ~/project/artifacts/junit/
-            find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} ~/project/artifacts/junit/ \;
-            cp ~/project/${rootArtifactId}-it/target/failsafe-reports/*.xml ~/project/artifacts/junit/
+            cp ~/project/nexus-repository-composer/target/surefire-reports/*.xml ~/project/artifacts/junit/
+            cp ~/project/nexus-repository-composer/target/nexus-repository-* ~/project/artifacts/
+            cp ~/project/nexus-repository-composer/target/failsafe-reports/*.xml ~/project/artifacts/junit/
   run-release:
     jobs:
       - approve-release:
