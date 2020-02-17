@@ -61,7 +61,7 @@ section in the `composer.json` for your particular project. We also recommend [d
 that all requests are directed to your Nexus repository manager. The following settings assumes the URL proviced by Nexus is `https://localhost:8081/repository/packagist/`. If you named your Composer repository another name substitute the URL provided to you by Nexus. Note that the trailing slash at the end of the URL is required by Nexus to operate correctly.
 
 Composer [supplies commands](https://getcomposer.org/doc/03-cli.md#modifying-repositories) to alter your `composer.json`. To add your Nexus repo issue the following command in your project
-`composer config repo.foo '{"type": "composer", "url": "https://localhost:8081/repository/packagist/"}'` where `foo` is just an indexed name. Numbers may also be used for the index.
+`composer config repo.foo '{"type": "composer", "url": "https://localhost:8081/repository/packagist/"}'` or `composer config repo.foo composer https://localhost:8081/repository/packagist/` where `foo` is just an indexed name. Numbers may also be used for the index.
 
 If you want do disable Packagist for your project issue this command `composer config repo.packagist false`.
 
