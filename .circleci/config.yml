@@ -26,6 +26,8 @@ workflows:
             - approve-release
           ssh-fingerprints: "73:40:5d:60:85:c4:02:7e:79:10:30:6e:36:8d:4b:02"
           context: rso-base
+          mvn-release-prepare-command: |
+            mvn -PbuildKar --batch-mode release:prepare -DscmCommentPrefix="[skip ci] [maven-release-plugin] "
           filters:
             branches:
               only: master
