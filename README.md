@@ -22,6 +22,7 @@
    * [Building](#building)
 * [Using Composer with Nexus Repository Manger 3](#using-composer-with-nexus-repository-manager-3)
 * [Installing the plugin](#installing-the-plugin)
+   * [Easiest Install](#easiest-install)
    * [Temporary Install](#temporary-install)
    * [(more) Permanent Install](#more-permanent-install)
    * [(most) Permament Install](#most-permanent-install)
