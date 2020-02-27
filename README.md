@@ -49,15 +49,26 @@ If everything checks out, the bundle for Composer should be available in the `ta
 
 #### Build with Docker
 
-`docker build -t nexus-repository-composer:0.0.2 .`
+    docker build -t nexus-repository-composer .
 
 #### Run as a Docker container
 
-`docker run -d -p 8081:8081 --name nexus nexus-repository-composer:0.0.2` 
+    docker run -d -p 8081:8081 --name nexus-repository-composer nexus-repository-composer 
 
 For further information like how to persist volumes check out [the GitHub repo for our official image](https://github.com/sonatype/docker-nexus3).
 
 The application will now be available from your browser at http://localhost:8081
+
+* As of Nexus Repository Manager Version 3.17, the default admin password is randomly generated.
+  If running in a Docker container, you will need to view the generated password file 
+  (/nexus-data/admin.password) in order to login to Nexus. The command below will open a bash shell 
+  in the container named `nexus-repository-composer`:
+
+      docker exec -it nexus-repository-composer /bin/bash
+      $ cat /nexus-data/admin.password 
+      
+  Once logged into the application UI as `admin` using the generated password, you should also 
+  turn on "Enable anonymous access" when prompted by the setup wizard.     
 
 ## Using Composer With Nexus Repository Manager 3
 
@@ -67,6 +78,24 @@ The application will now be available from your browser at http://localhost:8081
 
 There are a range of options for installing the Composer plugin. You'll need to build it first, and
 then install the plugin with the options shown below:
+
+### Easiest Install
+
+Thanks to some upstream work in Nexus Repository (versions newer than 3.15), it's become a LOT easier to install a plugin. To install this format plugin, you can either build locally or download from The Central Repository:
+
+#### Option 1: Build a *.kar file locally from the GitHub Repo
+* Clone this repo and `cd` to the cloned directory location
+* Build the plugin with `mvn clean package -PbuildKar`
+* There should now be a `nexus-repository-composer-<version>-bundle.kar` file in your `<cloned_repo>/target` directory 
+
+#### Option 2: Download a *.kar file from The Central Repository 
+* Download `nexus-repository-composer-<version>-bundle.kar` from [The Central Repository](https://search.maven.org/artifact/org.sonatype.nexus.plugins/nexus-repository-composer)
+
+Once you've completed Option 1 or 2, copy the `nexus-repository-composer-<version>-bundle.kar` file into the `<nexus_dir>/deploy` folder for your Nexus Repository installation.
+
+Restart Nexus Repo, or go ahead and start it if it wasn't running to begin with.
+
+You should see the new repository types (e.g. `composer (hosted, proxy, group)`) in the available Repository Recipes to use, if all has gone according to plan :)
 
 ### Temporary Install
 
