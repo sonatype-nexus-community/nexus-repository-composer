@@ -17,7 +17,7 @@
     <version>3.19.1-01</version>
   </parent>
   <artifactId>composer-parent</artifactId>
-  <version>0.0.2</version>
+  <version>0.0.3-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>${project.groupId}:${project.artifactId}-parent</name>
   <inceptionYear>2018</inceptionYear>
@@ -25,6 +25,10 @@
     <module>nexus-repository-composer</module>
     <module>nexus-repository-composer-it</module>
   </modules>
+  <scm>
+    <developerConnection>scm:git:git@github.com:sonatype-nexus-community/nexus-repository-composer.git</developerConnection>
+    <tag>HEAD</tag>
+  </scm>
   <distributionManagement>
     <snapshotRepository>
       <id>ossrh</id>
@@ -43,6 +47,17 @@
   </repositories>
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.sonatype.plugins</groupId>
+        <artifactId>nexus-staging-maven-plugin</artifactId>
+        <version>1.6.8</version>
+        <extensions>true</extensions>
+        <configuration>
+          <serverId>rso</serverId>
+          <nexusUrl>https://repository.sonatype.org/</nexusUrl>
+          <autoReleaseAfterClose>true</autoReleaseAfterClose>
+        </configuration>
+      </plugin>
       <!--
           Ensure use of Java 8, as required by NXRM
           -->
@@ -69,29 +84,12 @@
   </build>
   <profiles>
     <profile>
-      <id>deploy</id>
+      <id>gpg-sign</id>
       <!--
       only sign during deploy phase
       -->
-      <activation>
-        <property>
-          <name>performRelease</name>
-          <value>true</value>
-        </property>
-      </activation>
       <build>
         <plugins>
-          <plugin>
-            <groupId>org.sonatype.plugins</groupId>
-            <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>1.6.8</version>
-            <extensions>true</extensions>
-            <configuration>
-              <serverId>rso</serverId>
-              <nexusUrl>https://repository.sonatype.org/</nexusUrl>
-              <autoReleaseAfterClose>false</autoReleaseAfterClose>
-            </configuration>
-          </plugin>
           <plugin>
             <artifactId>maven-gpg-plugin</artifactId>
             <version>1.6</version>
@@ -102,14 +100,14 @@
                 <goals>
                   <goal>sign</goal>
                 </goals>
+                <configuration>
+                  <gpgArguments>
+                    <arg>--pinentry-mode</arg>
+                    <arg>loopback</arg>
+                  </gpgArguments>
+                </configuration>
               </execution>
             </executions>
-            <configuration>
-              <gpgArguments>
-                <gpgArgument>--pinentry-mode</gpgArgument>
-                <gpgArgument>loopback</gpgArgument>
-              </gpgArguments>
-            </configuration>
           </plugin>
         </plugins>
       </build>
