@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   github-maven-deploy: github-maven-deploy/github-maven-deploy@1.0.5
-  circleci-maven-release-orb: sonatype-nexus-community/circleci-maven-release-orb@0.0.11
+  circleci-maven-release-orb: sonatype-nexus-community/circleci-maven-release-orb@0.0.15
 
 workflows:
   build-and-test:
@@ -29,4 +29,3 @@ workflows:
           filters:
             branches:
               only: master
-              
