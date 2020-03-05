@@ -103,11 +103,11 @@ You should see the new repository types (e.g. `composer (hosted, proxy, group)`)
 Installations done via the Karaf console will be wiped out with every restart of Nexus Repository. This is a
 good installation path if you are just testing or doing development on the plugin.
 
-* Enable Nexus console: edit `<nexus_dir>/bin/nexus.vmoptions` and change `karaf.startLocalConsole`  to `true`.
+* Enable the NXRM console: edit `<nexus_dir>/bin/nexus.vmoptions` and change `karaf.startLocalConsole`  to `true`.
 
   More details here: [Bundle Development](https://help.sonatype.com/display/NXRM3/Bundle+Development+Overview)
 
-* Run Nexus' console:
+* Run NXRM's console:
   ```
   # sudo su - nexus
   $ cd <nexus_dir>/bin
@@ -138,12 +138,12 @@ If you are trying to use the Composer plugin permanently, it likely makes more s
 * Make the following additions marked with + to `<nexus_dir>/system/org/sonatype/nexus/assemblies/nexus-core-feature/3.x.y/nexus-core-feature-3.x.y-features.xml`
 
    ```
-         <feature prerequisite="false" dependency="false">nexus-repository-rubygems</feature>
+         <feature prerequisite="false" dependency="false">wrap</feature>
    +     <feature prerequisite="false" dependency="false">nexus-repository-composer</feature>
-         <feature prerequisite="false" dependency="false">nexus-repository-gitlfs</feature>
-     </feature>
    ```
-   And
+   to the `<feature name="nexus-core-feature" description="org.sonatype.nexus.assemblies:nexus-core-feature" version="3.x.y.xy">` section below the last <feature prerequisite...> (above is an example, the exact last one may vary).
+
+   And    
    ```
    + <feature name="nexus-repository-composer" description="org.sonatype.nexus.plugins:nexus-repository-composer" version="0.0.2">
    +     <details>org.sonatype.nexus.plugins:nexus-repository-composer</details>
@@ -151,6 +151,8 @@ If you are trying to use the Composer plugin permanently, it likely makes more s
    + </feature>
     </features>
    ```
+   as the last feature.
+
 This will cause the plugin to be loaded and started with each startup of Nexus Repository.
 
 ## The Fine Print
