@@ -20,6 +20,7 @@ Sonatype internal people, in alphabetical order by username:
 * [@doddi](https://github.com/doddi/) (Mark Dodgson)
 * [@fjmilens3](https://github.com/fjmilens3/) (Frederick Milens)
 * [@jlstephens89](https://github.com/jlstephens89/) (Joseph Stephens)
+* [@joedragons](https://github.com/joedragons/) (Joe Tom)
 
 External contributors:
 
