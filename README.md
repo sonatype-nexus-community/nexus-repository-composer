@@ -14,7 +14,7 @@
 -->
 # Nexus Repository Composer Format
 
-[![CircleCI](https://circleci.com/gh/sonatype-nexus-community/nexus-repository-composer.svg?style=svg)](https://circleci.com/gh/sonatype-nexus-community/nexus-repository-composer) [![Join the chat at https://gitter.im/sonatype/nexus-developers](https://badges.gitter.im/sonatype/nexus-developers.svg)](https://gitter.im/sonatype/nexus-developers?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![DepShield Badge](https://depshield.sonatype.org/badges/sonatype-nexus-community/nexus-repository-composer/depshield.svg)](https://depshield.github.io)
+[![CircleCI](https://circleci.com/gh/sonatype-nexus-community/nexus-repository-composer.svg?style=shield)](https://circleci.com/gh/sonatype-nexus-community/nexus-repository-composer) [![Join the chat at https://gitter.im/sonatype/nexus-developers](https://badges.gitter.im/sonatype/nexus-developers.svg)](https://gitter.im/sonatype/nexus-developers?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![DepShield Badge](https://depshield.sonatype.org/badges/sonatype-nexus-community/nexus-repository-composer/depshield.svg)](https://depshield.github.io)
 
 # Table Of Contents
 * [Developing](#developing)
