@@ -25,6 +25,7 @@ import org.sonatype.nexus.repository.cache.CacheController;
 import org.sonatype.nexus.repository.cache.CacheInfo;
 import org.sonatype.nexus.repository.config.Configuration;
 import org.sonatype.nexus.repository.proxy.ProxyFacetSupport;
+import org.sonatype.nexus.repository.httpclient.HttpClientFacet;
 import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.Payload;
@@ -35,6 +36,11 @@ import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.buildProviderPath;
@@ -72,6 +78,20 @@ public class ComposerProxyFacetImpl
       log.debug("Composer provider URL not resolvable: {}", e.getMessage());
       return null;
     }
+  }
+
+  /**
+   * Execute http client request.
+   */
+  protected HttpResponse execute(final Context context, final HttpClient client, final HttpRequestBase request)
+      throws IOException
+  {
+    // HACK: limit bearer tokens to api.github.com requests - to help with ratelimiting menace without exposing token to different domains
+    String bearerToken = getRepository().facet(HttpClientFacet.class).getBearerToken();
+    if (StringUtils.isNotBlank(bearerToken) && request.getURI().getHost().equals("api.github.com")) {
+      request.setHeader("Authorization", "Bearer " + bearerToken);
+    }
+    return super.execute(context, client, request);
   }
 
   // HACK: Workaround for known CGLIB issue, forces an Import-Package for org.sonatype.nexus.repository.config
