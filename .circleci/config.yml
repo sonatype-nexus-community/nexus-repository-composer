@@ -4,16 +4,30 @@ orbs:
   github-maven-deploy: github-maven-deploy/github-maven-deploy@1.0.5
   circleci-maven-release-orb: sonatype-nexus-community/circleci-maven-release-orb@0.0.15
 
+build-and-test-commands: &build-and-test-commands
+  mvn-build-test-command: mvn clean verify -PbuildKar -Dit
+  mvn-collect-artifacts-command: |
+    mkdir -p ~/project/artifacts/junit/
+    find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} ~/project/artifacts/junit/ \;
+    find . -type f -regex ".*/target/failsafe-reports/.*xml" -exec cp {} ~/project/artifacts/junit/ \;
+
+release-args: &release-args
+  mvn-release-perform-command: mvn --batch-mode release:perform -s .circleci/.maven.xml -PbuildKar
+  ssh-fingerprints: "73:40:5d:60:85:c4:02:7e:79:10:30:6e:36:8d:4b:02"
+  context: rso-base
+  filters:
+    branches:
+      only: master
+
 workflows:
-  build-and-test:
+  build-branch:
     jobs:
       - github-maven-deploy/build-and-test:
-          mvn-build-test-command: mvn clean verify -PbuildKar -Dit
-          mvn-collect-artifacts-command: |
-            mkdir -p ~/project/artifacts/junit/
-            cp ~/project/nexus-repository-composer/target/surefire-reports/*.xml ~/project/artifacts/junit/
-            cp ~/project/nexus-repository-composer/target/nexus-repository-* ~/project/artifacts/
-            cp ~/project/nexus-repository-composer/target/failsafe-reports/*.xml ~/project/artifacts/junit/
+          <<: *build-and-test-commands
+          filters:
+            branches:
+              ignore: master
+
   run-release:
     jobs:
       - approve-release:
@@ -22,13 +36,18 @@ workflows:
             branches:
               only: master
       - circleci-maven-release-orb/run-maven-release:
-          mvn-release-perform-command: mvn --batch-mode release:perform -s .circleci/.maven.xml -PbuildKar
           requires:
             - approve-release
-          ssh-fingerprints: "73:40:5d:60:85:c4:02:7e:79:10:30:6e:36:8d:4b:02"
-          context: rso-base
-          mvn-release-prepare-command: |
-            mvn -PbuildKar --batch-mode release:prepare -DscmCommentPrefix="[skip ci] [maven-release-plugin] "
+          <<: *release-args
+
+  release-from-master:
+    jobs:
+      - github-maven-deploy/build-and-test:
+          <<: *build-and-test-commands
           filters:
             branches:
               only: master
+      - circleci-maven-release-orb/run-maven-release:
+          requires:
+            - github-maven-deploy/build-and-test
+          <<: *release-args
