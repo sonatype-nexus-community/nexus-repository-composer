@@ -11,29 +11,40 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
   <parent>
     <groupId>org.sonatype.nexus.plugins</groupId>
     <artifactId>nexus-plugins</artifactId>
-    <version>3.19.1-01</version>
+    <version>3.28.0-01</version>
   </parent>
+
   <artifactId>composer-parent</artifactId>
-  <version>0.0.2</version>
+  <version>0.0.10-SNAPSHOT</version>
   <packaging>pom</packaging>
+
   <name>${project.groupId}:${project.artifactId}-parent</name>
   <inceptionYear>2018</inceptionYear>
+
   <modules>
     <module>nexus-repository-composer</module>
     <module>nexus-repository-composer-it</module>
   </modules>
+
+  <scm>
+    <developerConnection>scm:git:git@github.com:sonatype-nexus-community/nexus-repository-composer.git</developerConnection>
+    <tag>HEAD</tag>
+  </scm>
   <distributionManagement>
     <snapshotRepository>
       <id>ossrh</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
     </snapshotRepository>
   </distributionManagement>
+
   <properties>
-    <nxrm-version>3.19.1-01</nxrm-version>
+    <nxrm-version>3.28.0-01</nxrm-version>
   </properties>
+
   <repositories>
     <!-- ensure we can find the parent pom when starting from an empty local .m2 repository -->
     <repository>
@@ -41,11 +52,20 @@
       <url>https://repository.sonatype.org/content/repositories/snapshots</url>
     </repository>
   </repositories>
+
   <build>
     <plugins>
-      <!--
-          Ensure use of Java 8, as required by NXRM
-          -->
+      <plugin>
+        <groupId>org.sonatype.plugins</groupId>
+        <artifactId>nexus-staging-maven-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <serverId>rso</serverId>
+          <nexusUrl>https://repository.sonatype.org/</nexusUrl>
+          <autoReleaseAfterClose>true</autoReleaseAfterClose>
+        </configuration>
+      </plugin>
+
       <plugin>
         <artifactId>maven-enforcer-plugin</artifactId>
         <version>1.4.1</version>
@@ -57,41 +77,49 @@
             </goals>
             <configuration>
               <rules>
+                <!--
+                Ensure use of Java 8, as required by NXRM
+                -->
                 <requireJavaVersion>
                   <version>[1.8,1.9)</version>
                 </requireJavaVersion>
+                <!--
+                Require Maven 3.3.3+
+                -->
+                <requireMavenVersion>
+                  <version>[3.3.3,)</version>
+                </requireMavenVersion>
               </rules>
             </configuration>
           </execution>
         </executions>
       </plugin>
+
+      <plugin>
+        <artifactId>maven-release-plugin</artifactId>
+        <configuration>
+          <!-- Something in the pom hierarchy overrides the default 'pushChanges == true', so we reset that here. -->
+          <pushChanges>true</pushChanges>
+          <releaseProfiles>gpg-sign</releaseProfiles>
+          <!--
+          CI build runs out of memory during release, with error like this:
+          Failed to execute goal org.apache.maven.plugins:maven-release-plugin:2.5.2:prepare (default-cli) on project nexus-repository-base: Maven execution failed, exit code: '137' -> [Help 1]
+          TODO: Investigate increasing available memory for the CI build
+          -->
+          <arguments>-DskipTests</arguments>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
+
   <profiles>
     <profile>
-      <id>deploy</id>
+      <id>gpg-sign</id>
       <!--
       only sign during deploy phase
       -->
-      <activation>
-        <property>
-          <name>performRelease</name>
-          <value>true</value>
-        </property>
-      </activation>
       <build>
         <plugins>
-          <plugin>
-            <groupId>org.sonatype.plugins</groupId>
-            <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>1.6.8</version>
-            <extensions>true</extensions>
-            <configuration>
-              <serverId>rso</serverId>
-              <nexusUrl>https://repository.sonatype.org/</nexusUrl>
-              <autoReleaseAfterClose>false</autoReleaseAfterClose>
-            </configuration>
-          </plugin>
           <plugin>
             <artifactId>maven-gpg-plugin</artifactId>
             <version>1.6</version>
@@ -102,17 +130,20 @@
                 <goals>
                   <goal>sign</goal>
                 </goals>
+                <configuration>
+                  <gpgArguments>
+                    <arg>--pinentry-mode</arg>
+                    <arg>loopback</arg>
+                  </gpgArguments>
+                </configuration>
               </execution>
             </executions>
-            <configuration>
-              <gpgArguments>
-                <gpgArgument>--pinentry-mode</gpgArgument>
-                <gpgArgument>loopback</gpgArgument>
-              </gpgArguments>
-            </configuration>
           </plugin>
         </plugins>
       </build>
+      <properties>
+        <gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>
+      </properties>
     </profile>
   </profiles>
 </project>

@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
   <parent>
     <groupId>org.sonatype.nexus.plugins</groupId>
     <artifactId>composer-parent</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.10-SNAPSHOT</version>
   </parent>
+
   <artifactId>nexus-repository-composer-it</artifactId>
   <packaging>bundle</packaging>
+
   <dependencies>
     <!--
     Pax-Exam test driver
@@ -71,6 +74,7 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
   <build>
     <plugins>
       <!--
@@ -121,10 +125,9 @@
             </goals>
             <configuration>
               <target>
-                <unzip src="${org.sonatype.nexus.testsuite:nexus-it-suite-data:jar}"
-                       dest="${project.build.directory}/it-resources">
+                <unzip src="${org.sonatype.nexus.testsuite:nexus-it-suite-data:jar}" dest="${project.build.directory}/it-resources">
                   <patternset>
-                    <exclude name="META-INF/**"/>
+                    <exclude name="META-INF/**" />
                   </patternset>
                 </unzip>
               </target>
