@@ -12,15 +12,15 @@
  */
 package org.sonatype.nexus.repository.composer.internal;
 
-import org.sonatype.nexus.repository.storage.Asset;
-import org.sonatype.nexus.repository.storage.WritePolicy;
-import org.sonatype.nexus.repository.storage.WritePolicySelector;
-
 import java.util.Objects;
 
+import org.sonatype.nexus.repository.config.WritePolicy;
+import org.sonatype.nexus.repository.storage.Asset;
+import org.sonatype.nexus.repository.storage.WritePolicySelector;
+
+import static org.sonatype.nexus.repository.config.WritePolicy.ALLOW;
+import static org.sonatype.nexus.repository.config.WritePolicy.ALLOW_ONCE;
 import static org.sonatype.nexus.repository.storage.AssetEntityAdapter.P_ASSET_KIND;
-import static org.sonatype.nexus.repository.storage.WritePolicy.ALLOW;
-import static org.sonatype.nexus.repository.storage.WritePolicy.ALLOW_ONCE;
 
 public class ComposerWritePolicySelector implements WritePolicySelector {
 
