@@ -24,7 +24,7 @@ import javax.inject.Singleton;
 
 import org.sonatype.goodies.common.ComponentSupport;
 import org.sonatype.nexus.common.collect.NestedAttributesMap;
-import org.sonatype.nexus.repository.storage.TempBlob;
+import org.sonatype.nexus.repository.view.payloads.TempBlob;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;

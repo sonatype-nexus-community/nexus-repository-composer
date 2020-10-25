@@ -15,11 +15,11 @@
   <parent>
     <groupId>org.sonatype.nexus.plugins</groupId>
     <artifactId>nexus-plugins</artifactId>
-    <version>3.19.1-01</version>
+    <version>3.28.0-01</version>
   </parent>
 
   <artifactId>composer-parent</artifactId>
-  <version>0.0.5-SNAPSHOT</version>
+  <version>0.0.11-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>${project.groupId}:${project.artifactId}-parent</name>
@@ -42,7 +42,7 @@
   </distributionManagement>
 
   <properties>
-    <nxrm-version>3.19.1-01</nxrm-version>
+    <nxrm-version>3.28.0-01</nxrm-version>
   </properties>
 
   <repositories>
@@ -141,6 +141,9 @@
           </plugin>
         </plugins>
       </build>
+      <properties>
+        <gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>
+      </properties>
     </profile>
   </profiles>
 </project>
