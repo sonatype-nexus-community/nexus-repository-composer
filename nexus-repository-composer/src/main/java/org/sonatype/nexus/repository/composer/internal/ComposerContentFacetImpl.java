@@ -50,6 +50,7 @@ import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA1;
 import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA256;
 import static org.sonatype.nexus.repository.composer.internal.ComposerAttributes.P_PROJECT;
 import static org.sonatype.nexus.repository.composer.internal.ComposerAttributes.P_VENDOR;
+import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.*;
 import static org.sonatype.nexus.repository.storage.AssetEntityAdapter.P_ASSET_KIND;
 import static org.sonatype.nexus.repository.storage.ComponentEntityAdapter.P_GROUP;
 import static org.sonatype.nexus.repository.storage.ComponentEntityAdapter.P_VERSION;
@@ -107,7 +108,7 @@ public class ComposerContentFacetImpl
     try (TempBlob tempBlob = storageFacet.createTempBlob(payload, hashAlgorithms)) {
       switch (assetKind) {
         case ZIPBALL:
-          return doPutContent(path, tempBlob, payload, assetKind);
+          return doPutContent(path, tempBlob, payload, assetKind, null, null, null);
         case PACKAGES:
           return doPutMetadata(path, tempBlob, payload, assetKind);
         case LIST:
@@ -117,6 +118,15 @@ public class ComposerContentFacetImpl
         default:
           throw new IllegalStateException("Unexpected asset kind: " + assetKind);
       }
+    }
+  }
+
+  @Override
+  public Content put(final String path, final Payload payload, final String sourceType, final String sourceUrl,
+                     final String sourceReference) throws IOException {
+    StorageFacet storageFacet = facet(StorageFacet.class);
+    try (TempBlob tempBlob = storageFacet.createTempBlob(payload, hashAlgorithms)) {
+      return doPutContent(path, tempBlob, payload, AssetKind.ZIPBALL, sourceType, sourceUrl, sourceReference);
     }
   }
 
@@ -187,7 +197,10 @@ public class ComposerContentFacetImpl
   protected Content doPutContent(final String path,
                                  final TempBlob tempBlob,
                                  final Payload payload,
-                                 final AssetKind assetKind)
+                                 final AssetKind assetKind,
+                                 final String sourceType,
+                                 final String sourceUrl,
+                                 final String sourceReference)
       throws IOException
   {
     String[] parts = path.split("/");
@@ -218,6 +231,9 @@ public class ComposerContentFacetImpl
       asset.formatAttributes().set(P_VENDOR, group);
       asset.formatAttributes().set(P_PROJECT, name);
       asset.formatAttributes().set(P_VERSION, version);
+      asset.formatAttributes().set(SOURCE_TYPE_FIELD_NAME, sourceType);
+      asset.formatAttributes().set(SOURCE_URL_FIELD_NAME, sourceUrl);
+      asset.formatAttributes().set(SOURCE_REFERENCE_FIELD_NAME, sourceReference);
       composerFormatAttributesExtractor.extractFromZip(tempBlob, asset.formatAttributes());
     }
     catch (Exception e) {
