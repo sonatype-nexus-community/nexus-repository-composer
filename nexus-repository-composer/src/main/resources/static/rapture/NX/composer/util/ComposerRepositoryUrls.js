@@ -19,8 +19,10 @@ Ext.define('NX.composer.util.ComposerRepositoryUrls', {
     'NX.util.Url'
   ]
 }, function(self) {
-  NX.coreui.util.RepositoryUrls.addRepositoryUrlStrategy('composer', function(assetModel) {
+  NX.coreui.util.RepositoryUrls.addRepositoryUrlStrategy('composer', function(me, assetModel) {
     var repositoryName = assetModel.get('repositoryName'), assetName = assetModel.get('name');
-    return NX.util.Url.asLink(NX.util.Url.baseUrl + '/repository/' + repositoryName + '/' + assetName, assetName);
+    return NX.util.Url.asLink(
+        NX.util.Url.baseUrl + '/repository/' + encodeURIComponent(repositoryName) + '/' + encodeURI(assetName),
+        assetName);
   });
 });
