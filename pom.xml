@@ -48,8 +48,8 @@
   <repositories>
     <!-- ensure we can find the parent pom when starting from an empty local .m2 repository -->
     <repository>
-      <id>rso-snapshots</id>
-      <url>https://repository.sonatype.org/content/repositories/snapshots</url>
+      <id>rso-public-grid</id>
+      <url>https://repository.sonatype.org/content/groups/sonatype-public-grid/</url>
     </repository>
   </repositories>
 
