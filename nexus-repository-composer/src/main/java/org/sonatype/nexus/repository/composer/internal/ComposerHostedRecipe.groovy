@@ -60,13 +60,13 @@ class ComposerHostedRecipe
 
   @Override
   void apply(@Nonnull final Repository repository) throws Exception {
+    repository.attach(storageFacet.get())
     repository.attach(contentFacet.get())
     repository.attach(securityFacet.get())
     repository.attach(configure(viewFacet.get()))
     repository.attach(componentMaintenanceFacet.get())
     repository.attach(hostedFacet.get())
     repository.attach(hostedMetadataFacet.get())
-    repository.attach(storageFacet.get())
     repository.attach(searchFacet.get())
     repository.attach(attributesFacet.get())
   }

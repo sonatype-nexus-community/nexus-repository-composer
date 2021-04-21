@@ -47,6 +47,12 @@ public class ComposerHostedFacetImplTest
 
   private static final String VERSION = "version";
 
+  private static final String SRC_TYPE = "src-type";
+
+  private static final String SRC_URL = "src-url";
+
+  private static final String SRC_REF = "src-ref";
+
   private static final String ZIPBALL_PATH = "vendor/project/version/vendor-project-version.zip";
 
   private static final String PROVIDER_PATH = "p/vendor/project.json";
@@ -98,8 +104,8 @@ public class ComposerHostedFacetImplTest
 
   @Test
   public void testUpload() throws Exception {
-    underTest.upload(VENDOR, PROJECT, VERSION, payload);
-    verify(composerContentFacet).put(ZIPBALL_PATH, payload, ZIPBALL);
+    underTest.upload(VENDOR, PROJECT, VERSION, SRC_TYPE, SRC_URL, SRC_REF, payload);
+    verify(composerContentFacet).put(ZIPBALL_PATH, payload, SRC_TYPE, SRC_URL, SRC_REF);
   }
 
   @Test

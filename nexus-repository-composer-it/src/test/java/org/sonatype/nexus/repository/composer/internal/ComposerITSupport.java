@@ -19,6 +19,10 @@ import javax.annotation.Nonnull;
 import org.sonatype.nexus.pax.exam.NexusPaxExamSupport;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.composer.internal.fixtures.RepositoryRuleComposer;
+import org.sonatype.nexus.repository.storage.Asset;
+import org.sonatype.nexus.repository.storage.MetadataNodeEntityAdapter;
+import org.sonatype.nexus.repository.storage.StorageFacet;
+import org.sonatype.nexus.repository.storage.StorageTx;
 import org.sonatype.nexus.testsuite.testsupport.RepositoryITSupport;
 
 import org.junit.Rule;
@@ -52,5 +56,16 @@ public class ComposerITSupport
         clientContext(),
         repositoryUrl.toURI()
     );
+  }
+
+  public static Asset findAsset(Repository repository, String path) {
+    try (StorageTx tx = getStorageTx(repository)) {
+      tx.begin();
+      return tx.findAssetWithProperty(MetadataNodeEntityAdapter.P_NAME, path, tx.findBucket(repository));
+    }
+  }
+
+  protected static StorageTx getStorageTx(final Repository repository) {
+    return repository.facet(StorageFacet.class).txSupplier().get();
   }
 }
