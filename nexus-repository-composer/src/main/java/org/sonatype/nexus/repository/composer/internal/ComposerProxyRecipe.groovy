@@ -64,6 +64,9 @@ class ComposerProxyRecipe
   ComposerProviderHandler composerProviderHandler
 
   @Inject
+  ComposerPackageHandler composerPackageHandler
+
+  @Inject
   ComposerProxyRecipe(@Named(ProxyType.NAME) final Type type, @Named(ComposerFormat.NAME) final Format format) {
     super(type, format)
   }
@@ -128,6 +131,21 @@ class ComposerProxyRecipe
         .handler(unitOfWorkHandler)
         .handler(proxyHandler)
         .create())
+
+    builder.route(packageMatcher()
+            .handler(timingHandler)
+            .handler(assetKindHandler.rcurry(AssetKind.PACKAGE))
+            .handler(securityHandler)
+            .handler(exceptionHandler)
+            .handler(handlerContributor)
+            .handler(negativeCacheHandler)
+            .handler(conditionalRequestHandler)
+            .handler(partialFetchHandler)
+            .handler(contentHeadersHandler)
+            .handler(composerPackageHandler)
+            .handler(unitOfWorkHandler)
+            .handler(proxyHandler)
+            .create())
 
     builder.route(zipballMatcher()
         .handler(timingHandler)

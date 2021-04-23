@@ -142,6 +142,14 @@ abstract class ComposerRecipeSupport
         ))
   }
 
+  static Builder packageMatcher() {
+    new Builder().matcher(
+            LogicMatchers.and(
+                    new ActionMatcher(GET, HEAD),
+                    new TokenMatcher('/p2/{vendor:.+}/{project:.+}.json')
+            ))
+  }
+
   static Builder zipballMatcher() {
     new Builder().matcher(
         LogicMatchers.and(
