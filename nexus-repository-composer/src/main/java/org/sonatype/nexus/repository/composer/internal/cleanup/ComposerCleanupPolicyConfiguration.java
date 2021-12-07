@@ -10,7 +10,7 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-package org.sonatype.repository.composer.internal.cleanup;
+package org.sonatype.nexus.repository.composer.internal.cleanup;
 
 import java.util.Map;
 
@@ -18,7 +18,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.sonatype.nexus.cleanup.config.CleanupPolicyConfiguration;
-import org.sonatype.repository.composer.internal.ComposerFormat;
+import org.sonatype.nexus.repository.composer.internal.ComposerFormat;
 
 import com.google.common.collect.ImmutableMap;
 
