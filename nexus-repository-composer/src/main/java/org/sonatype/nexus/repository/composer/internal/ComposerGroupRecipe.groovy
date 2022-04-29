@@ -52,6 +52,9 @@ class ComposerGroupRecipe
   ComposerGroupProviderJsonHandler providerJsonHandler
 
   @Inject
+  ComposerGroupPackageJsonHandler packageJsonHandler
+
+  @Inject
   ComposerGroupRecipe(@Named(GroupType.NAME) final Type type, @Named(ComposerFormat.NAME) final Format format) {
     super(type, format)
   }
@@ -88,6 +91,15 @@ class ComposerGroupRecipe
         .handler(handlerContributor)
         .handler(providerJsonHandler)
         .create())
+
+    builder.route(packageMatcher()
+            .handler(timingHandler)
+            .handler(assetKindHandler.rcurry(AssetKind.PACKAGE))
+            .handler(securityHandler)
+            .handler(exceptionHandler)
+            .handler(handlerContributor)
+            .handler(packageJsonHandler)
+            .create())
 
     builder.route(zipballMatcher()
         .handler(timingHandler)

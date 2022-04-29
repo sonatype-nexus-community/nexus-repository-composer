@@ -292,7 +292,7 @@ public class ComposerProxyFacetImplTest
     when(contextAttributes.require(TokenMatcher.State.class)).thenReturn(state);
 
     when(viewFacet.dispatch(any(Request.class), eq(context))).thenReturn(response);
-    when(composerJsonProcessor.getDistUrl("vendor", "project", "version", payload)).thenReturn("distUrl");
+    when(composerJsonProcessor.getDistUrlFromPackage("vendor", "project", "version", payload)).thenReturn("distUrl");
 
     when(state.getTokens()).thenReturn(new ImmutableMap.Builder<String, String>()
         .put("vendor", "vendor")
