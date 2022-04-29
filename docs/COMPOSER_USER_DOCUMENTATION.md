@@ -76,7 +76,9 @@ If you would like to edit the composer.json manually the entry would look as fol
       "type": "composer",
       "url": "https://localhost:8081/repository/packagist/"
     },
-    "packagist.org": false
+    {
+      "packagist.org": false
+    }
   ]
 }
 ```
