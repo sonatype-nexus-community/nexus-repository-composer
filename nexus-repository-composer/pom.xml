@@ -59,6 +59,16 @@
       <version>1.5.0</version>
       <scope>test</scope>
     </dependency>
+    <!-- @todo remove explicit dependency on org.apache.geronimo.specs:geronimo-atinject_1.0_spec:jar:1.0
+    When testing removal of this dependency, be sure to delete geronimo-atinject_1.0_spec from you local .m2 cache
+    fixes IT runtime error: Could not find artifact org.apache.geronimo.specs:geronimo-atinject_1.0_spec:jar:1.0
+    -->
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-atinject_1.0_spec</artifactId>
+      <version>1.0</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
