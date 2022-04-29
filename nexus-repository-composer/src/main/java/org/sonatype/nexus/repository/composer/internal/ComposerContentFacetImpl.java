@@ -111,6 +111,8 @@ public class ComposerContentFacetImpl
           return doPutContent(path, tempBlob, payload, assetKind, null, null, null);
         case PACKAGES:
           return doPutMetadata(path, tempBlob, payload, assetKind);
+        case PACKAGE:
+          return doPutMetadata(path, tempBlob, payload, assetKind);
         case LIST:
           return doPutMetadata(path, tempBlob, payload, assetKind);
         case PROVIDER:

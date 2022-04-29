@@ -12,34 +12,36 @@
  */
 package org.sonatype.nexus.repository.composer.internal;
 
-import java.io.IOException;
-
-import javax.annotation.Nullable;
-
-import org.sonatype.nexus.repository.Facet;
+import org.joda.time.DateTime;
+import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Payload;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+import java.io.IOException;
+import java.util.List;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
- * Interface defining the features supported by Composer repository hosted facets.
+ * Handler for merging package JSON files together.
  */
-@Facet.Exposed
-public interface ComposerHostedFacet
-    extends Facet
+@Named
+@Singleton
+public class ComposerGroupPackageJsonHandler
+    extends ComposerGroupMergingHandler
 {
-  void upload(String vendor, String project, String version, String sourceType, String sourceUrl,
-              String sourceReference, Payload payload) throws IOException;
+  private final ComposerJsonProcessor composerJsonProcessor;
 
-  Content getPackagesJson() throws IOException;
+  @Inject
+  public ComposerGroupPackageJsonHandler(final ComposerJsonProcessor composerJsonProcessor) {
+    this.composerJsonProcessor = checkNotNull(composerJsonProcessor);
+  }
 
-  Content getProviderJson(String vendor, String project) throws IOException;
-
-  Content getPackageJson(String vendor, String project) throws IOException;
-
-  void rebuildPackageJson(String vendor, String project) throws IOException;
-
-  void rebuildProviderJson(String vendor, String project) throws IOException;
-
-  @Nullable
-  Content getZipball(String path) throws IOException;
+  @Override
+  protected Content merge(final Repository repository, final List<Payload> payloads) throws IOException {
+    return composerJsonProcessor.mergePackageJson(repository, payloads, DateTime.now());
+  }
 }

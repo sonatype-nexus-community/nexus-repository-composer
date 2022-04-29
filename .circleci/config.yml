@@ -1,15 +1,8 @@
 version: 2.1
 
 orbs:
-  github-maven-deploy: github-maven-deploy/github-maven-deploy@1.0.5
+  maven: circleci/maven@1.2.0
   circleci-maven-release-orb: sonatype-nexus-community/circleci-maven-release-orb@0.0.16
-
-build-and-test-commands: &build-and-test-commands
-  mvn-build-test-command: mvn clean verify -PbuildKar -Dit
-  mvn-collect-artifacts-command: |
-    mkdir -p ~/project/artifacts/junit/
-    find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} ~/project/artifacts/junit/ \;
-    find . -type f -regex ".*/target/failsafe-reports/.*xml" -exec cp {} ~/project/artifacts/junit/ \;
 
 release-args: &release-args
   mvn-release-perform-command: mvn --batch-mode release:perform -s .circleci/.maven.xml -PbuildKar
@@ -19,11 +12,38 @@ release-args: &release-args
     branches:
       only: master
 
+jobs:
+  build_and_test:
+    docker:
+      - image: 'cimg/openjdk:8.0'
+    steps:
+      - checkout
+      - maven/with_cache:
+          verify_dependencies: false
+          steps:
+            - run:
+                name: Run Maven Build
+                command: |
+                  mvn clean --batch-mode verify -PbuildKar -Dit
+      - run:
+          name: Save test results
+          command: |
+            mkdir -p ~/project/artifacts/junit/
+            find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} ~/project/artifacts/junit/ \;
+            find . -type f -regex ".*/target/failsafe-reports/.*xml" -exec cp {} ~/project/artifacts/junit/ \;
+            mkdir -p ~/project/artifacts/it-reports/
+            find . -type f -regex ".*/target/it-reports/.*" -exec cp {} ~/project/artifacts/it-reports/ \;
+          when: always
+      - store_test_results:
+          path: ~/project/artifacts/junit
+      - store_artifacts:
+          path: ~/project/artifacts/it-reports
+
+
 workflows:
   build-branch:
     jobs:
-      - github-maven-deploy/build-and-test:
-          <<: *build-and-test-commands
+      - build_and_test:
           filters:
             branches:
               ignore: master
@@ -42,12 +62,11 @@ workflows:
 
   release-from-master:
     jobs:
-      - github-maven-deploy/build-and-test:
-          <<: *build-and-test-commands
+      - build_and_test:
           filters:
             branches:
               only: master
       - circleci-maven-release-orb/run-maven-release:
           requires:
-            - github-maven-deploy/build-and-test
+            - build_and_test
           <<: *release-args
