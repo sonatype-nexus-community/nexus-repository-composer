@@ -10,6 +10,8 @@ build-and-test-commands: &build-and-test-commands
     mkdir -p ~/project/artifacts/junit/
     find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} ~/project/artifacts/junit/ \;
     find . -type f -regex ".*/target/failsafe-reports/.*xml" -exec cp {} ~/project/artifacts/junit/ \;
+    mkdir -p ~/project/artifacts/it-reports/
+    find . -type f -regex ".*/target/it-reports/.*" -exec cp {} ~/project/artifacts/it-reports/ \;
 
 release-args: &release-args
   mvn-release-perform-command: mvn --batch-mode release:perform -s .circleci/.maven.xml -PbuildKar
