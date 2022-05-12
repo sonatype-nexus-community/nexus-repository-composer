@@ -18,7 +18,7 @@ import static org.sonatype.nexus.repository.cache.CacheControllerHolder.CONTENT;
 import static org.sonatype.nexus.repository.cache.CacheControllerHolder.METADATA;
 
 /**
- * Enumeration defining the valid asset kinds for a Composer-format repository.
+ * Enumeration defining the valid asset kinds for a Composer-format repository.TEST
  */
 public enum AssetKind
 {
