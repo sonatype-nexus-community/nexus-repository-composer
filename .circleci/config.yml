@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   maven: circleci/maven@1.2.0
-  circleci-maven-release-orb: sonatype-nexus-community/circleci-maven-release-orb@0.0.16
+  circleci-maven-release-orb: sonatype-nexus-community/circleci-maven-release-orb@0.0.16 
 
 release-args: &release-args
   mvn-release-perform-command: mvn --batch-mode release:perform -s .circleci/.maven.xml -PbuildKar
