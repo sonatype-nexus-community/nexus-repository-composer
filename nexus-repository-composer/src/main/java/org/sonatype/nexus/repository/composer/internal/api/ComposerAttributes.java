@@ -35,7 +35,7 @@ public class ComposerAttributes
       allowableValues = "STRICT,PERMISSIVE",
       example = "STRICT")
   @NotEmpty
-  protected final String layoutPolicy;
+  private final String layoutPolicy;
 
   @ApiModelProperty(value = "Content Disposition",
       allowableValues = "INLINE,ATTACHMENT", example = "ATTACHMENT")
