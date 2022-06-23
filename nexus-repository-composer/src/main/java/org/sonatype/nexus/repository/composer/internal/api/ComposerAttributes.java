@@ -29,7 +29,7 @@ public class ComposerAttributes
       allowableValues = "RELEASE,SNAPSHOT,MIXED",
       example = "MIXED")
   @NotEmpty
-  protected final String versionPolicy;
+  private final String versionPolicy;
 
   @ApiModelProperty(value = "Validate that all paths are composer artifact or metadata paths",
       allowableValues = "STRICT,PERMISSIVE",
