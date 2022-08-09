@@ -187,25 +187,39 @@ public class ComposerProxyFacetImpl
       String project = tokens.get(PROJECT_TOKEN);
       String version = tokens.get(VERSION_TOKEN);
 
-      // try v2 first
-      Request request = new Request.Builder().action(GET).path("/" + buildPackagePath(vendor, project))
-              .attribute(ComposerProviderHandler.DO_NOT_REWRITE, "true").build();
-      Response response = getRepository().facet(ViewFacet.class).dispatch(request, context);
-      Payload payload = response.getPayload();
+      // try v2 package
+      try {
+        String path = "/" + buildPackagePath(vendor, project);
+        Payload payload = getPackagePayload(context, path);
+        if (payload != null) {
+          return composerJsonProcessor.getDistUrlFromPackage(vendor, project, version, payload);
+        }
+      }
+      catch (Exception e) {
+        // ignored because we have a fallback
+      }
+
+      // try v2 package (dev versions)
+      try {
+        String path = "/" + buildPackagePathForDevVersions(vendor, project);
+        Payload payload = getPackagePayload(context, path);
+        String url = composerJsonProcessor.getDistUrlFromPackage(vendor, project, version, payload);
+        if (payload != null) {
+          return composerJsonProcessor.getDistUrlFromPackage(vendor, project, version, payload);
+        }
+      }
+      catch (Exception e) {
+        // ignored because we have a fallback
+      }
+
+      // try v1 provider
+      String path = "/" + buildProviderPath(vendor, project);
+      Payload payload = getProviderPayload(context, path);
       if (payload == null) {
-        request = new Request.Builder().action(GET).path("/" + buildProviderPath(vendor, project))
-                .attribute(ComposerProviderHandler.DO_NOT_REWRITE, "true").build();
-        response = getRepository().facet(ViewFacet.class).dispatch(request, context);
-        payload = response.getPayload();
-        if (payload == null) {
-          throw new NonResolvableProviderJsonException(
-                  String.format("No provider found for vendor %s, project %s, version %s", vendor, project, version));
-        }
-        else {
-          return composerJsonProcessor.getDistUrl(vendor, project, version, payload);
-        }
+        throw new NonResolvableProviderJsonException(
+            String.format("No provider found for vendor %s, project %s, version %s", vendor, project, version));
       } else {
-        return composerJsonProcessor.getDistUrlFromPackage(vendor, project, version, payload);
+        return composerJsonProcessor.getDistUrl(vendor, project, version, payload);
       }
     }
     catch (IOException e) {
@@ -219,6 +233,17 @@ public class ComposerProxyFacetImpl
 
   private ComposerContentFacet content() {
     return getRepository().facet(ComposerContentFacet.class);
+  }
+
+  private Payload getPackagePayload(final Context context, String path) throws Exception {
+    Request request = new Request.Builder().action(GET).path(path)
+      .attribute(ComposerProviderHandler.DO_NOT_REWRITE, "true").build();
+    Response response = getRepository().facet(ViewFacet.class).dispatch(request, context);
+    return response.getPayload();
+  }
+
+  private Payload getProviderPayload(final Context context, String path) throws Exception {
+    return getPackagePayload(context, path);
   }
 
   @VisibleForTesting
