@@ -36,6 +36,8 @@ public final class ComposerPathUtils
 
   private static final String PACKAGE_JSON_PATH = "p2/%s/%s.json";
 
+  private static final String PACKAGE_JSON_PATH_DEV_VERSIONS = "p2/%s/%s~dev.json";
+
   private static final String NAME_PATTERN = "%s-%s-%s";
 
   /**
@@ -131,6 +133,15 @@ public final class ComposerPathUtils
     checkNotNull(vendor);
     checkNotNull(project);
     return String.format(PACKAGE_JSON_PATH, vendor, project);
+  }
+
+    /**
+   * Builds the path to a dev package json file based on the specified vendor and project tokens.
+   */
+  public static String buildPackagePathForDevVersions(final String vendor, final String project) {
+    checkNotNull(vendor);
+    checkNotNull(project);
+    return String.format(PACKAGE_JSON_PATH_DEV_VERSIONS, vendor, project);
   }
 
   private ComposerPathUtils() {
