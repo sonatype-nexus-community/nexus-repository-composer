@@ -15,7 +15,7 @@ release-args: &release-args
 jobs:
   build_and_test:
     docker:
-      - image: 'cimg/openjdk:9.0'
+      - image: 'cimg/openjdk:8.0'
     steps:
       - checkout
       - maven/with_cache:
