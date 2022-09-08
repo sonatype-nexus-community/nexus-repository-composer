@@ -162,7 +162,7 @@ public class ComposerProxyFacetImpl
     return cacheControllerHolder.require(assetKind.getCacheType());
   }
 
-  private Content generatePackagesJson(final Context context) throws IOException {
+  private Content generatePackagesJson(final Context context) {
     try {
       // TODO: Better logging and error checking on failure/non-200 scenarios
       Request request = new Request.Builder().action(GET).path("/" + LIST_JSON).build();
@@ -203,7 +203,6 @@ public class ComposerProxyFacetImpl
       try {
         String path = "/" + buildPackagePathForDevVersions(vendor, project);
         Payload payload = getPackagePayload(context, path);
-        String url = composerJsonProcessor.getDistUrlFromPackage(vendor, project, version, payload);
         if (payload != null) {
           return composerJsonProcessor.getDistUrlFromPackage(vendor, project, version, payload);
         }

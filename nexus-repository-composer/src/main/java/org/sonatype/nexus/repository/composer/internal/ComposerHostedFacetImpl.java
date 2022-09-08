@@ -84,7 +84,8 @@ public class ComposerHostedFacetImpl
   @Override
   @TransactionalTouchMetadata
   public Content getPackageJson(final String vendor, final String project) throws IOException {
-    return content().get(ComposerPathUtils.buildPackagePath(vendor, project));
+    Content content = content().get(ComposerPathUtils.buildPackagePath(vendor, project));
+    return content != null ? content : content().get(ComposerPathUtils.buildProviderPath(vendor, project));
   }
 
   @Override
