@@ -28,7 +28,7 @@ public class ComposerWritePolicySelector implements WritePolicySelector {
   public WritePolicy select(Asset asset, WritePolicy writePolicy) {
     if (ALLOW_ONCE == writePolicy) {
       final String assetKind = asset.formatAttributes().get(P_ASSET_KIND, String.class);
-      if (Objects.equals(AssetKind.PROVIDER.name(), assetKind)) {
+      if (Objects.equals(AssetKind.PROVIDER.name(), assetKind) || Objects.equals(AssetKind.PACKAGE.name(), assetKind)) {
         return ALLOW;
       }
     }
