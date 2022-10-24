@@ -12,29 +12,21 @@
  */
 package org.sonatype.nexus.repository.composer.internal;
 
-import org.sonatype.goodies.testsupport.TestSupport;
-import org.sonatype.nexus.common.collect.NestedAttributesMap;
-import org.sonatype.nexus.common.event.EventManager;
-import org.sonatype.nexus.repository.Repository;
-import org.sonatype.nexus.repository.storage.Asset;
-import org.sonatype.nexus.repository.storage.AssetCreatedEvent;
-import org.sonatype.nexus.repository.storage.AssetDeletedEvent;
-import org.sonatype.nexus.repository.storage.AssetUpdatedEvent;
-import org.sonatype.nexus.repository.storage.StorageFacet;
-import org.sonatype.nexus.repository.storage.StorageTx;
-
 import com.google.common.base.Supplier;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.sonatype.goodies.testsupport.TestSupport;
+import org.sonatype.nexus.common.collect.NestedAttributesMap;
+import org.sonatype.nexus.common.event.EventManager;
+import org.sonatype.nexus.repository.Repository;
+import org.sonatype.nexus.repository.storage.*;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 import static org.sonatype.nexus.repository.composer.internal.AssetKind.PACKAGES;
 import static org.sonatype.nexus.repository.composer.internal.AssetKind.ZIPBALL;
 import static org.sonatype.nexus.repository.composer.internal.ComposerAttributes.P_PROJECT;
