@@ -427,7 +427,12 @@ public class ComposerJsonProcessor
         Map<String, Object> packagesMap = (Map<String, Object>) json.get(PACKAGES_KEY);
         for (String packageName : packagesMap.keySet()) {
 
-          List<Map<String, Object>> packageVersions = (List<Map<String, Object>>) packagesMap.get(packageName);
+          List<Map<String, Object>> packageVersions;
+          try{
+            packageVersions = (List<Map<String, Object>>) packagesMap.get(packageName);
+          }catch (Exception e){
+            return mergeProviderJson(repository,payloads,now);
+          }
           for (Map<String, Object> versionInfo : packageVersions) {
             String packageVersion = (String) versionInfo.get(VERSION_KEY);
 
