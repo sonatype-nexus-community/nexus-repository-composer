@@ -428,7 +428,6 @@ public class ComposerJsonProcessor
         for (String packageName : packagesMap.keySet()) {
 
           List<Map<String, Object>> packageVersions = (List<Map<String, Object>>) packagesMap.get(packageName);
-
           for (Map<String, Object> versionInfo : packageVersions) {
             String packageVersion = (String) versionInfo.get(VERSION_KEY);
 
