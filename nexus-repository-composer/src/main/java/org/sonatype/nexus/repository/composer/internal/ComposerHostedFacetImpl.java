@@ -85,8 +85,13 @@ public class ComposerHostedFacetImpl
   @TransactionalTouchMetadata
   public Content getPackageJson(final String vendor, final String project) throws IOException {
     Content content = content().get(ComposerPathUtils.buildPackagePath(vendor, project));
-    //check composer v1 packages if v2 Path is invalid
-    return content != null ? content : content().get(ComposerPathUtils.buildProviderPath(vendor, project));
+    //Create v2 Package if it´s not existing
+    if (content != null) {
+      return content;
+    } else {
+      rebuildPackageJson(vendor, project);
+      return content().get(ComposerPathUtils.buildPackagePath(vendor, project));
+    }
   }
 
   @Override
