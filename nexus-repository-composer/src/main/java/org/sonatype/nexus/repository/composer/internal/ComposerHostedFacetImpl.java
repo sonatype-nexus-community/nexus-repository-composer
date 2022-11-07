@@ -82,12 +82,34 @@ public class ComposerHostedFacetImpl
   }
 
   @Override
+  @TransactionalTouchMetadata
+  public Content getPackageJson(final String vendor, final String project) throws IOException {
+    Content content = content().get(ComposerPathUtils.buildPackagePath(vendor, project));
+    //Create v2 Package if it´s not existing
+    if (content != null) {
+      return content;
+    } else {
+      rebuildPackageJson(vendor, project);
+      return content().get(ComposerPathUtils.buildPackagePath(vendor, project));
+    }
+  }
+
+  @Override
   @TransactionalStoreBlob
   public void rebuildProviderJson(final String vendor, final String project) throws IOException {
     StorageTx tx = UnitOfWork.currentTx();
     Content content = composerJsonProcessor.buildProviderJson(getRepository(), tx,
         tx.findComponents(buildQuery(vendor, project), singletonList(getRepository())));
     content().put(ComposerPathUtils.buildProviderPath(vendor, project), content, AssetKind.PROVIDER);
+  }
+
+  @Override
+  @TransactionalStoreBlob
+  public void rebuildPackageJson(final String vendor, final String project) throws IOException {
+    StorageTx tx = UnitOfWork.currentTx();
+    Content content = composerJsonProcessor.buildPackageJson(getRepository(), tx,
+            tx.findComponents(buildQuery(vendor, project), singletonList(getRepository())));
+    content().put(ComposerPathUtils.buildPackagePath(vendor, project), content, AssetKind.PACKAGE);
   }
 
   @VisibleForTesting

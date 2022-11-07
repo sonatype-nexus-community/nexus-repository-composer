@@ -34,6 +34,10 @@ public final class ComposerPathUtils
 
   private static final String PROVIDER_JSON_PATH = "p/%s/%s.json";
 
+  private static final String PACKAGE_JSON_PATH = "p2/%s/%s.json";
+
+  private static final String PACKAGE_JSON_PATH_DEV_VERSIONS = "p2/%s/%s~dev.json";
+
   private static final String NAME_PATTERN = "%s-%s-%s";
 
   /**
@@ -110,6 +114,34 @@ public final class ComposerPathUtils
     checkNotNull(vendor);
     checkNotNull(project);
     return String.format(PROVIDER_JSON_PATH, vendor, project);
+  }
+
+  /**
+   * Builds the path to a package json file based on the path contained in a particular context. The vendor token and
+   * the project token must be present in the context in order to successfully generate the path.
+   */
+  public static String buildPackagePath(final Context context) {
+    TokenMatcher.State state = context.getAttributes().require(TokenMatcher.State.class);
+    Map<String, String> tokens = state.getTokens();
+    return buildPackagePath(tokens.get(VENDOR_TOKEN), tokens.get(PROJECT_TOKEN));
+  }
+
+  /**
+   * Builds the path to a package json file based on the specified vendor and project tokens.
+   */
+  public static String buildPackagePath(final String vendor, final String project) {
+    checkNotNull(vendor);
+    checkNotNull(project);
+    return String.format(PACKAGE_JSON_PATH, vendor, project);
+  }
+
+    /**
+   * Builds the path to a dev package json file based on the specified vendor and project tokens.
+   */
+  public static String buildPackagePathForDevVersions(final String vendor, final String project) {
+    checkNotNull(vendor);
+    checkNotNull(project);
+    return String.format(PACKAGE_JSON_PATH_DEV_VERSIONS, vendor, project);
   }
 
   private ComposerPathUtils() {

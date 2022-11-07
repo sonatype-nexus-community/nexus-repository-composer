@@ -112,6 +112,9 @@ public class ComposerJsonProcessorTest
   @Mock
   private ComposerJsonExtractor composerJsonExtractor;
 
+  @Mock
+  private ComposerJsonMinifier composerJsonMinifier;
+
   @Test
   public void generatePackagesFromList() throws Exception {
     String listJson = readStreamToString(getClass().getResourceAsStream("generatePackagesFromList.list.json"));
@@ -120,7 +123,7 @@ public class ComposerJsonProcessorTest
     when(repository.getUrl()).thenReturn("http://nexus.repo/base/repo");
     when(payload1.openInputStream()).thenReturn(new ByteArrayInputStream(listJson.getBytes(UTF_8)));
 
-    ComposerJsonProcessor underTest = new ComposerJsonProcessor(composerJsonExtractor);
+    ComposerJsonProcessor underTest = new ComposerJsonProcessor(composerJsonExtractor, composerJsonMinifier);
     Content output = underTest.generatePackagesFromList(repository, payload1);
 
     assertEquals(packagesJson, readStreamToString(output.openInputStream()), true);
@@ -144,7 +147,7 @@ public class ComposerJsonProcessorTest
     when(component3.name()).thenReturn("project1");
     when(component3.version()).thenReturn("version2");
 
-    ComposerJsonProcessor underTest = new ComposerJsonProcessor(composerJsonExtractor);
+    ComposerJsonProcessor underTest = new ComposerJsonProcessor(composerJsonExtractor, composerJsonMinifier);
     Content output = underTest.generatePackagesFromComponents(repository, asList(component1, component2, component3));
 
     assertEquals(packagesJson, readStreamToString(output.openInputStream()), true);
@@ -158,7 +161,7 @@ public class ComposerJsonProcessorTest
     when(repository.getUrl()).thenReturn("http://nexus.repo/base/repo");
     when(payload1.openInputStream()).thenReturn(new ByteArrayInputStream(inputJson.getBytes(UTF_8)));
 
-    ComposerJsonProcessor underTest = new ComposerJsonProcessor(composerJsonExtractor);
+    ComposerJsonProcessor underTest = new ComposerJsonProcessor(composerJsonExtractor, composerJsonMinifier);
     Payload output = underTest.rewriteProviderJson(repository, payload1);
 
     assertEquals(outputJson, readStreamToString(output.openInputStream()), true);
@@ -176,7 +179,7 @@ public class ComposerJsonProcessorTest
     when(payload1.openInputStream()).thenReturn(new ByteArrayInputStream(inputJson1.getBytes(UTF_8)));
     when(payload2.openInputStream()).thenReturn(new ByteArrayInputStream(inputJson2.getBytes(UTF_8)));
 
-    ComposerJsonProcessor underTest = new ComposerJsonProcessor(composerJsonExtractor);
+    ComposerJsonProcessor underTest = new ComposerJsonProcessor(composerJsonExtractor, composerJsonMinifier);
     Payload output = underTest.mergeProviderJson(repository, Arrays.asList(payload1, payload2), time);
 
     assertEquals(outputJson, readStreamToString(output.openInputStream()), true);
@@ -312,7 +315,7 @@ public class ComposerJsonProcessorTest
         .put("foo", singletonMap("foo-key", "foo-value"))
         .build());
 
-    ComposerJsonProcessor underTest = new ComposerJsonProcessor(composerJsonExtractor);
+    ComposerJsonProcessor underTest = new ComposerJsonProcessor(composerJsonExtractor, composerJsonMinifier);
     Content output = underTest
         .buildProviderJson(repository, storageTx, asList(component1, component2, component3, component4));
 
@@ -329,7 +332,7 @@ public class ComposerJsonProcessorTest
     when(payload1.openInputStream()).thenReturn(new ByteArrayInputStream(inputJson1.getBytes(UTF_8)));
     when(payload2.openInputStream()).thenReturn(new ByteArrayInputStream(inputJson2.getBytes(UTF_8)));
 
-    ComposerJsonProcessor underTest = new ComposerJsonProcessor(composerJsonExtractor);
+    ComposerJsonProcessor underTest = new ComposerJsonProcessor(composerJsonExtractor, composerJsonMinifier);
     Payload output = underTest.mergePackagesJson(repository, Arrays.asList(payload1, payload2));
 
     assertEquals(outputJson, readStreamToString(output.openInputStream()), true);
@@ -340,7 +343,7 @@ public class ComposerJsonProcessorTest
     String inputJson = readStreamToString(getClass().getResourceAsStream("getDistUrl.json"));
     when(payload1.openInputStream()).thenReturn(new ByteArrayInputStream(inputJson.getBytes(UTF_8)));
 
-    ComposerJsonProcessor underTest = new ComposerJsonProcessor(composerJsonExtractor);
+    ComposerJsonProcessor underTest = new ComposerJsonProcessor(composerJsonExtractor, composerJsonMinifier);
     String distUrl = underTest.getDistUrl("vendor1", "project1", "2.0.0", payload1);
 
     assertThat(distUrl, is("https://git.example.com/zipball/418e708b379598333d0a48954c0fa210437795be"));

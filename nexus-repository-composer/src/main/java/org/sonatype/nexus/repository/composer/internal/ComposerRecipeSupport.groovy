@@ -20,7 +20,7 @@ import org.sonatype.nexus.repository.RecipeSupport
 import org.sonatype.nexus.repository.Type
 import org.sonatype.nexus.repository.attributes.AttributesFacet
 import org.sonatype.nexus.repository.http.PartialFetchHandler
-import org.sonatype.nexus.repository.search.SearchFacet
+import org.sonatype.nexus.repository.search.index.SearchIndexFacet
 import org.sonatype.nexus.repository.security.SecurityHandler
 import org.sonatype.nexus.repository.storage.SingleAssetComponentMaintenance
 import org.sonatype.nexus.repository.storage.StorageFacet
@@ -77,7 +77,7 @@ abstract class ComposerRecipeSupport
   Provider<StorageFacet> storageFacet
 
   @Inject
-  Provider<SearchFacet> searchFacet
+  Provider<SearchIndexFacet> searchFacet
 
   @Inject
   Provider<AttributesFacet> attributesFacet
@@ -140,6 +140,14 @@ abstract class ComposerRecipeSupport
             new ActionMatcher(GET, HEAD),
             new TokenMatcher('/p/{vendor:.+}/{project:.+}.json')
         ))
+  }
+
+  static Builder packageMatcher() {
+    new Builder().matcher(
+            LogicMatchers.and(
+                    new ActionMatcher(GET, HEAD),
+                    new TokenMatcher('/p2/{vendor:.+}/{project:.+}.json')
+            ))
   }
 
   static Builder zipballMatcher() {

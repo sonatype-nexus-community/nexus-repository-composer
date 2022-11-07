@@ -91,6 +91,7 @@ public class ComposerHostedMetadataFacetImpl
       UnitOfWork.begin(getRepository().facet(StorageFacet.class).txSupplier());
       try {
         hostedFacet.rebuildProviderJson(event.getVendor(), event.getProject());
+        hostedFacet.rebuildPackageJson(event.getVendor(), event.getProject());
       }
       finally {
         UnitOfWork.end();

@@ -37,8 +37,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.buildProviderPath;
-import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.buildZipballPath;
+import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.*;
 import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.PROJECT_TOKEN;
 import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VENDOR_TOKEN;
 import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VERSION_TOKEN;
@@ -91,6 +90,8 @@ public class ComposerProxyFacetImpl
         return content().get(LIST_JSON);
       case PROVIDER:
         return content().get(buildProviderPath(context));
+      case PACKAGE:
+        return content().get(buildPackagePath(context));
       case ZIPBALL:
         return content().get(buildZipballPath(context));
       default:
@@ -108,6 +109,8 @@ public class ComposerProxyFacetImpl
         return content().put(LIST_JSON, content, assetKind);
       case PROVIDER:
         return content().put(buildProviderPath(context), content, assetKind);
+      case PACKAGE:
+        return content().put(buildPackagePath(context), content, assetKind);
       case ZIPBALL:
         return content().put(buildZipballPath(context), content, assetKind);
       default:
@@ -129,6 +132,9 @@ public class ComposerProxyFacetImpl
         break;
       case PROVIDER:
         content().setCacheInfo(buildProviderPath(context), content, cacheInfo);
+        break;
+      case PACKAGE:
+        content().setCacheInfo(buildPackagePath(context), content, cacheInfo);
         break;
       case ZIPBALL:
         content().setCacheInfo(buildZipballPath(context), content, cacheInfo);
@@ -181,15 +187,38 @@ public class ComposerProxyFacetImpl
       String project = tokens.get(PROJECT_TOKEN);
       String version = tokens.get(VERSION_TOKEN);
 
-      Request request = new Request.Builder().action(GET).path("/" + buildProviderPath(vendor, project))
-          .attribute(ComposerProviderHandler.DO_NOT_REWRITE, "true").build();
-      Response response = getRepository().facet(ViewFacet.class).dispatch(request, context);
-      Payload payload = response.getPayload();
+      // try v2 package
+      try {
+        String path = "/" + buildPackagePath(vendor, project);
+        Payload payload = getPackagePayload(context, path);
+        if (payload != null) {
+          return composerJsonProcessor.getDistUrlFromPackage(vendor, project, version, payload);
+        }
+      }
+      catch (Exception e) {
+        // ignored because we have a fallback
+      }
+
+      // try v2 package (dev versions)
+      try {
+        String path = "/" + buildPackagePathForDevVersions(vendor, project);
+        Payload payload = getPackagePayload(context, path);
+        String url = composerJsonProcessor.getDistUrlFromPackage(vendor, project, version, payload);
+        if (payload != null) {
+          return composerJsonProcessor.getDistUrlFromPackage(vendor, project, version, payload);
+        }
+      }
+      catch (Exception e) {
+        // ignored because we have a fallback
+      }
+
+      // try v1 provider
+      String path = "/" + buildProviderPath(vendor, project);
+      Payload payload = getProviderPayload(context, path);
       if (payload == null) {
         throw new NonResolvableProviderJsonException(
             String.format("No provider found for vendor %s, project %s, version %s", vendor, project, version));
-      }
-      else {
+      } else {
         return composerJsonProcessor.getDistUrl(vendor, project, version, payload);
       }
     }
@@ -204,6 +233,17 @@ public class ComposerProxyFacetImpl
 
   private ComposerContentFacet content() {
     return getRepository().facet(ComposerContentFacet.class);
+  }
+
+  private Payload getPackagePayload(final Context context, String path) throws Exception {
+    Request request = new Request.Builder().action(GET).path(path)
+      .attribute(ComposerProviderHandler.DO_NOT_REWRITE, "true").build();
+    Response response = getRepository().facet(ViewFacet.class).dispatch(request, context);
+    return response.getPayload();
+  }
+
+  private Payload getProviderPayload(final Context context, String path) throws Exception {
+    return getPackagePayload(context, path);
   }
 
   @VisibleForTesting
