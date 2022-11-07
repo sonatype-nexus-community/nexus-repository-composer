@@ -36,7 +36,7 @@ Ext.define('NX.composer.view.repository.recipe.ComposerProxy', {
       {xtype: 'nx-coreui-repository-proxy-facet'},
       {xtype: 'nx-coreui-repository-storage-facet'},
       {xtype: 'nx-coreui-repository-negativecache-facet'},
-      {xtype: 'nx-coreui-repository-httpclient-facet'},
+      {xtype: 'nx-coreui-repository-httpclient-facet-with-preemptive-auth'},
       {xtype: 'nx-coreui-repository-cleanup-policy-facet'}
     ];
 
