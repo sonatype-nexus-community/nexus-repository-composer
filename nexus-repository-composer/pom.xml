@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.sonatype.nexus.plugins</groupId>
     <artifactId>composer-parent</artifactId>
-    <version>0.0.24-SNAPSHOT</version>
+    <version>0.0.30-SNAPSHOT</version>
   </parent>
 
   <artifactId>nexus-repository-composer</artifactId>
@@ -37,6 +37,11 @@
       <groupId>org.sonatype.nexus</groupId>
       <artifactId>nexus-testsupport</artifactId>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sonatype.nexus</groupId>
+      <artifactId>nexus-cleanup</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sonatype.nexus</groupId>
