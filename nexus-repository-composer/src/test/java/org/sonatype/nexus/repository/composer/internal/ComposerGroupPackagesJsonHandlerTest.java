@@ -12,29 +12,21 @@
  */
 package org.sonatype.nexus.repository.composer.internal;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.group.GroupFacet;
-import org.sonatype.nexus.repository.view.Content;
-import org.sonatype.nexus.repository.view.Context;
-import org.sonatype.nexus.repository.view.Headers;
-import org.sonatype.nexus.repository.view.Payload;
-import org.sonatype.nexus.repository.view.Request;
-import org.sonatype.nexus.repository.view.Response;
-import org.sonatype.nexus.repository.view.Status;
-import org.sonatype.nexus.repository.view.ViewFacet;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
+import org.sonatype.nexus.repository.view.*;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonatype.nexus.repository.http.HttpMethods.GET;

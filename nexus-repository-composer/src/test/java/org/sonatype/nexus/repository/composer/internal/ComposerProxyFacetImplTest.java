@@ -12,34 +12,25 @@
  */
 package org.sonatype.nexus.repository.composer.internal;
 
+import com.google.common.collect.ImmutableMap;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.cache.CacheInfo;
 import org.sonatype.nexus.repository.composer.internal.ComposerProxyFacetImpl.NonResolvableProviderJsonException;
-import org.sonatype.nexus.repository.view.Content;
-import org.sonatype.nexus.repository.view.Context;
-import org.sonatype.nexus.repository.view.Payload;
-import org.sonatype.nexus.repository.view.Request;
-import org.sonatype.nexus.repository.view.Response;
-import org.sonatype.nexus.repository.view.ViewFacet;
+import org.sonatype.nexus.repository.view.*;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
-
-import com.google.common.collect.ImmutableMap;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonatype.nexus.repository.composer.internal.AssetKind.LIST;
-import static org.sonatype.nexus.repository.composer.internal.AssetKind.PACKAGES;
-import static org.sonatype.nexus.repository.composer.internal.AssetKind.PROVIDER;
-import static org.sonatype.nexus.repository.composer.internal.AssetKind.ZIPBALL;
+import static org.sonatype.nexus.repository.composer.internal.AssetKind.*;
 
 public class ComposerProxyFacetImplTest
     extends TestSupport

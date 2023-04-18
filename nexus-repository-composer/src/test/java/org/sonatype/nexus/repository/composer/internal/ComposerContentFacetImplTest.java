@@ -12,11 +12,11 @@
  */
 package org.sonatype.nexus.repository.composer.internal;
 
-import java.io.InputStream;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.hash.HashCode;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.blobstore.api.Blob;
 import org.sonatype.nexus.blobstore.api.BlobRef;
@@ -24,47 +24,25 @@ import org.sonatype.nexus.common.collect.NestedAttributesMap;
 import org.sonatype.nexus.common.hash.HashAlgorithm;
 import org.sonatype.nexus.repository.Format;
 import org.sonatype.nexus.repository.Repository;
-import org.sonatype.nexus.repository.storage.Asset;
-import org.sonatype.nexus.repository.storage.AssetBlob;
-import org.sonatype.nexus.repository.storage.Bucket;
-import org.sonatype.nexus.repository.storage.Component;
-import org.sonatype.nexus.repository.storage.Query;
-import org.sonatype.nexus.repository.storage.StorageFacet;
-import org.sonatype.nexus.repository.storage.StorageTx;
-import org.sonatype.nexus.repository.storage.TempBlob;
+import org.sonatype.nexus.repository.storage.*;
 import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.transaction.UnitOfWork;
 
-import com.google.common.hash.HashCode;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
+import java.io.InputStream;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
-import static java.util.Collections.singletonMap;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
+import static java.util.Collections.*;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.sonatype.nexus.common.hash.HashAlgorithm.MD5;
-import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA1;
-import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA256;
-import static org.sonatype.nexus.repository.composer.internal.AssetKind.LIST;
-import static org.sonatype.nexus.repository.composer.internal.AssetKind.PACKAGES;
-import static org.sonatype.nexus.repository.composer.internal.AssetKind.PROVIDER;
-import static org.sonatype.nexus.repository.composer.internal.AssetKind.ZIPBALL;
-import static org.sonatype.nexus.repository.composer.internal.ComposerAttributes.P_PROJECT;
-import static org.sonatype.nexus.repository.composer.internal.ComposerAttributes.P_VENDOR;
-import static org.sonatype.nexus.repository.composer.internal.ComposerAttributes.P_VERSION;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+import static org.sonatype.nexus.common.hash.HashAlgorithm.*;
+import static org.sonatype.nexus.repository.composer.internal.AssetKind.*;
+import static org.sonatype.nexus.repository.composer.internal.ComposerAttributes.*;
 import static org.sonatype.nexus.repository.storage.MetadataNodeEntityAdapter.P_NAME;
 
 public class ComposerContentFacetImplTest
