@@ -19,6 +19,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.sonatype.nexus.repository.Repository;
+import org.sonatype.nexus.repository.group.GroupFacet;
 import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Payload;
 
@@ -41,6 +42,7 @@ public class ComposerGroupPackagesJsonHandler
 
   @Override
   protected Content merge(final Repository repository, final List<Payload> payloads) throws Exception {
-    return composerJsonProcessor.mergePackagesJson(repository, payloads);
+    GroupFacet groupFacet = repository.facet(GroupFacet.class);
+    return composerJsonProcessor.mergePackagesJsonWithProviderIncludes(repository, groupFacet.members());
   }
 }

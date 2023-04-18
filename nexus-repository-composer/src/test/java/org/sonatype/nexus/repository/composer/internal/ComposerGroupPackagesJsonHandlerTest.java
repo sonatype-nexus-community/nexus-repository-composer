@@ -138,7 +138,7 @@ public class ComposerGroupPackagesJsonHandlerTest
     assertThat(result.getStatus(), is(notNullValue()));
     assertThat(result.getStatus().getCode(), is(OK));
 
-    verify(composerJsonProcessor).mergePackagesJson(eq(repository), eq(asList(payload1, payload2)));
+    verify(composerJsonProcessor).mergePackagesJsonWithProviderIncludes(eq(repository), eq(asList(memberRepository1, memberRepository2)));
   }
 
   @Test
@@ -150,7 +150,7 @@ public class ComposerGroupPackagesJsonHandlerTest
     assertThat(result.getStatus(), is(notNullValue()));
     assertThat(result.getStatus().getCode(), is(OK));
 
-    verify(composerJsonProcessor).mergePackagesJson(eq(repository), eq(singletonList(payload2)));
+    verify(composerJsonProcessor).mergePackagesJsonWithProviderIncludes(eq(repository), eq(asList(memberRepository1, memberRepository2)));
   }
 
   @Test
@@ -162,6 +162,6 @@ public class ComposerGroupPackagesJsonHandlerTest
     assertThat(result.getStatus(), is(notNullValue()));
     assertThat(result.getStatus().getCode(), is(OK));
 
-    verify(composerJsonProcessor).mergePackagesJson(eq(repository), eq(singletonList(payload2)));
+    verify(composerJsonProcessor).mergePackagesJsonWithProviderIncludes(eq(repository), eq(asList(memberRepository1, memberRepository2)));
   }
 }

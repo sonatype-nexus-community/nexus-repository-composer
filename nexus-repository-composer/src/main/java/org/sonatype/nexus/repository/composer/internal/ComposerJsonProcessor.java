@@ -57,6 +57,8 @@ import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupp
 @Singleton
 public class ComposerJsonProcessor
 {
+  private static final String PACKAGES_JSON_PATH = "/packages.json";
+
   private static final String PACKAGE_JSON_PATH = "/p/%package%.json";
 
   private static final String PACKAGE_V2_JSON_PATH = "/p2/%package%.json";
@@ -92,6 +94,8 @@ public class ComposerJsonProcessor
   private static final String METADATA_URL_KEY = "metadata-url";
 
   private static final String PROVIDERS_KEY = "providers";
+
+  private static final String PROVIDER_INCLUDES_KEY = "provider-includes";
 
   private static final String PACKAGES_KEY = "packages";
 
@@ -134,6 +138,15 @@ public class ComposerJsonProcessor
   private static final String UID_KEY = "uid";
 
   private static final String ZIP_TYPE = "zip";
+
+  private static final String WARNING_KEY = "warning";
+
+  private static final String WARNING_MESSAGE = "Support for Composer 1 is deprecated and not worked for group repository. You should upgrade to Composer 2.";
+
+  private static final String WARNING_VERSIONS_KEY = "warning-versions";
+
+  private static final String WARNING_VERSIONS_VALUE = "<1.99";
+
 
   private static final ObjectMapper mapper = new ObjectMapper();
 
@@ -180,6 +193,17 @@ public class ComposerJsonProcessor
     packagesJson.put(METADATA_URL_KEY, repository.getUrl() + PACKAGE_V2_JSON_PATH);
     packagesJson.put(PROVIDERS_KEY, names.stream()
         .collect(Collectors.toMap((each) -> each, (each) -> singletonMap(SHA256_KEY, null))));
+    return new Content(new StringPayload(mapper.writeValueAsString(packagesJson), ContentTypes.APPLICATION_JSON));
+  }
+
+  private Content buildPackagesJsonWithProviderIncludes(final Repository repository, final Set<String> providers) throws IOException {
+    Map<String, Object> packagesJson = new LinkedHashMap<>();
+    packagesJson.put(PROVIDERS_URL_KEY, repository.getUrl() + PACKAGE_JSON_PATH);
+    packagesJson.put(METADATA_URL_KEY, repository.getUrl() + PACKAGE_V2_JSON_PATH);
+    packagesJson.put(WARNING_KEY, WARNING_MESSAGE);
+    packagesJson.put(WARNING_VERSIONS_KEY, WARNING_VERSIONS_VALUE);
+    packagesJson.put(PROVIDER_INCLUDES_KEY, providers.stream()
+            .collect(Collectors.toMap((each) -> each, (each) -> singletonMap(SHA256_KEY, null))));
     return new Content(new StringPayload(mapper.writeValueAsString(packagesJson), ContentTypes.APPLICATION_JSON));
   }
 
@@ -354,6 +378,14 @@ public class ComposerJsonProcessor
       names.addAll(providers.keySet());
     }
     return buildPackagesJson(repository, names);
+  }
+
+  public Content mergePackagesJsonWithProviderIncludes(final Repository repository, final List<Repository> repositories) throws IOException {
+    Set<String> providers = new HashSet<>();
+    for (Repository repositoryItem : repositories) {
+      providers.add(repositoryItem.getUrl() + PACKAGES_JSON_PATH);
+    }
+    return buildPackagesJsonWithProviderIncludes(repository, providers);
   }
 
   /**
