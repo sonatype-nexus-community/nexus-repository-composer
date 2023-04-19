@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
+import org.joda.time.DateTime;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.group.GroupFacet;
 import org.sonatype.nexus.repository.group.GroupHandler;
@@ -27,9 +28,6 @@ import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.Payload;
 import org.sonatype.nexus.repository.view.Response;
-
-import static org.sonatype.nexus.repository.http.HttpConditions.makeConditional;
-import static org.sonatype.nexus.repository.http.HttpConditions.makeUnconditional;
 
 /**
  * Abstract handler for merging in the context of a Composer group repository, with merging left to concrete
@@ -46,14 +44,7 @@ public abstract class ComposerGroupMergingHandler
     Repository repository = context.getRepository();
     GroupFacet groupFacet = repository.facet(GroupFacet.class);
 
-    makeUnconditional(context.getRequest());
-    Map<Repository, Response> responses;
-    try {
-      responses = getAll(context, groupFacet.members(), dispatched);
-    }
-    finally {
-      makeConditional(context.getRequest());
-    }
+    Map<Repository, Response> responses = getAll(context, groupFacet.members(), dispatched);
 
     List<Payload> payloads = responses.values().stream()
         .filter(response -> response.getStatus().getCode() == HttpStatus.OK && response.getPayload() != null)
@@ -62,7 +53,33 @@ public abstract class ComposerGroupMergingHandler
     if (payloads.isEmpty()) {
       return notFoundResponse(context);
     }
-    return HttpResponses.ok(merge(repository, payloads));
+
+    final Content content = merge(repository, payloads);
+
+    if (content != null) {
+      DateTime lastModified = null;
+
+      for (Payload payload : payloads) {
+        if (payload instanceof Content) {
+          DateTime payloadLastModified = ((Content) payload).getAttributes().get(Content.CONTENT_LAST_MODIFIED, DateTime.class);
+
+          if (payloadLastModified == null) {
+            payloadLastModified = DateTime.now();
+          }
+          if (lastModified == null || payloadLastModified.isAfter(lastModified)) {
+            lastModified = payloadLastModified;
+          }
+        }
+      }
+
+      if (lastModified != null) {
+        content.getAttributes().set(Content.CONTENT_LAST_MODIFIED, lastModified);
+      } else {
+        content.getAttributes().set(Content.CONTENT_LAST_MODIFIED, DateTime.now());
+      }
+    }
+
+    return HttpResponses.ok(content);
   }
 
   protected abstract Content merge(final Repository repository, final List<Payload> payloads) throws Exception;

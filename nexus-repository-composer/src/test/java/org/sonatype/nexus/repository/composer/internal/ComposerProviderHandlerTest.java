@@ -15,11 +15,7 @@ package org.sonatype.nexus.repository.composer.internal;
 import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.repository.Repository;
-import org.sonatype.nexus.repository.view.Context;
-import org.sonatype.nexus.repository.view.Payload;
-import org.sonatype.nexus.repository.view.Request;
-import org.sonatype.nexus.repository.view.Response;
-import org.sonatype.nexus.repository.view.Status;
+import org.sonatype.nexus.repository.view.*;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -60,7 +56,7 @@ public class ComposerProviderHandlerTest
   private Payload payload;
 
   @Mock
-  private Payload rewrittenPayload;
+  private Content rewrittenPayload;
 
   @Mock
   private Status status;

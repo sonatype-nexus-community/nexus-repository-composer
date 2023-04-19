@@ -210,7 +210,7 @@ public class ComposerJsonProcessor
   /**
    * Rewrites the provider JSON so that source entries are removed and dist entries are pointed back to Nexus.
    */
-  public Payload rewriteProviderJson(final Repository repository, final Payload payload) throws IOException {
+  public Content rewriteProviderJson(final Repository repository, final Payload payload) throws IOException {
     Map<String, Object> json = parseJson(payload);
     if (json.get(PACKAGES_KEY) instanceof Map) {
       Map<String, Object> packagesMap = (Map<String, Object>) json.get(PACKAGES_KEY);
@@ -230,13 +230,13 @@ public class ComposerJsonProcessor
         }
       }
     }
-    return new StringPayload(mapper.writeValueAsString(json), payload.getContentType());
+    return new Content(new StringPayload(mapper.writeValueAsString(json), payload.getContentType()));
   }
 
   /**
    * Rewrites the provider JSON so that source entries are removed and dist entries are pointed back to Nexus.
    */
-  public Payload rewritePackageJson(final Repository repository, final Payload payload) throws IOException {
+  public Content rewritePackageJson(final Repository repository, final Payload payload) throws IOException {
     Map<String, Object> json = parseJson(payload);
 
     this.composerJsonMinifier.expand(json);
@@ -261,7 +261,7 @@ public class ComposerJsonProcessor
 
     this.composerJsonMinifier.minify(json);
 
-    return new StringPayload(mapper.writeValueAsString(json), payload.getContentType());
+    return new Content(new StringPayload(mapper.writeValueAsString(json), payload.getContentType()));
   }
 
   private String getAttributeFromAsset(Asset asset, String name) {

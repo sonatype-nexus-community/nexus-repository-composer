@@ -30,92 +30,96 @@ import org.sonatype.nexus.repository.view.Router
 import org.sonatype.nexus.repository.view.ViewFacet
 
 /**
- * Recipe for creating a Composer group repository.
- */
+ * Recipe for creating a Composer group repository.*/
 @Named(ComposerGroupRecipe.NAME)
 @Singleton
-class ComposerGroupRecipe
-    extends ComposerRecipeSupport
-{
-  public static final String NAME = 'composer-group'
+class ComposerGroupRecipe extends ComposerRecipeSupport {
+    public static final String NAME = 'composer-group'
 
-  @Inject
-  Provider<GroupFacetImpl> groupFacet
+    @Inject
+    Provider<GroupFacetImpl> groupFacet
 
-  @Inject
-  GroupHandler standardGroupHandler
+    @Inject
+    GroupHandler standardGroupHandler
 
-  @Inject
-  ComposerGroupPackagesJsonHandler packagesJsonHandler
+    @Inject
+    ComposerGroupPackagesJsonHandler packagesJsonHandler
 
-  @Inject
-  ComposerGroupProviderJsonHandler providerJsonHandler
+    @Inject
+    ComposerGroupProviderJsonHandler providerJsonHandler
 
-  @Inject
-  ComposerGroupPackageJsonHandler packageJsonHandler
+    @Inject
+    ComposerGroupPackageJsonHandler packageJsonHandler
 
-  @Inject
-  ComposerGroupRecipe(@Named(GroupType.NAME) final Type type, @Named(ComposerFormat.NAME) final Format format) {
-    super(type, format)
-  }
+    @Inject
+    ComposerGroupRecipe(@Named(GroupType.NAME) final Type type, @Named(ComposerFormat.NAME) final Format format) {
+        super(type, format)
+    }
 
-  @Override
-  void apply(@Nonnull final Repository repository) throws Exception {
-    repository.attach(groupFacet.get())
-    repository.attach(storageFacet.get())
-    repository.attach(securityFacet.get())
-    repository.attach(configure(viewFacet.get()))
-    repository.attach(attributesFacet.get())
-  }
+    @Override
+    void apply(@Nonnull final Repository repository) throws Exception {
+        repository.attach(groupFacet.get())
+        repository.attach(storageFacet.get())
+        repository.attach(securityFacet.get())
+        repository.attach(configure(viewFacet.get()))
+        repository.attach(attributesFacet.get())
+    }
 
-  /**
-   * Configure {@link ViewFacet}.
-   */
-  private ViewFacet configure(final ConfigurableViewFacet facet) {
-    Router.Builder builder = new Router.Builder()
+    /**
+     * Configure {@link ViewFacet}.*/
+    private ViewFacet configure(final ConfigurableViewFacet facet) {
+        Router.Builder builder = new Router.Builder()
 
-    builder.route(packagesMatcher()
-        .handler(timingHandler)
-        .handler(assetKindHandler.rcurry(AssetKind.PACKAGES))
-        .handler(securityHandler)
-        .handler(exceptionHandler)
-        .handler(handlerContributor)
-        .handler(packagesJsonHandler)
-        .create())
+        builder.route(packagesMatcher()
+                .handler(timingHandler)
+                .handler(assetKindHandler.rcurry(AssetKind.PACKAGES))
+                .handler(securityHandler)
+                .handler(exceptionHandler)
+                .handler(handlerContributor)
+                .handler(conditionalRequestHandler)
+                .handler(contentHeadersHandler)
+                .handler(packagesJsonHandler)
+                .create())
 
-    builder.route(providerMatcher()
-        .handler(timingHandler)
-        .handler(assetKindHandler.rcurry(AssetKind.PROVIDER))
-        .handler(securityHandler)
-        .handler(exceptionHandler)
-        .handler(handlerContributor)
-        .handler(providerJsonHandler)
-        .create())
+        builder.route(providerMatcher()
+                .handler(timingHandler)
+                .handler(assetKindHandler.rcurry(AssetKind.PROVIDER))
+                .handler(securityHandler)
+                .handler(exceptionHandler)
+                .handler(handlerContributor)
+                .handler(conditionalRequestHandler)
+                .handler(contentHeadersHandler)
+                .handler(providerJsonHandler)
+                .create())
 
-    builder.route(packageMatcher()
-            .handler(timingHandler)
-            .handler(assetKindHandler.rcurry(AssetKind.PACKAGE))
-            .handler(securityHandler)
-            .handler(exceptionHandler)
-            .handler(handlerContributor)
-            .handler(packageJsonHandler)
-            .create())
+        builder.route(packageMatcher()
+                .handler(timingHandler)
+                .handler(assetKindHandler.rcurry(AssetKind.PACKAGE))
+                .handler(securityHandler)
+                .handler(exceptionHandler)
+                .handler(handlerContributor)
+                .handler(conditionalRequestHandler)
+                .handler(contentHeadersHandler)
+                .handler(packageJsonHandler)
+                .create())
 
-    builder.route(zipballMatcher()
-        .handler(timingHandler)
-        .handler(assetKindHandler.rcurry(AssetKind.ZIPBALL))
-        .handler(securityHandler)
-        .handler(exceptionHandler)
-        .handler(handlerContributor)
-        .handler(standardGroupHandler)
-        .create())
+        builder.route(zipballMatcher()
+                .handler(timingHandler)
+                .handler(assetKindHandler.rcurry(AssetKind.ZIPBALL))
+                .handler(securityHandler)
+                .handler(exceptionHandler)
+                .handler(handlerContributor)
+                .handler(conditionalRequestHandler)
+                .handler(contentHeadersHandler)
+                .handler(standardGroupHandler)
+                .create())
 
-    addBrowseUnsupportedRoute(builder)
+        addBrowseUnsupportedRoute(builder)
 
-    builder.defaultHandlers(HttpHandlers.notFound())
+        builder.defaultHandlers(HttpHandlers.notFound())
 
-    facet.configure(builder.create())
+        facet.configure(builder.create())
 
-    return facet
-  }
+        return facet
+    }
 }
