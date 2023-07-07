@@ -15,7 +15,7 @@
   <parent>
     <groupId>org.sonatype.nexus.plugins</groupId>
     <artifactId>nexus-plugins</artifactId>
-    <version>3.39.0-01</version>
+    <version>3.57.0-01</version>
   </parent>
 
   <artifactId>composer-parent</artifactId>
@@ -42,16 +42,8 @@
   </distributionManagement>
 
   <properties>
-    <nxrm-version>3.39.0-01</nxrm-version>
+    <nxrm-version>3.57.0-01</nxrm-version>
   </properties>
-
-  <repositories>
-    <!-- ensure we can find the parent pom when starting from an empty local .m2 repository -->
-    <repository>
-      <id>rso-public-grid</id>
-      <url>https://repository.sonatype.org/content/groups/sonatype-public-grid/</url>
-    </repository>
-  </repositories>
 
   <build>
     <plugins>
@@ -67,28 +59,199 @@
       </plugin>
 
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>1.4.1</version>
         <executions>
           <execution>
-            <id>enforce-java</id>
+            <id>enforce-environment</id>
             <goals>
               <goal>enforce</goal>
             </goals>
             <configuration>
+              <fail>true</fail>
               <rules>
-                <!--
-                Ensure use of Java 8, as required by NXRM
-                -->
-                <requireJavaVersion>
-                  <version>[1.8,1.9)</version>
-                </requireJavaVersion>
                 <!--
                 Require Maven 3.3.3+
                 -->
                 <requireMavenVersion>
                   <version>[3.3.3,)</version>
                 </requireMavenVersion>
+
+                <!--
+                Require Java 8+
+                -->
+                <requireJavaVersion>
+                  <version>[1.8,)</version>
+                </requireJavaVersion>
+              </rules>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>enforce-dependencies</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <fail>true</fail>
+              <rules>
+                <bannedDependencies>
+                  <searchTransitive>true</searchTransitive>
+                  <excludes>
+                    <!--
+                    Velocity 1.4 is banned, org.apache.velocity:velocity should be used instead.
+                    -->
+                    <exclude>velocity:velocity</exclude>
+                    <exclude>velocity:velocity-dep</exclude>
+
+                    <!--
+                    SISU Velocity is banned
+                    -->
+                    <exclude>org.sonatype.sisu:sisu-velocity</exclude>
+
+                    <!--
+                    Merged into guice core
+                    -->
+                    <exclude>com.google.inject.extensions:guice-multibindings:*</exclude>
+
+                    <!--
+                    Conflicts with slf4j.
+                    -->
+                    <exclude>commons-logging:*</exclude>
+
+                    <!--
+                    Security hazard: osvdb-58760
+                    -->
+                    <exclude>commons-vfs:commons-vfs</exclude>
+
+                    <!--
+                    Ban beanutils pre-1.9 which includes embedded commons-collections.
+                    -->
+                    <exclude>commons-beanutils:commons-beanutils:(,1.9]</exclude>
+                    <!--
+                    Ban older commons-beanutils-core use 1.9 simple module instead.
+                    -->
+                    <exclude>commons-beanutils:commons-beanutils-core</exclude>
+
+                    <!--
+                    Security hazard: osvdb-68314
+                    -->
+                    <exclude>xmlrpc:*</exclude>
+
+                    <!--
+                    Require use of sisu plexus integration.
+                    -->
+                    <exclude>*:plexus-container-default</exclude>
+                    <exclude>*:plexus-component-api</exclude>
+
+                    <!--
+                    Ban old versions of apache shiro.
+                    -->
+                    <exclude>*:jsecurity</exclude>
+
+                    <!--
+                    Ban old aether so we can require compatible version (see includes).
+                    -->
+                    <exclude>org.sonatype.aether:*:1.8</exclude>
+
+                    <!--
+                    Ban apis which are part of Java 6.
+                    -->
+                    <!--<exclude>*:activation</exclude>-->
+                    <!--<exclude>*:stax-api</exclude>-->
+                    <!--<exclude>*:jaxb-api</exclude>-->
+                    <!--<exclude>*:xml-apis</exclude>-->
+
+                    <!--
+                    Ban junit which includes old, or improper hamcrest.
+                    -->
+                    <exclude>junit:junit:(,4.10]</exclude>
+                    <exclude>junit:junit-dep</exclude>
+
+                    <!--
+                    Ban old servlet apis.
+                    -->
+                    <exclude>javax.servlet:servlet-api</exclude>
+                    <exclude>org.mortbay.jetty:servlet-api</exclude>
+                    <exclude>org.mortbay.jetty:servlet-api-2.5</exclude>
+
+                    <!--
+                    Ban uber mockito.
+                    -->
+                    <exclude>org.mockito:mockito-all</exclude>
+
+                    <!--
+                    Ban hamcrest so we can require compatible version (see includes).
+                    -->
+                    <exclude>org.hamcrest:*</exclude>
+
+                    <!--
+                    Ban uber hamcrest.
+                    -->
+                    <exclude>org.hamcrest:hamcrest-all:*</exclude>
+
+                    <!--
+                    Ban old plexus components.
+                    -->
+                    <exclude>org.sonatype.spice:plexus-ehcache</exclude>
+
+                    <!--
+                    Ban old litmus.
+                    -->
+                    <exclude>org.sonatype.sisu.litmus:litmus-testsupport:(,1.3]</exclude>
+
+                    <!--
+                    Ban log4j.
+                    -->
+                    <exclude>log4j:*</exclude>
+
+                    <!--
+                    CVE-2021-44228
+                    -->
+                    <exclude>org.apache.logging.log4j:log4j-core:(,2.15.0)</exclude>
+                    <exclude>ch.qos.logback:logback-classic:(,1.2.9)</exclude>
+
+                    <!--
+                    Ban old bouncycastle.
+                    -->
+                    <exclude>org.bouncycastle:*-jdk14:*</exclude>
+                    <exclude>org.bouncycastle:*-jdk15:*</exclude>
+                    <exclude>bouncycastle:*-jdk14:*</exclude>
+                    <exclude>bouncycastle:*-jdk15:*</exclude>
+
+                    <!--
+                    Ban snappy-java as there are lingering issues on OSGi when restarting.
+                    -->
+                    <exclude>org.xerial.snappy:snappy-java:*</exclude>
+
+                    <!--
+                    Ban old javax.mail
+                    -->
+                    <exclude>javax.mail:mail:*</exclude>
+
+                    <!--
+                    Ban old jaxb
+                    -->
+                    <exclude>javax.xml.bind:jaxb-api:*</exclude>
+                    <exclude>com.sun.xml.bind:jaxb-core:*</exclude>
+                    <exclude>com.sun.xml.bind:jaxb-impl:*</exclude>
+                  </excludes>
+
+                  <!--
+                  Exceptions to excludes.
+                  -->
+                  <includes>
+                    <!--
+                    Allow aether 1.8.1+
+                    -->
+                    <include>org.sonatype.aether:*:1.8.1</include>
+
+                    <!--
+                    Allow hamcrest 1.3
+                    -->
+                    <include>org.hamcrest:*:1.3</include>
+                  </includes>
+                </bannedDependencies>
               </rules>
             </configuration>
           </execution>
