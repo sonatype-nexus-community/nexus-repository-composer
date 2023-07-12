@@ -37,5 +37,17 @@ trait ComposerRepoRecipes
     createRepository(createProxy(name, 'composer-proxy', remoteUrl))
   }
 
+  @Nonnull
+  Repository createComposerHosted(final String name)
+  {
+    createRepository(createHosted(name, 'composer-hosted'))
+  }
+
+  @Nonnull
+  Repository createComposerGroup(final String name, final String... members)
+  {
+    createRepository(createGroup(name, 'composer-group', members))
+  }
+
   abstract Repository createRepository(final Configuration configuration)
 }
