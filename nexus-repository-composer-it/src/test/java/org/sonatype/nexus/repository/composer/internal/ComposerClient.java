@@ -12,12 +12,19 @@
  */
 package org.sonatype.nexus.repository.composer.internal;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 
+import org.apache.http.entity.ContentType;
 import org.sonatype.nexus.testsuite.testsupport.FormatClientSupport;
 
+import org.apache.http.client.entity.EntityBuilder;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.impl.client.CloseableHttpClient;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ComposerClient
     extends FormatClientSupport
@@ -27,5 +34,22 @@ public class ComposerClient
     final URI repositoryBaseUri)
   {
     super(httpClient, httpClientContext, repositoryBaseUri);
+  }
+
+  public int put(final String path, final File file) throws Exception {
+    checkNotNull(path);
+    checkNotNull(file);
+
+    HttpPut put = new HttpPut(repositoryBaseUri.resolve(path));
+    put.setEntity(EntityBuilder.create().setContentType(ContentType.parse("application/zip")).setFile(file).build());
+    return status(execute(put));
+  }
+
+  public int put(String path, String string) throws IOException {
+    checkNotNull(path);
+    checkNotNull(string);
+    HttpPut put = new HttpPut(repositoryBaseUri.resolve(path));
+    put.setEntity(EntityBuilder.create().setContentType(ContentType.parse("application/json")).setText(string).build());
+    return status(execute(put));
   }
 }

@@ -12,113 +12,39 @@
  */
 package org.sonatype.nexus.repository.composer.internal;
 
-import org.sonatype.goodies.httpfixture.server.fluent.Behaviours;
-import org.sonatype.goodies.httpfixture.server.fluent.Server;
-import org.sonatype.nexus.pax.exam.NexusPaxExamSupport;
-import org.sonatype.nexus.repository.Repository;
-import org.sonatype.nexus.repository.http.HttpStatus;
-import org.sonatype.nexus.repository.storage.Asset;
-import org.sonatype.nexus.testsuite.testsupport.NexusITSupport;
-
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
-
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.ops4j.pax.exam.Configuration;
-import org.ops4j.pax.exam.Option;
+import org.sonatype.nexus.repository.Repository;
+import org.sonatype.nexus.repository.http.HttpStatus;
+import org.sonatype.nexus.repository.storage.Asset;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.sonatype.nexus.testsuite.testsupport.FormatClientSupport.status;
+import static org.testcontainers.shaded.org.hamcrest.text.MatchesPattern.matchesPattern;
 
 public class ComposerProxyIT
     extends ComposerITSupport
 {
   private static final String FORMAT_NAME = "composer";
 
-  private static final String MIME_TYPE_JSON = "application/json";
-
-  private static final String MIME_TYPE_ZIP = "application/zip";
-
-  private static final String NAME_VENDOR = "rjkip";
-
-  private static final String NAME_PROJECT = "ftp-php";
-
-  private static final String NAME_VERSION = "v1.1.0";
-
-  private static final String NAME_PACKAGES = "packages";
-
-  private static final String NAME_LIST = "list";
-
-  private static final String EXTENSION_JSON = ".json";
-
-  private static final String EXTENSION_ZIP = ".zip";
-
-  private static final String FILE_PROVIDER = NAME_PROJECT + EXTENSION_JSON;
-
-  private static final String FILE_PACKAGES = NAME_PACKAGES + EXTENSION_JSON;
-
-  private static final String FILE_PACKAGES_CHANGED = NAME_PACKAGES + "-changed" + EXTENSION_JSON;
-
-  private static final String FILE_LIST = NAME_LIST + EXTENSION_JSON;
-
-  private static final String FILE_ZIPBALL = NAME_VENDOR + "-" + NAME_PROJECT + "-" + NAME_VERSION + EXTENSION_ZIP;
-
-  private static final String PACKAGE_BASE_PATH = "p/" + NAME_VENDOR + "/";
-
-  private static final String LIST_BASE_PATH = "packages/";
-
-  private static final String BAD_PATH = "/this/path/is/not/valid";
-
-  private static final String VALID_PROVIDER_URL = PACKAGE_BASE_PATH + FILE_PROVIDER;
-
-  private static final String VALID_LIST_URL = LIST_BASE_PATH + FILE_LIST;
-
-  private static final String VALID_ZIPBALL_URL = NAME_VENDOR + "/" + NAME_PROJECT + "/" + NAME_VERSION + "/" + FILE_ZIPBALL;
-
-  private static final String ZIPBALL_FILE_NAME = "rjkip-ftp-php-v1.1.0.zip";
-
-  private static final String COMPONENT_NAME = "ftp-php";
-
-  private static final String PACKAGE_NAME = COMPONENT_NAME + EXTENSION_JSON;
-
-  private static final String VALID_PACKAGE_URL = PACKAGE_BASE_PATH + PACKAGE_NAME;
+  private static final String COMPOSER_TEST_PROXY = "composer-test-proxy";
 
   private ComposerClient proxyClient;
 
   private Repository proxyRepo;
 
-  private Server server;
-
-  @Configuration
-  public static Option[] configureNexus() {
-    return NexusPaxExamSupport.options(
-        NexusITSupport.configureNexusBase(),
-        nexusFeature("org.sonatype.nexus.plugins", "nexus-repository-composer")
-    );
-  }
-
   @Before
   public void setup() throws Exception {
-    server = Server.withPort(0)
-        .serve("/" + FILE_PACKAGES)
-        .withBehaviours(Behaviours.file(testData.resolveFile(FILE_PACKAGES)))
-        .serve("/" + VALID_LIST_URL)
-        .withBehaviours(Behaviours.file(testData.resolveFile(FILE_LIST)))
-        .serve("/" + VALID_PROVIDER_URL)
-        .withBehaviours(Behaviours.file(testData.resolveFile(FILE_PROVIDER)))
-        .serve("/" + VALID_ZIPBALL_URL)
-        .withBehaviours(Behaviours.file(testData.resolveFile(ZIPBALL_FILE_NAME)))
-        .start();
+    startServer();
 
-    proxyRepo = repos.createComposerProxy("composer-test-proxy", server.getUrl().toExternalForm());
+    proxyRepo = repos.createComposerProxy(COMPOSER_TEST_PROXY, server.getUrl().toExternalForm());
     proxyClient = composerClient(proxyRepo);
   }
 
@@ -127,6 +53,7 @@ public class ComposerProxyIT
     assertThat(status(proxyClient.get(BAD_PATH)), is(HttpStatus.NOT_FOUND));
   }
 
+  @Test
   public void retrievePackagesJSONFromProxyWhenRemoteOnline() throws Exception {
     assertThat(status(proxyClient.get(FILE_PACKAGES)), is(HttpStatus.OK));
 
@@ -144,8 +71,7 @@ public class ComposerProxyIT
       HttpEntity entity = response.getEntity();
       JsonElement element = new JsonParser().parse(IOUtils.toString(entity.getContent()));
       JsonObject json = element.getAsJsonObject();
-
-      assertThat(json.get("providers-url").toString(), is(equalTo("\"http://localhost:10000/repository/composer-test-proxy/p/%package%.json\"")));
+      assertThat(matchesPattern("http://localhost:[0-9]*/repository/composer-test-proxy/p/%package%.json").matches(json.get("providers-url").getAsString()), is(true));
     }
   }
 
@@ -178,9 +104,24 @@ public class ComposerProxyIT
   //  assertThat(asset.contentType(), is(equalTo(MIME_TYPE_ZIP)));
   //  assertThat(asset.format(), is(equalTo(FORMAT_NAME)));
   //}
-  
-  @After
-  public void tearDown() throws Exception {
-    server.stop();
+
+  @Test
+  public void checkRestAPI() throws Exception {
+    assertThat(status(proxyClient.get("/service/rest/v1/repositories")), is(HttpStatus.OK));
   }
+
+  @Test
+  public void badPutProxyConfigurationByAPI() throws Exception {
+    assertThat(proxyClient.put("/service/rest/v1/repositories/composer/proxy/" + COMPOSER_TEST_PROXY, "bad request"), is(HttpStatus.BAD_REQUEST));
+  }
+
+  @Test
+  public void getAndUpdateProxyConfigurationByAPI() throws Exception {
+    // given
+    int port = server.getPort();
+    JsonObject expected = new JsonParser().parse("{\"name\":\"composer-test-proxy\",\"format\":\"composer\",\"online\":true,\"storage\":{\"blobStoreName\":\"default\",\"strictContentTypeValidation\":true},\"cleanup\":null,\"proxy\":{\"remoteUrl\":\"http://localhost:" + port + "\",\"contentMaxAge\":1440,\"metadataMaxAge\":1440},\"negativeCache\":{\"enabled\":true,\"timeToLive\":1440},\"httpClient\":{\"blocked\":false,\"autoBlock\":false,\"connection\":{\"retries\":null,\"userAgentSuffix\":null,\"timeout\":null,\"enableCircularRedirects\":false,\"enableCookies\":false,\"useTrustStore\":false},\"authentication\":null},\"routingRuleName\":null,\"type\":\"proxy\"}").getAsJsonObject();
+
+    getAndUpdateConfig(expected, COMPOSER_TEST_PROXY, "proxy", proxyClient);
+  }
+
 }
