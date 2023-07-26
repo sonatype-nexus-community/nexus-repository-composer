@@ -30,7 +30,6 @@ public class ComposerUploadHandlerTest
     @Mock
     private VariableResolverAdapter variableResolverAdapter;
 
-
     private final Set<UploadDefinitionExtension> uploadDefinitionExtensions = new LinkedHashSet<>();
 
     private final ComposerUploadHandler underTest = new ComposerUploadHandler(
@@ -62,4 +61,19 @@ public class ComposerUploadHandlerTest
         assertThat(contentList, is(notNullValue()));
         assertThat(contentList.size(), is(1));
     }
+
+    // test normalizePath function
+    @Test
+    public void testNormalizePath() {
+        // given
+        String path = "/vendor//path/compli//cated//";
+        String expected = "vendor/path/compli/cated";
+
+        // when
+        String result = underTest.normalizePath(path);
+
+        // then
+        assertThat(result, is(expected));
+    }
+
 }

@@ -87,13 +87,12 @@ public abstract class ComposerUploadHandlerSupport
     String vendor = upload.getFields().get(GROUP).trim();
     String name = upload.getFields().get(NAME).trim();
     String version = upload.getFields().get(VERSION).trim();
-    String basePath = upload.getFields().get(GROUP).trim();
 
     //Data holders for populating the UploadResponse
     Map<String,PartPayload> pathToPayload = new LinkedHashMap<>();
 
     for (AssetUpload asset : upload.getAssetUploads()) {
-      String path = normalizePath(basePath + '/' + asset.getFields().get(FILENAME).trim());
+      String path = normalizePath(vendor + '/' + name + '/' + version + '/' + asset.getFields().get(FILENAME).trim());
 
       String pathWithPrefix = datastoreEnabled ? prependIfMissing(path, "/") : path;
       ensurePermitted(repository.getName(), ComposerFormat.NAME, pathWithPrefix, emptyMap());
