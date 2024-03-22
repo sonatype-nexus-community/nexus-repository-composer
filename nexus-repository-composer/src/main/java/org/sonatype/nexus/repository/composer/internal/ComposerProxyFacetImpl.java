@@ -103,18 +103,24 @@ public class ComposerProxyFacetImpl
   protected Content store(final Context context, final Content content) throws IOException {
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
     switch (assetKind) {
-      case PACKAGES:
-        return content().put(PACKAGES_JSON, generatePackagesJson(context), assetKind);
-      case LIST:
-        return content().put(LIST_JSON, content, assetKind);
-      case PROVIDER:
-        return content().put(buildProviderPath(context), content, assetKind);
-      case PACKAGE:
-        return content().put(buildPackagePath(context), content, assetKind);
-      case ZIPBALL:
-        return content().put(buildZipballPath(context), content, assetKind);
-      default:
-        throw new IllegalStateException();
+    case PACKAGES:
+    	Content returnedContent;
+    	try {
+    		returnedContent = generatePackagesJson(context);
+    	} catch (NullPointerException e) {
+    		returnedContent=content;
+    	}
+    	return content().put(PACKAGES_JSON, returnedContent, assetKind);
+    case LIST:
+    	return content().put(LIST_JSON, content, assetKind);
+    case PROVIDER:
+    	return content().put(buildProviderPath(context), content, assetKind);
+    case PACKAGE:
+    	return content().put(buildPackagePath(context), content, assetKind);
+    case ZIPBALL:
+    	return content().put(buildZipballPath(context), content, assetKind);
+    default:
+    	throw new IllegalStateException();
     }
   }
 

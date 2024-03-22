@@ -351,7 +351,7 @@ public class ComposerJsonProcessor
     for (Payload payload : payloads) {
       Map<String, Object> json = parseJson(payload);
       Map<String, Object> providers = (Map<String, Object>) json.get(PROVIDERS_KEY);
-      names.addAll(providers.keySet());
+      Optional.ofNullable(providers).ifPresent(pv -> names.addAll(pv.keySet()));
     }
     return buildPackagesJson(repository, names);
   }
