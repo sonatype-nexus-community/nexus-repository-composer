@@ -29,9 +29,9 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 import static org.sonatype.nexus.repository.composer.internal.AssetKind.LIST;
 import static org.sonatype.nexus.repository.composer.internal.AssetKind.PACKAGES;

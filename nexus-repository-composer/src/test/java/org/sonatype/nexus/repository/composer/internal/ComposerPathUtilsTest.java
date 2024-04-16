@@ -22,8 +22,8 @@ import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.NAME_TOKEN;
 import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.PROJECT_TOKEN;

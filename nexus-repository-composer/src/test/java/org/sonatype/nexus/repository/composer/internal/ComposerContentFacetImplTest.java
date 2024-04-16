@@ -35,14 +35,15 @@ import java.util.Map;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.sonatype.nexus.common.hash.HashAlgorithm.*;
 import static org.sonatype.nexus.repository.composer.internal.AssetKind.*;
 import static org.sonatype.nexus.repository.composer.internal.ComposerAttributes.*;
+import static org.sonatype.nexus.repository.storage.AssetManager.DEFAULT_LAST_DOWNLOADED_INTERVAL;
 import static org.sonatype.nexus.repository.storage.MetadataNodeEntityAdapter.P_NAME;
 
 public class ComposerContentFacetImplTest
@@ -233,7 +234,7 @@ public class ComposerContentFacetImplTest
 
   private void testGet(final String path, final boolean markAsDownloaded) throws Exception {
     when(tx.findAssetWithProperty(P_NAME, path, bucket)).thenReturn(asset);
-    when(asset.markAsDownloaded()).thenReturn(markAsDownloaded);
+    when(asset.markAsDownloaded(DEFAULT_LAST_DOWNLOADED_INTERVAL)).thenReturn(markAsDownloaded);
 
     Content content = underTest.get(path);
     assertThat(content, is(notNullValue()));

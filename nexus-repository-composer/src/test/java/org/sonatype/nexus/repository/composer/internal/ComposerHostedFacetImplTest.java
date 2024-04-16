@@ -27,9 +27,9 @@ import org.sonatype.nexus.repository.view.Payload;
 import org.sonatype.nexus.transaction.UnitOfWork;
 
 import static java.util.Collections.singletonList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.sonatype.nexus.repository.composer.internal.AssetKind.PROVIDER;

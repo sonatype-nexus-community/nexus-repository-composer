@@ -30,8 +30,8 @@ import org.mockito.Mock;
 import org.sonatype.nexus.repository.view.payloads.BytesPayload;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.*;
 
