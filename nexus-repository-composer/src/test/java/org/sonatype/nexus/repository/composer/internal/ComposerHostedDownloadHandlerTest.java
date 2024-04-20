@@ -24,14 +24,14 @@ import org.sonatype.nexus.repository.view.Response;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
 import static org.sonatype.nexus.repository.composer.internal.AssetKind.LIST;
 import static org.sonatype.nexus.repository.composer.internal.AssetKind.PACKAGES;
@@ -54,9 +54,6 @@ public class ComposerHostedDownloadHandlerTest
   private static final String NAME = "testvendor-testproject-testversion";
 
   private static final String ZIPBALL_PATH = "testvendor/testproject/testversion/testvendor-testproject-testversion.zip";
-
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
 
   @Mock
   private Map<String, String> tokens;
@@ -115,10 +112,9 @@ public class ComposerHostedDownloadHandlerTest
 
   @Test
   public void testHandleList() throws Exception {
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("Unsupported assetKind: " + LIST);
     when(attributes.require(AssetKind.class)).thenReturn(LIST);
-    underTest.handle(context);
+    IllegalStateException e = assertThrows(IllegalStateException.class, () -> underTest.handle(context));
+    assertEquals("Unsupported assetKind: " + LIST, e.getMessage());
   }
 
   @Test
