@@ -52,6 +52,7 @@ import static org.sonatype.nexus.repository.composer.internal.ComposerAttributes
 import static org.sonatype.nexus.repository.composer.internal.ComposerAttributes.P_VENDOR;
 import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.*;
 import static org.sonatype.nexus.repository.storage.AssetEntityAdapter.P_ASSET_KIND;
+import static org.sonatype.nexus.repository.storage.AssetManager.DEFAULT_LAST_DOWNLOADED_INTERVAL;
 import static org.sonatype.nexus.repository.storage.ComponentEntityAdapter.P_GROUP;
 import static org.sonatype.nexus.repository.storage.ComponentEntityAdapter.P_VERSION;
 import static org.sonatype.nexus.repository.storage.MetadataNodeEntityAdapter.P_NAME;
@@ -94,7 +95,7 @@ public class ComposerContentFacetImpl
     if (asset == null) {
       return null;
     }
-    if (asset.markAsDownloaded()) {
+    if (asset.markAsDownloaded(DEFAULT_LAST_DOWNLOADED_INTERVAL)) {
       tx.saveAsset(asset);
     }
 
@@ -190,7 +191,7 @@ public class ComposerContentFacetImpl
       asset.name(path);
     }
 
-    asset.markAsDownloaded();
+    asset.markAsDownloaded(DEFAULT_LAST_DOWNLOADED_INTERVAL);
 
     return asset;
   }
@@ -268,7 +269,7 @@ public class ComposerContentFacetImpl
       asset.name(path);
     }
 
-    asset.markAsDownloaded();
+    asset.markAsDownloaded(DEFAULT_LAST_DOWNLOADED_INTERVAL);
 
     return asset;
   }
