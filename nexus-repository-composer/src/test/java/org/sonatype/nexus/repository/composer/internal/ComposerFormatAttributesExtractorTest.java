@@ -22,13 +22,13 @@ import java.util.Map;
 import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.blobstore.api.Blob;
 import org.sonatype.nexus.common.collect.NestedAttributesMap;
-import org.sonatype.nexus.repository.storage.TempBlob;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.sonatype.nexus.repository.view.payloads.TempBlob;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
