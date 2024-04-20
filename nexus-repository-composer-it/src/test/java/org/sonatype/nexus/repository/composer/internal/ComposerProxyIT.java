@@ -33,6 +33,8 @@ import org.junit.Test;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 
+import java.nio.charset.Charset;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -142,7 +144,7 @@ public class ComposerProxyIT
 
     try (CloseableHttpResponse response = proxyClient.get(FILE_PACKAGES)) {
       HttpEntity entity = response.getEntity();
-      JsonElement element = new JsonParser().parse(IOUtils.toString(entity.getContent()));
+      JsonElement element = JsonParser.parseString(IOUtils.toString(entity.getContent(), Charset.defaultCharset()));
       JsonObject json = element.getAsJsonObject();
 
       assertThat(json.get("providers-url").toString(), is(equalTo("\"http://localhost:10000/repository/composer-test-proxy/p/%package%.json\"")));
@@ -178,7 +180,7 @@ public class ComposerProxyIT
   //  assertThat(asset.contentType(), is(equalTo(MIME_TYPE_ZIP)));
   //  assertThat(asset.format(), is(equalTo(FORMAT_NAME)));
   //}
-  
+
   @After
   public void tearDown() throws Exception {
     server.stop();
