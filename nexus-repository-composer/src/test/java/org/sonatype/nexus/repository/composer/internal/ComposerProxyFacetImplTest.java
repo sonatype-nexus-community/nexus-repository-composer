@@ -20,9 +20,12 @@ import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.cache.CacheInfo;
-import org.sonatype.nexus.repository.composer.internal.ComposerProxyFacetImpl.NonResolvableProviderJsonException;
+import org.sonatype.nexus.repository.composer.internal.ComposerProxyFacet.NonResolvableProviderJsonException;
+import org.sonatype.nexus.repository.content.fluent.FluentAsset;
 import org.sonatype.nexus.repository.view.*;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
+
+import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -35,13 +38,13 @@ import static org.sonatype.nexus.repository.composer.internal.AssetKind.*;
 public class ComposerProxyFacetImplTest
     extends TestSupport
 {
-  private static final String LIST_PATH = "packages/list.json";
+  private static final String LIST_PATH = "/packages/list.json";
 
-  private static final String PACKAGES_PATH = "packages.json";
+  private static final String PACKAGES_PATH = "/packages.json";
 
-  private static final String PROVIDER_PATH = "p/vendor/project.json";
+  private static final String PROVIDER_PATH = "/p/vendor/project.json";
 
-  private static final String ZIPBALL_PATH = "vendor/project/version/project-version.zip";
+  private static final String ZIPBALL_PATH = "/vendor/project/version/project-version.zip";
 
   @Mock
   private Repository repository;
@@ -65,6 +68,9 @@ public class ComposerProxyFacetImplTest
   private Content content;
 
   @Mock
+  private FluentAsset fluentAsset;
+
+  @Mock
   private TokenMatcher.State state;
 
   @Mock
@@ -79,11 +85,11 @@ public class ComposerProxyFacetImplTest
   @Mock
   private Payload payload;
 
-  private ComposerProxyFacetImpl underTest;
+  private ComposerProxyFacet underTest;
 
   @Before
   public void setUp() throws Exception {
-    underTest = new ComposerProxyFacetImpl(composerJsonProcessor);
+    underTest = new ComposerProxyFacet(composerJsonProcessor);
     underTest.attach(repository);
 
     when(repository.facet(ComposerContentFacet.class)).thenReturn(composerContentFacet);
@@ -93,13 +99,15 @@ public class ComposerProxyFacetImplTest
     when(context.getRequest()).thenReturn(request);
     when(context.getRepository()).thenReturn(repository);
 
+    when(fluentAsset.download()).thenReturn(content);
+
     when(response.getPayload()).thenReturn(payload);
   }
 
   @Test
   public void getCachedContentPackages() throws Exception {
     when(contextAttributes.require(AssetKind.class)).thenReturn(PACKAGES);
-    when(composerContentFacet.get(PACKAGES_PATH)).thenReturn(content);
+    when(composerContentFacet.get(PACKAGES_PATH)).thenReturn(Optional.of(content));
 
     assertThat(underTest.getCachedContent(context), is(content));
   }
@@ -107,7 +115,7 @@ public class ComposerProxyFacetImplTest
   @Test
   public void getCachedContentList() throws Exception {
     when(contextAttributes.require(AssetKind.class)).thenReturn(LIST);
-    when(composerContentFacet.get(LIST_PATH)).thenReturn(content);
+    when(composerContentFacet.get(LIST_PATH)).thenReturn(Optional.of(content));
 
     assertThat(underTest.getCachedContent(context), is(content));
   }
@@ -117,7 +125,7 @@ public class ComposerProxyFacetImplTest
     when(contextAttributes.require(AssetKind.class)).thenReturn(PROVIDER);
     when(contextAttributes.require(TokenMatcher.State.class)).thenReturn(state);
 
-    when(composerContentFacet.get(PROVIDER_PATH)).thenReturn(content);
+    when(composerContentFacet.get(PROVIDER_PATH)).thenReturn(Optional.of(content));
 
     when(state.getTokens()).thenReturn(new ImmutableMap.Builder<String, String>()
         .put("vendor", "vendor")
@@ -132,7 +140,7 @@ public class ComposerProxyFacetImplTest
     when(contextAttributes.require(AssetKind.class)).thenReturn(ZIPBALL);
     when(contextAttributes.require(TokenMatcher.State.class)).thenReturn(state);
 
-    when(composerContentFacet.get(ZIPBALL_PATH)).thenReturn(content);
+    when(composerContentFacet.get(ZIPBALL_PATH)).thenReturn(Optional.of(content));
 
     when(state.getTokens()).thenReturn(new ImmutableMap.Builder<String, String>()
         .put("vendor", "vendor")
@@ -197,7 +205,7 @@ public class ComposerProxyFacetImplTest
   @Test
   public void storePackages() throws Exception {
     when(contextAttributes.require(AssetKind.class)).thenReturn(PACKAGES);
-    when(composerContentFacet.put(PACKAGES_PATH, content, PACKAGES)).thenReturn(content);
+    when(composerContentFacet.put(PACKAGES_PATH, content, PACKAGES)).thenReturn(fluentAsset);
 
     when(viewFacet.dispatch(any(Request.class), eq(context))).thenReturn(response);
     when(composerJsonProcessor.generatePackagesFromList(repository, payload)).thenReturn(content);
@@ -210,7 +218,7 @@ public class ComposerProxyFacetImplTest
   @Test
   public void storeList() throws Exception {
     when(contextAttributes.require(AssetKind.class)).thenReturn(LIST);
-    when(composerContentFacet.put(LIST_PATH, content, LIST)).thenReturn(content);
+    when(composerContentFacet.put(LIST_PATH, content, LIST)).thenReturn(fluentAsset);
 
     assertThat(underTest.store(context, content), is(content));
 
@@ -222,7 +230,7 @@ public class ComposerProxyFacetImplTest
     when(contextAttributes.require(AssetKind.class)).thenReturn(PROVIDER);
     when(contextAttributes.require(TokenMatcher.State.class)).thenReturn(state);
 
-    when(composerContentFacet.put(PROVIDER_PATH, content, PROVIDER)).thenReturn(content);
+    when(composerContentFacet.put(PROVIDER_PATH, content, PROVIDER)).thenReturn(fluentAsset);
 
     when(state.getTokens()).thenReturn(new ImmutableMap.Builder<String, String>()
         .put("vendor", "vendor")
@@ -239,7 +247,7 @@ public class ComposerProxyFacetImplTest
     when(contextAttributes.require(AssetKind.class)).thenReturn(ZIPBALL);
     when(contextAttributes.require(TokenMatcher.State.class)).thenReturn(state);
 
-    when(composerContentFacet.put(ZIPBALL_PATH, content, ZIPBALL)).thenReturn(content);
+    when(composerContentFacet.put(ZIPBALL_PATH, content, ZIPBALL)).thenReturn(fluentAsset);
 
     when(state.getTokens()).thenReturn(new ImmutableMap.Builder<String, String>()
         .put("vendor", "vendor")

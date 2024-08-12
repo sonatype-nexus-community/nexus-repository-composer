@@ -15,6 +15,7 @@ package org.sonatype.nexus.repository.composer.internal;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -24,7 +25,8 @@ import javax.inject.Named;
 import org.sonatype.nexus.repository.cache.CacheController;
 import org.sonatype.nexus.repository.cache.CacheInfo;
 import org.sonatype.nexus.repository.config.Configuration;
-import org.sonatype.nexus.repository.proxy.ProxyFacetSupport;
+import org.sonatype.nexus.repository.content.facet.ContentProxyFacetSupport;
+import org.sonatype.nexus.repository.content.fluent.FluentAsset;
 import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.Payload;
@@ -47,17 +49,17 @@ import static org.sonatype.nexus.repository.http.HttpMethods.GET;
  * Proxy facet for a Composer repository.
  */
 @Named
-public class ComposerProxyFacetImpl
-    extends ProxyFacetSupport
+public class ComposerProxyFacet
+    extends ContentProxyFacetSupport
 {
-  private static final String PACKAGES_JSON = "packages.json";
+  private static final String PACKAGES_JSON = "/packages.json";
 
-  private static final String LIST_JSON = "packages/list.json";
+  private static final String LIST_JSON = "/packages/list.json";
 
   private final ComposerJsonProcessor composerJsonProcessor;
 
   @Inject
-  public ComposerProxyFacetImpl(final ComposerJsonProcessor composerJsonProcessor) {
+  public ComposerProxyFacet(final ComposerJsonProcessor composerJsonProcessor) {
     this.composerJsonProcessor = checkNotNull(composerJsonProcessor);
   }
 
@@ -83,39 +85,55 @@ public class ComposerProxyFacetImpl
   @Override
   protected Content getCachedContent(final Context context) throws IOException {
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
+    Optional<Content> content;
     switch (assetKind) {
       case PACKAGES:
-        return content().get(PACKAGES_JSON);
+        content = content().get(PACKAGES_JSON);
+        break;
       case LIST:
-        return content().get(LIST_JSON);
+        content = content().get(LIST_JSON);
+        break;
       case PROVIDER:
-        return content().get(buildProviderPath(context));
+        content = content().get(buildProviderPath(context));
+        break;
       case PACKAGE:
-        return content().get(buildPackagePath(context));
+        content = content().get(buildPackagePath(context));
+        break;
       case ZIPBALL:
-        return content().get(buildZipballPath(context));
+        content = content().get(buildZipballPath(context));
+        break;
       default:
         throw new IllegalStateException();
     }
+
+    return content.orElse(null);
   }
 
   @Override
   protected Content store(final Context context, final Content content) throws IOException {
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
+    FluentAsset asset;
     switch (assetKind) {
       case PACKAGES:
-        return content().put(PACKAGES_JSON, generatePackagesJson(context), assetKind);
+        asset = content().put(PACKAGES_JSON, generatePackagesJson(context), assetKind);
+        break;
       case LIST:
-        return content().put(LIST_JSON, content, assetKind);
+        asset = content().put(LIST_JSON, content, assetKind);
+      break;
       case PROVIDER:
-        return content().put(buildProviderPath(context), content, assetKind);
+        asset = content().put(buildProviderPath(context), content, assetKind);
+      break;
       case PACKAGE:
-        return content().put(buildPackagePath(context), content, assetKind);
+        asset = content().put(buildPackagePath(context), content, assetKind);
+      break;
       case ZIPBALL:
-        return content().put(buildZipballPath(context), content, assetKind);
+        asset = content().put(buildZipballPath(context), content, assetKind);
+      break;
       default:
         throw new IllegalStateException();
     }
+
+    return asset.download();
   }
 
   @Override
@@ -165,7 +183,7 @@ public class ComposerProxyFacetImpl
   private Content generatePackagesJson(final Context context) throws IOException {
     try {
       // TODO: Better logging and error checking on failure/non-200 scenarios
-      Request request = new Request.Builder().action(GET).path("/" + LIST_JSON).build();
+      Request request = new Request.Builder().action(GET).path(LIST_JSON).build();
       Response response = getRepository().facet(ViewFacet.class).dispatch(request, context);
       Payload payload = checkNotNull(response.getPayload());
       return composerJsonProcessor.generatePackagesFromList(getRepository(), payload);
@@ -189,7 +207,7 @@ public class ComposerProxyFacetImpl
 
       // try v2 package
       try {
-        String path = "/" + buildPackagePath(vendor, project);
+        String path = buildPackagePath(vendor, project);
         Payload payload = getPackagePayload(context, path);
         if (payload != null) {
           return composerJsonProcessor.getDistUrlFromPackage(vendor, project, version, payload);
@@ -201,7 +219,7 @@ public class ComposerProxyFacetImpl
 
       // try v2 package (dev versions)
       try {
-        String path = "/" + buildPackagePathForDevVersions(vendor, project);
+        String path = buildPackagePathForDevVersions(vendor, project);
         Payload payload = getPackagePayload(context, path);
         String url = composerJsonProcessor.getDistUrlFromPackage(vendor, project, version, payload);
         if (payload != null) {
@@ -213,7 +231,7 @@ public class ComposerProxyFacetImpl
       }
 
       // try v1 provider
-      String path = "/" + buildProviderPath(vendor, project);
+      String path = buildProviderPath(vendor, project);
       Payload payload = getProviderPayload(context, path);
       if (payload == null) {
         throw new NonResolvableProviderJsonException(

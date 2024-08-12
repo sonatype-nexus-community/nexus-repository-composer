@@ -12,33 +12,41 @@
  */
 package org.sonatype.nexus.repository.composer.internal;
 
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.sonatype.goodies.testsupport.TestSupport;
+import org.sonatype.nexus.common.collect.AttributesMap;
+import org.sonatype.nexus.repository.Repository;
+import org.sonatype.nexus.repository.composer.ComposerHostedFacet;
+import org.sonatype.nexus.repository.rest.UploadDefinitionExtension;
+import org.sonatype.nexus.repository.security.ContentPermissionChecker;
+import org.sonatype.nexus.repository.security.VariableResolverAdapter;
+import org.sonatype.nexus.repository.view.*;
+import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
+import org.sonatype.nexus.repository.view.payloads.BytesPayload;
+
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.sonatype.goodies.testsupport.TestSupport;
-import org.sonatype.nexus.common.collect.AttributesMap;
-import org.sonatype.nexus.repository.Repository;
-import org.sonatype.nexus.repository.view.*;
-import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
-
-import org.junit.Test;
-import org.mockito.Mock;
-import org.sonatype.nexus.repository.view.payloads.BytesPayload;
-
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Collections.singleton;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.*;
+import static org.sonatype.nexus.repository.composer.internal.recipe.ComposerRecipeSupport.*;
 
 public class ComposerHostedUploadHandlerTest
     extends TestSupport
 {
-  private ComposerHostedUploadHandler underTest = new ComposerHostedUploadHandler();
+  private final ComposerHostedUploadHandler underTest = new ComposerHostedUploadHandler(
+      singleton(mock(UploadDefinitionExtension.class)),
+      mock(VariableResolverAdapter.class),
+      mock(ContentPermissionChecker.class)
+  );
 
   @Mock
   private Map<String, String> tokens;
@@ -137,6 +145,6 @@ public class ComposerHostedUploadHandlerTest
     assertThat(bytesPayload.getValue(), notNullValue());
     assertThat(bytesPayload.getValue(), instanceOf(BytesPayload.class));
     assertThat(bytesPayload.getValue().getContentType(), is("application/zip"));
-    assertThat(bytesPayload.getValue().getSize(), is((long)byteContents.length()));
+    assertThat(bytesPayload.getValue().getSize(), is((long) byteContents.length()));
   }
 }

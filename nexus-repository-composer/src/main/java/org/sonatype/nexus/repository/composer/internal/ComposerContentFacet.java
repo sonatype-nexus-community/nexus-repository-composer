@@ -13,28 +13,38 @@
 package org.sonatype.nexus.repository.composer.internal;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Optional;
 
 import javax.annotation.Nullable;
 
 import org.sonatype.nexus.repository.Facet;
 import org.sonatype.nexus.repository.cache.CacheInfo;
+import org.sonatype.nexus.repository.content.facet.ContentFacet;
+import org.sonatype.nexus.repository.content.fluent.FluentAsset;
 import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Payload;
+import org.sonatype.nexus.repository.view.payloads.TempBlob;
 
 /**
  * Content facet used for getting assets from storage and putting assets into storage for a Composer-format repository.
  */
 @Facet.Exposed
 public interface ComposerContentFacet
-    extends Facet
+    extends ContentFacet
 {
-  @Nullable
-  Content get(String path) throws IOException;
 
-  Content put(String path, Payload payload, AssetKind assetKind) throws IOException;
+  Optional<FluentAsset> getAsset(String path);
 
-  Content put(String path, Payload payload, String sourceType, String sourceUrl, String sourceReference)
-      throws IOException;
+  Optional<Content> get(String path);
+
+  FluentAsset put(String path, Payload payload, AssetKind assetKind) throws IOException;
+
+  FluentAsset put(String path, Payload payload, String sourceType, String sourceUrl, String sourceReference) throws IOException;
+
+  TempBlob getTempBlob(Payload payload);
+
+  TempBlob getTempBlob(InputStream in, @Nullable String contentType);
 
   void setCacheInfo(String path, Content content, CacheInfo cacheInfo) throws IOException;
 }

@@ -24,6 +24,7 @@ import javax.inject.Singleton;
 
 import org.sonatype.goodies.common.ComponentSupport;
 import org.sonatype.nexus.common.collect.NestedAttributesMap;
+import org.sonatype.nexus.repository.content.fluent.FluentComponent;
 import org.sonatype.nexus.repository.view.payloads.TempBlob;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -116,13 +117,14 @@ public class ComposerFormatAttributesExtractor
    * does not extract all JSON entries, but does try to extract those that could be viewed as more "interesting" from
    * the standpoint of the repository manager.
    */
-  public void extractFromZip(final TempBlob tempBlob, final NestedAttributesMap formatAttributes) throws IOException {
+  public FluentComponent extractFromZip(final TempBlob tempBlob, FluentComponent component) throws IOException {
     Map<String, Object> contents = composerJsonExtractor.extractFromZip(tempBlob.getBlob());
     if (!contents.isEmpty()) {
-      extractStrings(contents, formatAttributes, STRINGS_MAPPING);
-      extractAuthors(contents, formatAttributes);
-      extractSupport(contents, formatAttributes);
+      component = extractStrings(contents, component, STRINGS_MAPPING);
+      component = extractAuthors(contents, component);
+      component = extractSupport(contents, component);
     }
+    return component;
   }
 
   /**
@@ -130,36 +132,36 @@ public class ComposerFormatAttributesExtractor
    * is encountered, any string items within the collection are added to a list and stored as a collection of strings.
    */
   @VisibleForTesting
-  void extractStrings(final Map<String, Object> source,
-                      final NestedAttributesMap destination,
+  FluentComponent extractStrings(final Map<String, Object> source,
+                      FluentComponent component,
                       final Map<String, String> mappings)
   {
     for (Map.Entry<String, String> mapping : mappings.entrySet()) {
       Object sourceValue = source.get(mapping.getKey());
       if (sourceValue instanceof String) {
-        destination.set(mapping.getValue(), sourceValue);
+        component = component.withAttribute(mapping.getValue(), sourceValue);
       }
       else if (sourceValue instanceof Collection) {
         List<String> entries = new ArrayList<>();
-        for (Object entryValue : (Collection) sourceValue) {
+        for (Object entryValue : (Collection<?>) sourceValue) {
           if (entryValue instanceof String) {
             entries.add((String) entryValue);
           }
         }
         if (!entries.isEmpty()) {
-          destination.set(mapping.getValue(), entries);
+          component = component.withAttribute(mapping.getValue(), entries);
         }
       }
     }
+
+    return component;
   }
 
   /**
    * Extracts author contact information (except for the role) into a collection of strings.
    */
   @VisibleForTesting
-  void extractAuthors(final Map<String, Object> contents,
-                      final NestedAttributesMap formatAttributes)
-  {
+  FluentComponent extractAuthors(final Map<String, Object> contents, FluentComponent component) {
     Object sourceValue = contents.get(AUTHORS);
     if (sourceValue instanceof Collection) {
       List<String> authors = new ArrayList<>();
@@ -175,9 +177,10 @@ public class ComposerFormatAttributesExtractor
         }
       }
       if (!authors.isEmpty()) {
-        formatAttributes.set(P_AUTHORS, authors);
+        component = component.withAttribute(P_AUTHORS, authors);
       }
     }
+    return component;
   }
 
   /**
@@ -199,10 +202,11 @@ public class ComposerFormatAttributesExtractor
   /**
    * Extracts the subkeys for the support entry into their own top-level format attributes.
    */
-  private void extractSupport(final Map<String, Object> contents, final NestedAttributesMap formatAttributes) {
+  private FluentComponent extractSupport(final Map<String, Object> contents, final FluentComponent component) {
     Object sourceValue = contents.get(SUPPORT);
     if (sourceValue instanceof Map) {
-      extractStrings((Map<String, Object>) sourceValue, formatAttributes, SUPPORT_MAPPING);
+      return extractStrings((Map<String, Object>) sourceValue, component, SUPPORT_MAPPING);
     }
+    return component;
   }
 }

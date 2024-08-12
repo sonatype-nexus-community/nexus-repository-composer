@@ -12,6 +12,7 @@
  */
 package org.sonatype.nexus.repository.composer.internal
 
+
 import javax.annotation.Nonnull
 import javax.inject.Inject
 import javax.inject.Named
@@ -43,7 +44,7 @@ class ComposerProxyRecipe
   public static final String NAME = 'composer-proxy'
 
   @Inject
-  Provider<ComposerProxyFacetImpl> proxyFacet
+  Provider<ComposerProxyFacet> proxyFacet
 
   @Inject
   Provider<NegativeCacheFacet> negativeCacheFacet
@@ -79,11 +80,10 @@ class ComposerProxyRecipe
     repository.attach(httpClientFacet.get())
     repository.attach(negativeCacheFacet.get())
     repository.attach(proxyFacet.get())
-    repository.attach(storageFacet.get())
-    repository.attach(componentMaintenanceFacet.get())
     repository.attach(searchFacet.get())
-    repository.attach(attributesFacet.get())
+    repository.attach(browseFacet.get())
     repository.attach(purgeUnusedFacet.get())
+    repository.attach(maintenanceFacet.get())
   }
 
   private ViewFacet configure(final ConfigurableViewFacet facet) {
@@ -99,7 +99,6 @@ class ComposerProxyRecipe
         .handler(conditionalRequestHandler)
         .handler(partialFetchHandler)
         .handler(contentHeadersHandler)
-        .handler(unitOfWorkHandler)
         .handler(proxyHandler)
         .create())
 
@@ -113,7 +112,6 @@ class ComposerProxyRecipe
         .handler(conditionalRequestHandler)
         .handler(partialFetchHandler)
         .handler(contentHeadersHandler)
-        .handler(unitOfWorkHandler)
         .handler(proxyHandler)
         .create())
 
@@ -128,7 +126,6 @@ class ComposerProxyRecipe
         .handler(partialFetchHandler)
         .handler(contentHeadersHandler)
         .handler(composerProviderHandler)
-        .handler(unitOfWorkHandler)
         .handler(proxyHandler)
         .create())
 
@@ -143,7 +140,6 @@ class ComposerProxyRecipe
             .handler(partialFetchHandler)
             .handler(contentHeadersHandler)
             .handler(composerPackageHandler)
-            .handler(unitOfWorkHandler)
             .handler(proxyHandler)
             .create())
 
@@ -157,7 +153,6 @@ class ComposerProxyRecipe
         .handler(conditionalRequestHandler)
         .handler(partialFetchHandler)
         .handler(contentHeadersHandler)
-        .handler(unitOfWorkHandler)
         .handler(proxyHandler)
         .create())
 

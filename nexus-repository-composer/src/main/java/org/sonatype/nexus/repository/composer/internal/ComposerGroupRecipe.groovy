@@ -12,6 +12,7 @@
  */
 package org.sonatype.nexus.repository.composer.internal
 
+
 import javax.annotation.Nonnull
 import javax.inject.Inject
 import javax.inject.Named
@@ -61,11 +62,13 @@ class ComposerGroupRecipe
 
   @Override
   void apply(@Nonnull final Repository repository) throws Exception {
+    repository.attach(contentFacet.get())
     repository.attach(groupFacet.get())
-    repository.attach(storageFacet.get())
     repository.attach(securityFacet.get())
     repository.attach(configure(viewFacet.get()))
-    repository.attach(attributesFacet.get())
+    repository.attach(searchFacet.get())
+    repository.attach(maintenanceFacet.get())
+    repository.attach(browseFacet.get())
   }
 
   /**

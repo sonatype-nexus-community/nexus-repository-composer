@@ -12,6 +12,12 @@
  */
 package org.sonatype.nexus.repository.composer.internal
 
+import org.sonatype.nexus.repository.composer.ComposerFormat
+import org.sonatype.nexus.repository.composer.internal.ComposerHostedDownloadHandler
+import org.sonatype.nexus.repository.composer.ComposerHostedFacet
+import org.sonatype.nexus.repository.composer.internal.ComposerHostedUploadHandler
+import org.sonatype.nexus.repository.view.handlers.LastDownloadedHandler
+
 import javax.annotation.Nonnull
 import javax.inject.Inject
 import javax.inject.Named
@@ -46,7 +52,7 @@ class ComposerHostedRecipe
   Provider<ComposerHostedFacet> hostedFacet
 
   @Inject
-  Provider<ComposerHostedMetadataFacet> hostedMetadataFacet
+  LastDownloadedHandler lastDownloadedHandler
 
   @Inject
   ComposerHostedUploadHandler uploadHandler
@@ -61,15 +67,13 @@ class ComposerHostedRecipe
 
   @Override
   void apply(@Nonnull final Repository repository) throws Exception {
-    repository.attach(storageFacet.get())
     repository.attach(contentFacet.get())
     repository.attach(securityFacet.get())
     repository.attach(configure(viewFacet.get()))
-    repository.attach(componentMaintenanceFacet.get())
     repository.attach(hostedFacet.get())
-    repository.attach(hostedMetadataFacet.get())
+    repository.attach(maintenanceFacet.get())
     repository.attach(searchFacet.get())
-    repository.attach(attributesFacet.get())
+    repository.attach(browseFacet.get())
   }
 
   /**
@@ -87,7 +91,6 @@ class ComposerHostedRecipe
         .handler(conditionalRequestHandler)
         .handler(partialFetchHandler)
         .handler(contentHeadersHandler)
-        .handler(unitOfWorkHandler)
         .handler(downloadHandler)
         .create())
 
@@ -100,7 +103,7 @@ class ComposerHostedRecipe
         .handler(conditionalRequestHandler)
         .handler(partialFetchHandler)
         .handler(contentHeadersHandler)
-        .handler(unitOfWorkHandler)
+        .handler(lastDownloadedHandler)
         .handler(downloadHandler)
         .create())
 
@@ -113,7 +116,7 @@ class ComposerHostedRecipe
         .handler(conditionalRequestHandler)
         .handler(partialFetchHandler)
         .handler(contentHeadersHandler)
-        .handler(unitOfWorkHandler)
+        .handler(lastDownloadedHandler)
         .handler(downloadHandler)
         .create())
 
@@ -126,7 +129,7 @@ class ComposerHostedRecipe
         .handler(conditionalRequestHandler)
         .handler(partialFetchHandler)
         .handler(contentHeadersHandler)
-        .handler(unitOfWorkHandler)
+        .handler(lastDownloadedHandler)
         .handler(downloadHandler)
         .create())
 
@@ -139,7 +142,6 @@ class ComposerHostedRecipe
         .handler(conditionalRequestHandler)
         .handler(partialFetchHandler)
         .handler(contentHeadersHandler)
-        .handler(unitOfWorkHandler)
         .handler(uploadHandler)
         .create())
 

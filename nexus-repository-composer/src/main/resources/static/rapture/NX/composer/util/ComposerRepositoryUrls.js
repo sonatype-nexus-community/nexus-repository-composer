@@ -20,7 +20,8 @@ Ext.define('NX.composer.util.ComposerRepositoryUrls', {
   ]
 }, function(self) {
   NX.coreui.util.RepositoryUrls.addRepositoryUrlStrategy('composer', function(me, assetModel) {
-    var repositoryName = assetModel.get('repositoryName'), assetName = assetModel.get('name');
+    var repositoryName = assetModel.get('repositoryName'),
+        assetName = assetModel.get('name').replace(/^\//, '');
     return NX.util.Url.asLink(
         NX.util.Url.baseUrl + '/repository/' + encodeURIComponent(repositoryName) + '/' + encodeURI(assetName),
         assetName);

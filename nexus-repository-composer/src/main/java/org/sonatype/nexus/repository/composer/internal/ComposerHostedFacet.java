@@ -12,13 +12,14 @@
  */
 package org.sonatype.nexus.repository.composer.internal;
 
-import java.io.IOException;
-
-import javax.annotation.Nullable;
-
 import org.sonatype.nexus.repository.Facet;
+import org.sonatype.nexus.repository.content.fluent.FluentAsset;
 import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Payload;
+
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.util.Optional;
 
 /**
  * Interface defining the features supported by Composer repository hosted facets.
@@ -27,8 +28,8 @@ import org.sonatype.nexus.repository.view.Payload;
 public interface ComposerHostedFacet
     extends Facet
 {
-  void upload(String vendor, String project, String version, String sourceType, String sourceUrl,
-              String sourceReference, Payload payload) throws IOException;
+  FluentAsset upload(String vendor, String project, String version, String sourceType, String sourceUrl,
+                     String sourceReference, Payload payload) throws IOException;
 
   Content getPackagesJson() throws IOException;
 
@@ -36,9 +37,9 @@ public interface ComposerHostedFacet
 
   Content getPackageJson(String vendor, String project) throws IOException;
 
-  void rebuildPackageJson(String vendor, String project) throws IOException;
+  Optional<Content> rebuildPackageJson(String vendor, String project) throws IOException;
 
-  void rebuildProviderJson(String vendor, String project) throws IOException;
+  Optional<Content> rebuildProviderJson(String vendor, String project) throws IOException;
 
   @Nullable
   Content getZipball(String path) throws IOException;

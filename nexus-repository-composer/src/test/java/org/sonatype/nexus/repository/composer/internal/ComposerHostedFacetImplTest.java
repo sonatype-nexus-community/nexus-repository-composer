@@ -12,27 +12,26 @@
  */
 package org.sonatype.nexus.repository.composer.internal;
 
-import org.junit.After;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.repository.Repository;
-import org.sonatype.nexus.repository.storage.Bucket;
-import org.sonatype.nexus.repository.storage.Component;
-import org.sonatype.nexus.repository.storage.Query;
-import org.sonatype.nexus.repository.storage.StorageTx;
+import org.sonatype.nexus.repository.composer.ComposerContentFacet;
+import org.sonatype.nexus.repository.content.fluent.FluentComponent;
+import org.sonatype.nexus.repository.content.fluent.FluentComponents;
+import org.sonatype.nexus.repository.content.fluent.FluentQuery;
 import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Payload;
-import org.sonatype.nexus.transaction.UnitOfWork;
 
-import static java.util.Collections.singletonList;
+import java.util.Map;
+import java.util.Optional;
+
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import static org.sonatype.nexus.repository.composer.internal.AssetKind.PROVIDER;
 
 public class ComposerHostedFacetImplTest
     extends TestSupport
@@ -49,15 +48,12 @@ public class ComposerHostedFacetImplTest
 
   private static final String SRC_REF = "src-ref";
 
-  private static final String ZIPBALL_PATH = "vendor/project/version/vendor-project-version.zip";
+  private static final String ZIPBALL_PATH = "/vendor/project/version/vendor-project-version.zip";
 
-  private static final String PROVIDER_PATH = "p/vendor/project.json";
+  private static final String PROVIDER_PATH = "/p/vendor/project.json";
 
   @Mock
   private Repository repository;
-
-  @Mock
-  private Bucket bucket;
 
   @Mock
   private ComposerContentFacet composerContentFacet;
@@ -72,30 +68,17 @@ public class ComposerHostedFacetImplTest
   private Content content;
 
   @Mock
-  private StorageTx tx;
-
-  @Mock
-  private Iterable<Component> components;
-
-  @Mock
-  private Query query;
+  private FluentComponents components;
 
   private ComposerHostedFacetImpl underTest;
 
   @Before
   public void setUp() throws Exception {
     when(repository.facet(ComposerContentFacet.class)).thenReturn(composerContentFacet);
-    when(tx.findBucket(repository)).thenReturn(bucket);
+    when(composerContentFacet.components()).thenReturn(components);
 
     underTest = spy(new ComposerHostedFacetImpl(composerJsonProcessor));
     underTest.attach(repository);
-
-    UnitOfWork.beginBatch(tx);
-  }
-
-  @After
-  public void tearDown() {
-    UnitOfWork.end();
   }
 
   @Test
@@ -106,37 +89,36 @@ public class ComposerHostedFacetImplTest
 
   @Test
   public void testGetZipball() throws Exception {
-    when(composerContentFacet.get(ZIPBALL_PATH)).thenReturn(content);
+    when(composerContentFacet.get(ZIPBALL_PATH)).thenReturn(Optional.of(content));
     assertThat(underTest.getZipball(ZIPBALL_PATH), is(content));
   }
 
   @Test
   public void testGetPackagesJson() throws Exception {
-    when(tx.browseComponents(bucket)).thenReturn(components);
     when(composerJsonProcessor.generatePackagesFromComponents(repository, components)).thenReturn(content);
     assertThat(underTest.getPackagesJson(), is(content));
   }
 
   @Test
   public void testGetProviderJson() throws Exception {
-    when(composerContentFacet.get(PROVIDER_PATH)).thenReturn(content);
+    when(composerContentFacet.get(PROVIDER_PATH)).thenReturn(Optional.of(content));
     assertThat(underTest.getProviderJson(VENDOR, PROJECT), is(content));
   }
 
   @Test
   public void testBuildProviderJson() throws Exception {
-    when(underTest.buildQuery(VENDOR, PROJECT)).thenReturn(query);
-    when(tx.findComponents(eq(query), eq(singletonList(repository)))).thenReturn(components);
-    when(composerJsonProcessor.buildProviderJson(repository, tx, components)).thenReturn(content);
-    underTest.rebuildProviderJson(VENDOR, PROJECT);
-    verify(composerContentFacet).put(PROVIDER_PATH, content, PROVIDER);
-  }
+    ArgumentCaptor<String> filter = ArgumentCaptor.forClass(String.class);
+    ArgumentCaptor<Map<String, Object>> filterArgs = ArgumentCaptor.forClass(Map.class);
 
-  @Test
-  public void testBuildQuery() throws Exception {
-    Query result = underTest.buildQuery(VENDOR, PROJECT);
-    assertThat(result.getWhere(), is("group = :p0 AND name = :p1"));
-    assertThat(result.getParameters(), hasEntry("p0", VENDOR));
-    assertThat(result.getParameters(), hasEntry("p1", PROJECT));
+    FluentQuery<FluentComponent> query = mock(FluentQuery.class);
+    when(components.byFilter(filter.capture(), filterArgs.capture())).thenReturn(query);
+    when(composerJsonProcessor.buildProviderJson(repository, composerContentFacet, query))
+        .thenReturn(Optional.of(content));
+
+    Optional<Content> res = underTest.rebuildProviderJson(VENDOR, PROJECT);
+    assertThat(res.isPresent(), is(true));
+    assertThat(res.get(), is(content));
+    assertThat(filter.getValue(), is("namespace = #{filterParams.vendor} AND name = #{filterParams.project}"));
+    assertThat(filterArgs.getValue(), is(ImmutableMap.of("vendor", VENDOR, "project", PROJECT)));
   }
 }

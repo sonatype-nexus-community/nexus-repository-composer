@@ -12,35 +12,44 @@
  */
 package org.sonatype.nexus.repository.composer.internal;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.hash.HashCode;
+import com.google.common.io.CharStreams;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.sonatype.goodies.testsupport.TestSupport;
+import org.sonatype.nexus.blobstore.api.Blob;
+import org.sonatype.nexus.blobstore.api.BlobRef;
+import org.sonatype.nexus.common.collect.NestedAttributesMap;
+import org.sonatype.nexus.common.entity.Continuation;
+import org.sonatype.nexus.repository.Repository;
+import org.sonatype.nexus.repository.composer.ComposerContentFacet;
+import org.sonatype.nexus.repository.content.AssetBlob;
+import org.sonatype.nexus.repository.content.fluent.*;
+import org.sonatype.nexus.repository.view.Content;
+import org.sonatype.nexus.repository.view.Payload;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Optional;
 
-import org.sonatype.goodies.testsupport.TestSupport;
-import org.sonatype.nexus.blobstore.api.Blob;
-import org.sonatype.nexus.blobstore.api.BlobRef;
-import org.sonatype.nexus.repository.Repository;
-import org.sonatype.nexus.repository.storage.Asset;
-import org.sonatype.nexus.repository.storage.Component;
-import org.sonatype.nexus.repository.storage.StorageTx;
-import org.sonatype.nexus.repository.view.Content;
-import org.sonatype.nexus.repository.view.Payload;
-
-import com.google.common.collect.ImmutableMap;
-import com.google.common.hash.HashCode;
-import com.google.common.io.CharStreams;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.junit.Test;
-import org.mockito.Mock;
-
+import static com.google.common.base.Preconditions.checkState;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
 import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA1;
@@ -58,28 +67,43 @@ public class ComposerJsonProcessorTest
   private Payload payload2;
 
   @Mock
-  private Component component1;
+  private FluentComponent component1;
 
   @Mock
-  private Component component2;
+  private FluentComponent component2;
 
   @Mock
-  private Component component3;
+  private FluentComponent component3;
 
   @Mock
-  private Component component4;
+  private FluentComponent component4;
 
   @Mock
-  private Asset asset1;
+  private FluentAsset asset1;
 
   @Mock
-  private Asset asset2;
+  private FluentAsset asset2;
 
   @Mock
-  private Asset asset3;
+  private FluentAsset asset3;
 
   @Mock
-  private Asset asset4;
+  private FluentAsset asset4;
+
+  @Mock
+  private FluentBlobs fluentBlobs;
+
+  @Mock
+  private AssetBlob assetBlob1;
+
+  @Mock
+  private AssetBlob assetBlob2;
+
+  @Mock
+  private AssetBlob assetBlob3;
+
+  @Mock
+  private AssetBlob assetBlob4;
 
   @Mock
   private BlobRef blobRef1;
@@ -106,7 +130,7 @@ public class ComposerJsonProcessorTest
   private Blob blob4;
 
   @Mock
-  private StorageTx storageTx;
+  private ComposerContentFacet composerContentFacet;
 
   @Mock
   private ComposerJsonExtractor composerJsonExtractor;
@@ -134,20 +158,26 @@ public class ComposerJsonProcessorTest
 
     when(repository.getUrl()).thenReturn("http://nexus.repo/base/repo");
 
-    when(component1.group()).thenReturn("vendor1");
+    when(component1.namespace()).thenReturn("vendor1");
     when(component1.name()).thenReturn("project1");
     when(component1.version()).thenReturn("version1");
 
-    when(component2.group()).thenReturn("vendor2");
+    when(component2.namespace()).thenReturn("vendor2");
     when(component2.name()).thenReturn("project2");
     when(component2.version()).thenReturn("version2");
 
-    when(component3.group()).thenReturn("vendor1");
+    when(component3.namespace()).thenReturn("vendor1");
     when(component3.name()).thenReturn("project1");
     when(component3.version()).thenReturn("version2");
 
+    FluentComponents components = mock(FluentComponents.class);
+    when(components.browse(anyInt(), isNull())).thenReturn(new ContinuationList("con-tkn-001", component1, component2));
+    when(components.browse(anyInt(), eq("con-tkn-001"))).thenReturn(new ContinuationList("con-tkn-002", component3));
+    when(components.browse(anyInt(), eq("con-tkn-002"))).thenReturn(new ContinuationList(""));
+
     ComposerJsonProcessor underTest = new ComposerJsonProcessor(composerJsonExtractor, composerJsonMinifier);
-    Content output = underTest.generatePackagesFromComponents(repository, asList(component1, component2, component3));
+
+    Content output = underTest.generatePackagesFromComponents(repository, components);
 
     assertEquals(packagesJson, readStreamToString(output.openInputStream()), true);
   }
@@ -168,7 +198,7 @@ public class ComposerJsonProcessorTest
 
   @Test
   public void mergeProviderJson() throws Exception {
-    DateTime time = new DateTime(1210869000000L, DateTimeZone.forOffsetHours(-4));
+    OffsetDateTime time = OffsetDateTime.of(2008, 5, 15, 12, 30, 0, 0, ZoneOffset.ofHours(-4));
 
     String inputJson1 = readStreamToString(getClass().getResourceAsStream("mergeProviderJson.input1.json"));
     String inputJson2 = readStreamToString(getClass().getResourceAsStream("mergeProviderJson.input2.json"));
@@ -190,14 +220,18 @@ public class ComposerJsonProcessorTest
 
     when(repository.getUrl()).thenReturn("http://nexus.repo/base/repo");
 
-    when(component1.group()).thenReturn("vendor1");
+    when(component1.namespace()).thenReturn("vendor1");
     when(component1.name()).thenReturn("project1");
     when(component1.version()).thenReturn("1.0.0");
-    when(component1.requireLastUpdated()).thenReturn(new DateTime(392056200000L, DateTimeZone.forOffsetHours(-4)));
-    when(storageTx.firstAsset(component1)).thenReturn(asset1);
-    when(asset1.requireBlobRef()).thenReturn(blobRef1);
-    when(asset1.getChecksum(SHA1)).thenReturn(HashCode.fromLong(1L));
-    when(storageTx.requireBlob(blobRef1)).thenReturn(blob1);
+    when(component1.lastUpdated()).thenReturn(OffsetDateTime.of(1982, 6, 4, 12, 30, 0, 0, ZoneOffset.ofHours(-4)));
+    when(component1.assets()).thenReturn(singletonList(asset1));
+    when(asset1.hasBlob()).thenReturn(true);
+    when(asset1.blob()).thenReturn(Optional.of(assetBlob1));
+    when(assetBlob1.blobRef()).thenReturn(blobRef1);
+    when(composerContentFacet.blobs()).thenReturn(fluentBlobs);
+    when(fluentBlobs.blob(blobRef1)).thenReturn(Optional.of(blob1));
+    when(assetBlob1.checksums()).thenReturn(singletonMap(SHA1.name(), HashCode.fromLong(1L).toString()));
+    when(asset1.attributes()).thenReturn(mock(NestedAttributesMap.class));
     when(composerJsonExtractor.extractFromZip(blob1)).thenReturn(new ImmutableMap.Builder<String, Object>()
         .put("autoload", singletonMap("psr-4", singletonMap("psr-1-key", "psr-1-value")))
         .put("autoload-dev", singletonMap("psr-4", singletonMap("psr-1-key", "psr-1-value")))
@@ -221,14 +255,17 @@ public class ComposerJsonProcessorTest
         .put("foo", singletonMap("foo-key", "foo-value"))
         .build());
 
-    when(component2.group()).thenReturn("vendor1");
+    when(component2.namespace()).thenReturn("vendor1");
     when(component2.name()).thenReturn("project1");
     when(component2.version()).thenReturn("2.0.0");
-    when(component2.requireLastUpdated()).thenReturn(new DateTime(1210869000000L, DateTimeZone.forOffsetHours(-4)));
-    when(storageTx.firstAsset(component2)).thenReturn(asset2);
-    when(asset2.requireBlobRef()).thenReturn(blobRef2);
-    when(asset2.getChecksum(SHA1)).thenReturn(HashCode.fromLong(2L));
-    when(storageTx.requireBlob(blobRef2)).thenReturn(blob2);
+    when(component2.lastUpdated()).thenReturn(OffsetDateTime.of(2008, 5, 15, 12, 30, 0, 0, ZoneOffset.ofHours(-4)));
+    when(component2.assets()).thenReturn(singletonList(asset2));
+    when(asset2.hasBlob()).thenReturn(true);
+    when(asset2.blob()).thenReturn(Optional.of(assetBlob2));
+    when(assetBlob2.blobRef()).thenReturn(blobRef2);
+    when(fluentBlobs.blob(blobRef2)).thenReturn(Optional.of(blob2));
+    when(assetBlob2.checksums()).thenReturn(singletonMap(SHA1.name(), HashCode.fromLong(2L).toString()));
+    when(asset2.attributes()).thenReturn(mock(NestedAttributesMap.class));
     when(composerJsonExtractor.extractFromZip(blob2)).thenReturn(new ImmutableMap.Builder<String, Object>()
         .put("autoload", singletonMap("psr-0", singletonMap("psr-2-key", "psr-2-value")))
         .put("autoload-dev", singletonMap("psr-4", singletonMap("psr-2-key", "psr-2-value")))
@@ -252,14 +289,17 @@ public class ComposerJsonProcessorTest
         .put("foo", singletonMap("foo-key", "foo-value"))
         .build());
 
-    when(component3.group()).thenReturn("vendor2");
+    when(component3.namespace()).thenReturn("vendor2");
     when(component3.name()).thenReturn("project2");
     when(component3.version()).thenReturn("3.0.0");
-    when(component3.requireLastUpdated()).thenReturn(new DateTime(300558600000L, DateTimeZone.forOffsetHours(-4)));
-    when(storageTx.firstAsset(component3)).thenReturn(asset3);
-    when(asset3.requireBlobRef()).thenReturn(blobRef3);
-    when(asset3.getChecksum(SHA1)).thenReturn(HashCode.fromLong(3L));
-    when(storageTx.requireBlob(blobRef3)).thenReturn(blob3);
+    when(component3.lastUpdated()).thenReturn(OffsetDateTime.of(1979, 7, 11, 12, 30, 0, 0, ZoneOffset.ofHours(-4)));
+    when(component3.assets()).thenReturn(singletonList(asset3));
+    when(asset3.hasBlob()).thenReturn(true);
+    when(asset3.blob()).thenReturn(Optional.of(assetBlob3));
+    when(assetBlob3.blobRef()).thenReturn(blobRef3);
+    when(fluentBlobs.blob(blobRef3)).thenReturn(Optional.of(blob3));
+    when(assetBlob3.checksums()).thenReturn(singletonMap(SHA1.name(), HashCode.fromLong(3L).toString()));
+    when(asset3.attributes()).thenReturn(mock(NestedAttributesMap.class));
     when(composerJsonExtractor.extractFromZip(blob3)).thenReturn(new ImmutableMap.Builder<String, Object>()
         .put("autoload", singletonMap("psr-4", singletonMap("psr-3-key", "psr-3-value")))
         .put("autoload-dev", singletonMap("psr-4", singletonMap("psr-3-key", "psr-3-value")))
@@ -283,14 +323,17 @@ public class ComposerJsonProcessorTest
         .put("foo", singletonMap("foo-key", "foo-value"))
         .build());
 
-    when(component4.group()).thenReturn("vendor2");
+    when(component4.namespace()).thenReturn("vendor2");
     when(component4.name()).thenReturn("project2");
     when(component4.version()).thenReturn("4.0.0");
-    when(component4.requireLastUpdated()).thenReturn(new DateTime(1210869000000L, DateTimeZone.forOffsetHours(-4)));
-    when(storageTx.firstAsset(component4)).thenReturn(asset4);
-    when(asset4.requireBlobRef()).thenReturn(blobRef4);
-    when(asset4.getChecksum(SHA1)).thenReturn(HashCode.fromLong(4L));
-    when(storageTx.requireBlob(blobRef4)).thenReturn(blob4);
+    when(component4.lastUpdated()).thenReturn(OffsetDateTime.of(2008, 5, 15, 12, 30, 0, 0, ZoneOffset.ofHours(-4)));
+    when(component4.assets()).thenReturn(singletonList(asset4));
+    when(asset4.hasBlob()).thenReturn(true);
+    when(asset4.blob()).thenReturn(Optional.of(assetBlob4));
+    when(assetBlob4.blobRef()).thenReturn(blobRef4);
+    when(fluentBlobs.blob(blobRef4)).thenReturn(Optional.of(blob4));
+    when(assetBlob4.checksums()).thenReturn(singletonMap(SHA1.name(), HashCode.fromLong(4L).toString()));
+    when(asset4.attributes()).thenReturn(mock(NestedAttributesMap.class));
     when(composerJsonExtractor.extractFromZip(blob4)).thenReturn(new ImmutableMap.Builder<String, Object>()
         .put("autoload", singletonMap("psr-0", singletonMap("psr-4-key", "psr-4-value")))
         .put("autoload-dev", singletonMap("psr-4", singletonMap("psr-4-key", "psr-4-value")))
@@ -314,11 +357,16 @@ public class ComposerJsonProcessorTest
         .put("foo", singletonMap("foo-key", "foo-value"))
         .build());
 
-    ComposerJsonProcessor underTest = new ComposerJsonProcessor(composerJsonExtractor, composerJsonMinifier);
-    Content output = underTest
-        .buildProviderJson(repository, storageTx, asList(component1, component2, component3, component4));
+    FluentQuery<FluentComponent> components = mock(FluentComponents.class);
+    when(components.browse(anyInt(), isNull())).thenReturn(new ContinuationList("con-tkn-001", component1, component2));
+    when(components.browse(anyInt(), eq("con-tkn-001"))).thenReturn(new ContinuationList("con-tkn-002", component3, component4));
+    when(components.browse(anyInt(), eq("con-tkn-002"))).thenReturn(new ContinuationList(""));
 
-    assertEquals(outputJson, readStreamToString(output.openInputStream()), true);
+    ComposerJsonProcessor underTest = new ComposerJsonProcessor(composerJsonExtractor, composerJsonMinifier);
+    Optional<Content> output = underTest.buildProviderJson(repository, composerContentFacet, components);
+
+    assertTrue(output.isPresent());
+    assertEquals(outputJson, readStreamToString(output.get().openInputStream()), true);
   }
 
   @Test
@@ -351,9 +399,31 @@ public class ComposerJsonProcessorTest
   private String readStreamToString(final InputStream in) throws IOException {
     try {
       return CharStreams.toString(new InputStreamReader(in, UTF_8));
-    }
-    finally {
+    } finally {
       in.close();
+    }
+  }
+
+  private static class ContinuationList
+      extends ArrayList<FluentComponent>
+      implements Continuation<FluentComponent>
+  {
+    private final String continuationToken;
+
+    private ContinuationList(Collection<FluentComponent> elements, String continuationToken) {
+      super(elements);
+      this.continuationToken = continuationToken;
+    }
+
+    private ContinuationList(String continuationToken, FluentComponent... elements) {
+      super(Arrays.asList(elements));
+      this.continuationToken = continuationToken;
+    }
+
+    @Override
+    public String nextContinuationToken() {
+      checkState(!isEmpty(), "No more results");
+      return continuationToken;
     }
   }
 }

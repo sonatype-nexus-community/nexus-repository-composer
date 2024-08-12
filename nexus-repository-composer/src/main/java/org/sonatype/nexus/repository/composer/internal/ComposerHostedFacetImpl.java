@@ -12,26 +12,20 @@
  */
 package org.sonatype.nexus.repository.composer.internal;
 
-import java.io.IOException;
+import com.google.common.collect.ImmutableMap;
+import org.sonatype.nexus.repository.FacetSupport;
+import org.sonatype.nexus.repository.content.fluent.FluentAsset;
+import org.sonatype.nexus.repository.content.fluent.FluentComponent;
+import org.sonatype.nexus.repository.content.fluent.FluentQuery;
+import org.sonatype.nexus.repository.view.Content;
+import org.sonatype.nexus.repository.view.Payload;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-
-import org.sonatype.nexus.repository.FacetSupport;
-import org.sonatype.nexus.repository.storage.Query;
-import org.sonatype.nexus.repository.storage.StorageTx;
-import org.sonatype.nexus.repository.transaction.TransactionalStoreBlob;
-import org.sonatype.nexus.repository.transaction.TransactionalTouchMetadata;
-import org.sonatype.nexus.repository.view.Content;
-import org.sonatype.nexus.repository.view.Payload;
-import org.sonatype.nexus.transaction.UnitOfWork;
-
-import com.google.common.annotations.VisibleForTesting;
+import java.io.IOException;
+import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static java.util.Collections.singletonList;
-import static org.sonatype.nexus.repository.storage.ComponentEntityAdapter.P_GROUP;
-import static org.sonatype.nexus.repository.storage.MetadataNodeEntityAdapter.P_NAME;
 
 /**
  * Default implementation of a Composer hosted facet.
@@ -49,11 +43,11 @@ public class ComposerHostedFacetImpl
   }
 
   @Override
-  @TransactionalStoreBlob
-  public void upload(final String vendor, final String project, final String version, final String sourceType,
-                     final String sourceUrl, final String sourceReference, final Payload payload)
-      throws IOException {
-    content().put(
+  public FluentAsset upload(final String vendor, final String project, final String version, final String sourceType,
+                            final String sourceUrl, final String sourceReference, final Payload payload)
+      throws IOException
+  {
+    return content().put(
         ComposerPathUtils.buildZipballPath(vendor, project, version),
         payload,
         sourceType,
@@ -64,57 +58,68 @@ public class ComposerHostedFacetImpl
 
   @Override
   public Content getZipball(final String path) throws IOException {
-    return content().get(path);
+    return content().get(path).orElse(null);
   }
 
   @Override
-  @TransactionalTouchMetadata
   public Content getPackagesJson() throws IOException {
-    StorageTx tx = UnitOfWork.currentTx();
-    return composerJsonProcessor
-        .generatePackagesFromComponents(getRepository(), tx.browseComponents(tx.findBucket(getRepository())));
+    return composerJsonProcessor.generatePackagesFromComponents(getRepository(), content().components());
   }
 
   @Override
-  @TransactionalTouchMetadata
   public Content getProviderJson(final String vendor, final String project) throws IOException {
-    return content().get(ComposerPathUtils.buildProviderPath(vendor, project));
-  }
-
-  @Override
-  @TransactionalTouchMetadata
-  public Content getPackageJson(final String vendor, final String project) throws IOException {
-    Content content = content().get(ComposerPathUtils.buildPackagePath(vendor, project));
-    //Create v2 Package if it´s not existing
-    if (content != null) {
-      return content;
+    Optional<Content> content = content().get(ComposerPathUtils.buildProviderPath(vendor, project));
+    if (content.isPresent()) {
+      return content.get();
     } else {
-      rebuildPackageJson(vendor, project);
-      return content().get(ComposerPathUtils.buildPackagePath(vendor, project));
+      return rebuildProviderJson(vendor, project).orElse(null);
     }
   }
 
   @Override
-  @TransactionalStoreBlob
-  public void rebuildProviderJson(final String vendor, final String project) throws IOException {
-    StorageTx tx = UnitOfWork.currentTx();
-    Content content = composerJsonProcessor.buildProviderJson(getRepository(), tx,
-        tx.findComponents(buildQuery(vendor, project), singletonList(getRepository())));
-    content().put(ComposerPathUtils.buildProviderPath(vendor, project), content, AssetKind.PROVIDER);
+  public Content getPackageJson(final String vendor, final String project) throws IOException {
+    Optional<Content> content = content().get(ComposerPathUtils.buildPackagePath(vendor, project));
+    //Create v2 Package if it´s not existing
+    if (content.isPresent()) {
+      return content.get();
+    } else {
+      return rebuildPackageJson(vendor, project).orElse(null);
+    }
   }
 
   @Override
-  @TransactionalStoreBlob
-  public void rebuildPackageJson(final String vendor, final String project) throws IOException {
-    StorageTx tx = UnitOfWork.currentTx();
-    Content content = composerJsonProcessor.buildPackageJson(getRepository(), tx,
-            tx.findComponents(buildQuery(vendor, project), singletonList(getRepository())));
-    content().put(ComposerPathUtils.buildPackagePath(vendor, project), content, AssetKind.PACKAGE);
+  public Optional<Content> rebuildProviderJson(final String vendor, final String project) throws IOException {
+    Optional<Content> content = composerJsonProcessor.buildProviderJson(getRepository(), content(), queryComponents(vendor, project));
+    if (content.isPresent()) {
+      content().put(ComposerPathUtils.buildProviderPath(vendor, project), content.get(), AssetKind.PROVIDER);
+    } else {
+      content()
+          .getAsset(ComposerPathUtils.buildProviderPath(vendor, project))
+          .ifPresent(FluentAsset::delete);
+    }
+    return content;
   }
 
-  @VisibleForTesting
-  protected Query buildQuery(final String vendor, final String project) {
-    return Query.builder().where(P_GROUP).eq(vendor).and(P_NAME).eq(project).build();
+  @Override
+  public Optional<Content>  rebuildPackageJson(final String vendor, final String project) throws IOException {
+    Optional<Content>  content = composerJsonProcessor.buildPackageJson(getRepository(), content(), queryComponents(vendor, project));
+    if (content.isPresent()) {
+      content().put(ComposerPathUtils.buildPackagePath(vendor, project), content.get(), AssetKind.PACKAGE);
+    } else {
+      content()
+          .getAsset(ComposerPathUtils.buildPackagePath(vendor, project))
+          .ifPresent(FluentAsset::delete);
+    }
+    return content;
+  }
+
+  private FluentQuery<FluentComponent> queryComponents(final String vendor, final String project) {
+    return content()
+        .components()
+        .byFilter(
+            "namespace = #{filterParams.vendor} AND name = #{filterParams.project}",
+            ImmutableMap.of("vendor", vendor, "project", project)
+        );
   }
 
   private ComposerContentFacet content() {

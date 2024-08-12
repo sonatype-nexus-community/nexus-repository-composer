@@ -12,7 +12,6 @@ package org.sonatype.nexus.repository.composer.internal;
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
 
-import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -21,6 +20,8 @@ import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.group.GroupFacet;
 import org.sonatype.nexus.repository.view.*;
+
+import java.time.OffsetDateTime;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -38,8 +39,6 @@ import static org.sonatype.nexus.repository.http.HttpStatus.OK;
 public class ComposerGroupProviderJsonHandlerTest
     extends TestSupport
 {
-  @Mock
-  private Content content;
 
   @Mock
   private Request request;
@@ -76,9 +75,6 @@ public class ComposerGroupProviderJsonHandlerTest
 
   @Mock
   private Status status2;
-
-  @Mock
-  private Status status3;
 
   @Mock
   private Payload payload1;
@@ -133,7 +129,7 @@ public class ComposerGroupProviderJsonHandlerTest
     assertThat(result.getStatus().getCode(), is(OK));
 
     verify(composerJsonProcessor)
-        .mergeProviderJson(eq(repository), eq(asList(payload1, payload2)), any(DateTime.class));
+        .mergeProviderJson(eq(repository), eq(asList(payload1, payload2)), any(OffsetDateTime.class));
   }
 
   @Test
@@ -145,7 +141,7 @@ public class ComposerGroupProviderJsonHandlerTest
     assertThat(result.getStatus(), is(notNullValue()));
     assertThat(result.getStatus().getCode(), is(OK));
 
-    verify(composerJsonProcessor).mergeProviderJson(eq(repository), eq(singletonList(payload2)), any(DateTime.class));
+    verify(composerJsonProcessor).mergeProviderJson(eq(repository), eq(singletonList(payload2)), any(OffsetDateTime.class));
   }
 
   @Test
@@ -157,6 +153,6 @@ public class ComposerGroupProviderJsonHandlerTest
     assertThat(result.getStatus(), is(notNullValue()));
     assertThat(result.getStatus().getCode(), is(OK));
 
-    verify(composerJsonProcessor).mergeProviderJson(eq(repository), eq(singletonList(payload2)), any(DateTime.class));
+    verify(composerJsonProcessor).mergeProviderJson(eq(repository), eq(singletonList(payload2)), any(OffsetDateTime.class));
   }
 }

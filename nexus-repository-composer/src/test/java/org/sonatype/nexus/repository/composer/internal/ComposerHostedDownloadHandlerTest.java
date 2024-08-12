@@ -17,6 +17,8 @@ import java.util.Map;
 import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.repository.Repository;
+import org.sonatype.nexus.repository.composer.AssetKind;
+import org.sonatype.nexus.repository.composer.ComposerHostedFacet;
 import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.Payload;
@@ -33,14 +35,14 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
-import static org.sonatype.nexus.repository.composer.internal.AssetKind.LIST;
-import static org.sonatype.nexus.repository.composer.internal.AssetKind.PACKAGES;
-import static org.sonatype.nexus.repository.composer.internal.AssetKind.PROVIDER;
-import static org.sonatype.nexus.repository.composer.internal.AssetKind.ZIPBALL;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.NAME_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.PROJECT_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VENDOR_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VERSION_TOKEN;
+import static org.sonatype.nexus.repository.composer.AssetKind.LIST;
+import static org.sonatype.nexus.repository.composer.AssetKind.PACKAGES;
+import static org.sonatype.nexus.repository.composer.AssetKind.PROVIDER;
+import static org.sonatype.nexus.repository.composer.AssetKind.ZIPBALL;
+import static org.sonatype.nexus.repository.composer.internal.recipe.ComposerRecipeSupport.NAME_TOKEN;
+import static org.sonatype.nexus.repository.composer.internal.recipe.ComposerRecipeSupport.PROJECT_TOKEN;
+import static org.sonatype.nexus.repository.composer.internal.recipe.ComposerRecipeSupport.VENDOR_TOKEN;
+import static org.sonatype.nexus.repository.composer.internal.recipe.ComposerRecipeSupport.VERSION_TOKEN;
 
 public class ComposerHostedDownloadHandlerTest
     extends TestSupport
@@ -53,7 +55,7 @@ public class ComposerHostedDownloadHandlerTest
 
   private static final String NAME = "testvendor-testproject-testversion";
 
-  private static final String ZIPBALL_PATH = "testvendor/testproject/testversion/testvendor-testproject-testversion.zip";
+  private static final String ZIPBALL_PATH = "/testvendor/testproject/testversion/testvendor-testproject-testversion.zip";
 
   @Mock
   private Map<String, String> tokens;

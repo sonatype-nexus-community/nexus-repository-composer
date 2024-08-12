@@ -12,19 +12,21 @@
  */
 package org.sonatype.nexus.repository.composer.internal
 
+import org.sonatype.nexus.repository.composer.internal.AssetKind
+import org.sonatype.nexus.repository.composer.internal.ComposerContentFacet
+import org.sonatype.nexus.repository.composer.internal.ComposerMaintenanceFacet
+import org.sonatype.nexus.repository.composer.internal.ComposerSecurityFacet
+import org.sonatype.nexus.repository.content.browse.BrowseFacet
+
 import javax.inject.Inject
 import javax.inject.Provider
 
 import org.sonatype.nexus.repository.Format
 import org.sonatype.nexus.repository.RecipeSupport
 import org.sonatype.nexus.repository.Type
-import org.sonatype.nexus.repository.attributes.AttributesFacet
 import org.sonatype.nexus.repository.http.PartialFetchHandler
 import org.sonatype.nexus.repository.search.index.SearchIndexFacet
 import org.sonatype.nexus.repository.security.SecurityHandler
-import org.sonatype.nexus.repository.storage.SingleAssetComponentMaintenance
-import org.sonatype.nexus.repository.storage.StorageFacet
-import org.sonatype.nexus.repository.storage.UnitOfWorkHandler
 import org.sonatype.nexus.repository.view.ConfigurableViewFacet
 import org.sonatype.nexus.repository.view.Context
 import org.sonatype.nexus.repository.view.Route.Builder
@@ -68,22 +70,19 @@ abstract class ComposerRecipeSupport
   Provider<ComposerContentFacet> contentFacet
 
   @Inject
+  Provider<ComposerMaintenanceFacet> maintenanceFacet
+
+  @Inject
   Provider<ComposerSecurityFacet> securityFacet
 
   @Inject
   Provider<ConfigurableViewFacet> viewFacet
 
   @Inject
-  Provider<StorageFacet> storageFacet
-
-  @Inject
   Provider<SearchIndexFacet> searchFacet
 
   @Inject
-  Provider<AttributesFacet> attributesFacet
-
-  @Inject
-  Provider<SingleAssetComponentMaintenance> componentMaintenanceFacet
+  Provider<BrowseFacet> browseFacet
 
   @Inject
   ExceptionHandler exceptionHandler
@@ -102,9 +101,6 @@ abstract class ComposerRecipeSupport
 
   @Inject
   ContentHeadersHandler contentHeadersHandler
-
-  @Inject
-  UnitOfWorkHandler unitOfWorkHandler
 
   @Inject
   HandlerContributor handlerContributor

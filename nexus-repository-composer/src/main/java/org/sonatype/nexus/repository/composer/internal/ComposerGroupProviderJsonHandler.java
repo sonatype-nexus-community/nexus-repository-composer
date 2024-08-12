@@ -13,6 +13,7 @@
 package org.sonatype.nexus.repository.composer.internal;
 
 import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -22,8 +23,6 @@ import javax.inject.Singleton;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Payload;
-
-import org.joda.time.DateTime;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -44,6 +43,6 @@ public class ComposerGroupProviderJsonHandler
 
   @Override
   protected Content merge(final Repository repository, final List<Payload> payloads) throws IOException {
-    return composerJsonProcessor.mergeProviderJson(repository, payloads, DateTime.now());
+    return composerJsonProcessor.mergeProviderJson(repository, payloads, OffsetDateTime.now());
   }
 }
