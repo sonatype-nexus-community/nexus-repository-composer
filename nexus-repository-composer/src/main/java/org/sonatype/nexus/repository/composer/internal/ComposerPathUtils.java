@@ -22,10 +22,10 @@ import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 import org.eclipse.sisu.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.NAME_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.PROJECT_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VENDOR_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VERSION_TOKEN;
+import static org.sonatype.nexus.repository.composer.internal.recipe.ComposerRecipeSupport.NAME_TOKEN;
+import static org.sonatype.nexus.repository.composer.internal.recipe.ComposerRecipeSupport.PROJECT_TOKEN;
+import static org.sonatype.nexus.repository.composer.internal.recipe.ComposerRecipeSupport.VENDOR_TOKEN;
+import static org.sonatype.nexus.repository.composer.internal.recipe.ComposerRecipeSupport.VERSION_TOKEN;
 
 /**
  * Utility class containing methods for working with Composer routes and paths.

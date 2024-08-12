@@ -13,7 +13,7 @@
 package org.sonatype.nexus.repository.composer.internal.browse;
 
 import org.sonatype.nexus.repository.browse.node.BrowsePath;
-import org.sonatype.nexus.repository.composer.internal.ComposerFormat;
+import org.sonatype.nexus.repository.composer.ComposerFormat;
 import org.sonatype.nexus.repository.content.Asset;
 import org.sonatype.nexus.repository.content.Component;
 import org.sonatype.nexus.repository.content.browse.ComponentPathBrowseNodeGenerator;

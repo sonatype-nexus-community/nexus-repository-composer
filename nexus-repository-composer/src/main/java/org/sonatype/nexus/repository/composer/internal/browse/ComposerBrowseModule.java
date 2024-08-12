@@ -12,7 +12,7 @@
  */
 package org.sonatype.nexus.repository.composer.internal.browse;
 
-import org.sonatype.nexus.repository.composer.internal.ComposerFormat;
+import org.sonatype.nexus.repository.composer.ComposerFormat;
 import org.sonatype.nexus.repository.content.browse.store.FormatBrowseModule;
 
 import javax.inject.Named;

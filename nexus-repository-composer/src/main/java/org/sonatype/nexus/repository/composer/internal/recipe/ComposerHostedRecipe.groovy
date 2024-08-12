@@ -10,8 +10,13 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-package org.sonatype.nexus.repository.composer.internal
+package org.sonatype.nexus.repository.composer.internal.recipe
 
+import org.sonatype.nexus.repository.composer.ComposerFormat
+import org.sonatype.nexus.repository.composer.internal.ComposerHostedDownloadHandler
+import org.sonatype.nexus.repository.composer.ComposerHostedFacet
+import org.sonatype.nexus.repository.composer.internal.ComposerHostedUploadHandler
+import org.sonatype.nexus.repository.view.handlers.LastDownloadedHandler
 
 import javax.annotation.Nonnull
 import javax.inject.Inject
@@ -22,53 +27,41 @@ import javax.inject.Singleton
 import org.sonatype.nexus.repository.Format
 import org.sonatype.nexus.repository.Repository
 import org.sonatype.nexus.repository.Type
-import org.sonatype.nexus.repository.cache.NegativeCacheFacet
-import org.sonatype.nexus.repository.cache.NegativeCacheHandler
 import org.sonatype.nexus.repository.http.HttpHandlers
-import org.sonatype.nexus.repository.httpclient.HttpClientFacet
-import org.sonatype.nexus.repository.proxy.ProxyHandler
-import org.sonatype.nexus.repository.purge.PurgeUnusedFacet
-import org.sonatype.nexus.repository.types.ProxyType
+import org.sonatype.nexus.repository.types.HostedType
 import org.sonatype.nexus.repository.view.ConfigurableViewFacet
 import org.sonatype.nexus.repository.view.Router
 import org.sonatype.nexus.repository.view.ViewFacet
 
+import static org.sonatype.nexus.repository.composer.AssetKind.PACKAGE
+import static org.sonatype.nexus.repository.composer.AssetKind.PACKAGES
+import static org.sonatype.nexus.repository.composer.AssetKind.PROVIDER
+import static org.sonatype.nexus.repository.composer.AssetKind.ZIPBALL
+
 /**
- * Recipe for creating a Composer proxy repository.
+ * Recipe for creating a Composer hosted repository.
  */
-@Named(ComposerProxyRecipe.NAME)
+@Named(ComposerHostedRecipe.NAME)
 @Singleton
-class ComposerProxyRecipe
+class ComposerHostedRecipe
     extends ComposerRecipeSupport
 {
-  public static final String NAME = 'composer-proxy'
+  public static final String NAME = 'composer-hosted'
 
   @Inject
-  Provider<ComposerProxyFacet> proxyFacet
+  Provider<ComposerHostedFacet> hostedFacet
 
   @Inject
-  Provider<NegativeCacheFacet> negativeCacheFacet
+  LastDownloadedHandler lastDownloadedHandler
 
   @Inject
-  Provider<PurgeUnusedFacet> purgeUnusedFacet
+  ComposerHostedUploadHandler uploadHandler
 
   @Inject
-  NegativeCacheHandler negativeCacheHandler
+  ComposerHostedDownloadHandler downloadHandler
 
   @Inject
-  ProxyHandler proxyHandler
-
-  @Inject
-  Provider<HttpClientFacet> httpClientFacet
-
-  @Inject
-  ComposerProviderHandler composerProviderHandler
-
-  @Inject
-  ComposerPackageHandler composerPackageHandler
-
-  @Inject
-  ComposerProxyRecipe(@Named(ProxyType.NAME) final Type type, @Named(ComposerFormat.NAME) final Format format) {
+  ComposerHostedRecipe(@Named(HostedType.NAME) final Type type, @Named(ComposerFormat.NAME) final Format format) {
     super(type, format)
   }
 
@@ -77,83 +70,79 @@ class ComposerProxyRecipe
     repository.attach(contentFacet.get())
     repository.attach(securityFacet.get())
     repository.attach(configure(viewFacet.get()))
-    repository.attach(httpClientFacet.get())
-    repository.attach(negativeCacheFacet.get())
-    repository.attach(proxyFacet.get())
+    repository.attach(hostedFacet.get())
+    repository.attach(maintenanceFacet.get())
     repository.attach(searchFacet.get())
     repository.attach(browseFacet.get())
-    repository.attach(purgeUnusedFacet.get())
-    repository.attach(maintenanceFacet.get())
   }
 
+  /**
+   * Configure {@link ViewFacet}.
+   */
   private ViewFacet configure(final ConfigurableViewFacet facet) {
     Router.Builder builder = new Router.Builder()
 
     builder.route(packagesMatcher()
         .handler(timingHandler)
-        .handler(assetKindHandler.rcurry(AssetKind.PACKAGES))
+        .handler(assetKindHandler.rcurry(PACKAGES))
         .handler(securityHandler)
         .handler(exceptionHandler)
         .handler(handlerContributor)
-        .handler(negativeCacheHandler)
         .handler(conditionalRequestHandler)
         .handler(partialFetchHandler)
         .handler(contentHeadersHandler)
-        .handler(proxyHandler)
-        .create())
-
-    builder.route(listMatcher()
-        .handler(timingHandler)
-        .handler(assetKindHandler.rcurry(AssetKind.LIST))
-        .handler(securityHandler)
-        .handler(exceptionHandler)
-        .handler(handlerContributor)
-        .handler(negativeCacheHandler)
-        .handler(conditionalRequestHandler)
-        .handler(partialFetchHandler)
-        .handler(contentHeadersHandler)
-        .handler(proxyHandler)
+        .handler(downloadHandler)
         .create())
 
     builder.route(providerMatcher()
         .handler(timingHandler)
-        .handler(assetKindHandler.rcurry(AssetKind.PROVIDER))
+        .handler(assetKindHandler.rcurry(PROVIDER))
         .handler(securityHandler)
         .handler(exceptionHandler)
         .handler(handlerContributor)
-        .handler(negativeCacheHandler)
         .handler(conditionalRequestHandler)
         .handler(partialFetchHandler)
         .handler(contentHeadersHandler)
-        .handler(composerProviderHandler)
-        .handler(proxyHandler)
+        .handler(lastDownloadedHandler)
+        .handler(downloadHandler)
         .create())
 
     builder.route(packageMatcher()
-            .handler(timingHandler)
-            .handler(assetKindHandler.rcurry(AssetKind.PACKAGE))
-            .handler(securityHandler)
-            .handler(exceptionHandler)
-            .handler(handlerContributor)
-            .handler(negativeCacheHandler)
-            .handler(conditionalRequestHandler)
-            .handler(partialFetchHandler)
-            .handler(contentHeadersHandler)
-            .handler(composerPackageHandler)
-            .handler(proxyHandler)
-            .create())
-
-    builder.route(zipballMatcher()
         .handler(timingHandler)
-        .handler(assetKindHandler.rcurry(AssetKind.ZIPBALL))
+        .handler(assetKindHandler.rcurry(PACKAGE))
         .handler(securityHandler)
         .handler(exceptionHandler)
         .handler(handlerContributor)
-        .handler(negativeCacheHandler)
         .handler(conditionalRequestHandler)
         .handler(partialFetchHandler)
         .handler(contentHeadersHandler)
-        .handler(proxyHandler)
+        .handler(lastDownloadedHandler)
+        .handler(downloadHandler)
+        .create())
+
+    builder.route(zipballMatcher()
+        .handler(timingHandler)
+        .handler(assetKindHandler.rcurry(ZIPBALL))
+        .handler(securityHandler)
+        .handler(exceptionHandler)
+        .handler(handlerContributor)
+        .handler(conditionalRequestHandler)
+        .handler(partialFetchHandler)
+        .handler(contentHeadersHandler)
+        .handler(lastDownloadedHandler)
+        .handler(downloadHandler)
+        .create())
+
+    builder.route(uploadMatcher()
+        .handler(timingHandler)
+        .handler(assetKindHandler.rcurry(ZIPBALL))
+        .handler(securityHandler)
+        .handler(exceptionHandler)
+        .handler(handlerContributor)
+        .handler(conditionalRequestHandler)
+        .handler(partialFetchHandler)
+        .handler(contentHeadersHandler)
+        .handler(uploadHandler)
         .create())
 
     addBrowseUnsupportedRoute(builder)

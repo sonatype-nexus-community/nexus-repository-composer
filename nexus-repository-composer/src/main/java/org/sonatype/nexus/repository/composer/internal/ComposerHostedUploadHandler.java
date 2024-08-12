@@ -18,6 +18,10 @@ import com.google.common.io.CharStreams;
 import org.slf4j.Logger;
 import org.sonatype.goodies.common.Loggers;
 import org.sonatype.nexus.repository.Repository;
+import org.sonatype.nexus.repository.composer.AssetKind;
+import org.sonatype.nexus.repository.composer.ComposerContentFacet;
+import org.sonatype.nexus.repository.composer.ComposerFormat;
+import org.sonatype.nexus.repository.composer.ComposerHostedFacet;
 import org.sonatype.nexus.repository.content.fluent.FluentAsset;
 import org.sonatype.nexus.repository.http.HttpResponses;
 import org.sonatype.nexus.repository.importtask.ImportFileConfiguration;
@@ -48,7 +52,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.*;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.*;
+import static org.sonatype.nexus.repository.composer.internal.recipe.ComposerRecipeSupport.*;
 
 /**
  * Upload handler for Composer hosted repositories.
@@ -72,7 +76,8 @@ public class ComposerHostedUploadHandler
       final Set<UploadDefinitionExtension> uploadDefinitionExtensions,
       final VariableResolverAdapter variableResolverAdapter,
       final ContentPermissionChecker contentPermissionChecker
-  ) {
+  )
+  {
     super(uploadDefinitionExtensions);
     this.variableResolverAdapter = variableResolverAdapter;
     this.contentPermissionChecker = contentPermissionChecker;

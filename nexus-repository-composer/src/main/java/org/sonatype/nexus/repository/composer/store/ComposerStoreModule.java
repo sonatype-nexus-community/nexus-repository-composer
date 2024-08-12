@@ -12,7 +12,7 @@
  */
 package org.sonatype.nexus.repository.composer.store;
 
-import org.sonatype.nexus.repository.composer.internal.ComposerFormat;
+import org.sonatype.nexus.repository.composer.ComposerFormat;
 import org.sonatype.nexus.repository.content.store.FormatStoreModule;
 
 import javax.inject.Named;

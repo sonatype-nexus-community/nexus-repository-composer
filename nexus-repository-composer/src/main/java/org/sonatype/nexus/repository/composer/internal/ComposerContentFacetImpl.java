@@ -14,6 +14,9 @@ package org.sonatype.nexus.repository.composer.internal;
 
 import org.sonatype.nexus.common.hash.HashAlgorithm;
 import org.sonatype.nexus.repository.cache.CacheInfo;
+import org.sonatype.nexus.repository.composer.AssetKind;
+import org.sonatype.nexus.repository.composer.ComposerContentFacet;
+import org.sonatype.nexus.repository.composer.ComposerFormat;
 import org.sonatype.nexus.repository.content.Asset;
 import org.sonatype.nexus.repository.content.facet.ContentFacetSupport;
 import org.sonatype.nexus.repository.content.fluent.FluentAsset;
@@ -35,7 +38,7 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.sonatype.nexus.common.hash.HashAlgorithm.*;
 import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.normalizeAssetPath;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.*;
+import static org.sonatype.nexus.repository.composer.internal.recipe.ComposerRecipeSupport.*;
 
 /**
  * Default (and currently only) implementation of {@code ComposerContentFacet}.

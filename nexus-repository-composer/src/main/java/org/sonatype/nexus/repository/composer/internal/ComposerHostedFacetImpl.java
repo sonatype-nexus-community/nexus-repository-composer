@@ -14,6 +14,9 @@ package org.sonatype.nexus.repository.composer.internal;
 
 import com.google.common.collect.ImmutableMap;
 import org.sonatype.nexus.repository.FacetSupport;
+import org.sonatype.nexus.repository.composer.AssetKind;
+import org.sonatype.nexus.repository.composer.ComposerContentFacet;
+import org.sonatype.nexus.repository.composer.ComposerHostedFacet;
 import org.sonatype.nexus.repository.content.fluent.FluentAsset;
 import org.sonatype.nexus.repository.content.fluent.FluentComponent;
 import org.sonatype.nexus.repository.content.fluent.FluentQuery;

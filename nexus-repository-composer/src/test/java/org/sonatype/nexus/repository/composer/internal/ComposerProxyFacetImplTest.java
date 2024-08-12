@@ -20,6 +20,8 @@ import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.cache.CacheInfo;
+import org.sonatype.nexus.repository.composer.AssetKind;
+import org.sonatype.nexus.repository.composer.ComposerContentFacet;
 import org.sonatype.nexus.repository.composer.internal.ComposerProxyFacet.NonResolvableProviderJsonException;
 import org.sonatype.nexus.repository.content.fluent.FluentAsset;
 import org.sonatype.nexus.repository.view.*;
@@ -33,7 +35,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonatype.nexus.repository.composer.internal.AssetKind.*;
+import static org.sonatype.nexus.repository.composer.AssetKind.*;
 
 public class ComposerProxyFacetImplTest
     extends TestSupport

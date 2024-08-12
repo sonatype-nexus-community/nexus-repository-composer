@@ -10,29 +10,31 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-package org.sonatype.nexus.repository.composer.internal;
+package org.sonatype.nexus.repository.composer;
 
-import org.sonatype.goodies.testsupport.TestSupport;
+import org.sonatype.nexus.repository.cache.CacheControllerHolder.CacheType;
 
-import org.junit.Test;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.sonatype.nexus.repository.cache.CacheControllerHolder.CONTENT;
 import static org.sonatype.nexus.repository.cache.CacheControllerHolder.METADATA;
-import static org.sonatype.nexus.repository.composer.internal.AssetKind.LIST;
-import static org.sonatype.nexus.repository.composer.internal.AssetKind.PACKAGES;
-import static org.sonatype.nexus.repository.composer.internal.AssetKind.PROVIDER;
-import static org.sonatype.nexus.repository.composer.internal.AssetKind.ZIPBALL;
 
-public class AssetKindTest
-    extends TestSupport
+/**
+ * Enumeration defining the valid asset kinds for a Composer-format repository.
+ */
+public enum AssetKind
 {
-  @Test
-  public void cacheTypes() {
-    assertThat(LIST.getCacheType(), is(METADATA));
-    assertThat(PROVIDER.getCacheType(), is(METADATA));
-    assertThat(PACKAGES.getCacheType(), is(METADATA));
-    assertThat(ZIPBALL.getCacheType(), is(CONTENT));
+  ZIPBALL(CONTENT),
+  PACKAGES(METADATA),
+  LIST(METADATA),
+  PROVIDER(METADATA),
+  PACKAGE(METADATA);
+
+  private final CacheType cacheType;
+
+  AssetKind(final CacheType cacheType) {
+    this.cacheType = cacheType;
+  }
+
+  public CacheType getCacheType() {
+    return cacheType;
   }
 }

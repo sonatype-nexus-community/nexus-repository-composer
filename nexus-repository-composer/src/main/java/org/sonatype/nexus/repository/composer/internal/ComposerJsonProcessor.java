@@ -20,6 +20,7 @@ import org.sonatype.nexus.blobstore.api.Blob;
 import org.sonatype.nexus.common.entity.Continuation;
 import org.sonatype.nexus.common.hash.HashAlgorithm;
 import org.sonatype.nexus.repository.Repository;
+import org.sonatype.nexus.repository.composer.ComposerContentFacet;
 import org.sonatype.nexus.repository.content.AssetBlob;
 import org.sonatype.nexus.repository.content.fluent.FluentAsset;
 import org.sonatype.nexus.repository.content.fluent.FluentComponent;
@@ -46,7 +47,7 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Collections.singletonMap;
 import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.buildZipballPath;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.*;
+import static org.sonatype.nexus.repository.composer.internal.recipe.ComposerRecipeSupport.*;
 
 /**
  * Class encapsulating JSON processing for Composer-format repositories, including operations for parsing JSON indexes

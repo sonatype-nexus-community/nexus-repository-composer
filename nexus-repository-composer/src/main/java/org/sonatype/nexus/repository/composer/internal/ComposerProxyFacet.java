@@ -24,6 +24,8 @@ import javax.inject.Named;
 
 import org.sonatype.nexus.repository.cache.CacheController;
 import org.sonatype.nexus.repository.cache.CacheInfo;
+import org.sonatype.nexus.repository.composer.AssetKind;
+import org.sonatype.nexus.repository.composer.ComposerContentFacet;
 import org.sonatype.nexus.repository.config.Configuration;
 import org.sonatype.nexus.repository.content.facet.ContentProxyFacetSupport;
 import org.sonatype.nexus.repository.content.fluent.FluentAsset;
@@ -40,9 +42,9 @@ import com.google.common.base.Throwables;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.*;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.PROJECT_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VENDOR_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VERSION_TOKEN;
+import static org.sonatype.nexus.repository.composer.internal.recipe.ComposerRecipeSupport.PROJECT_TOKEN;
+import static org.sonatype.nexus.repository.composer.internal.recipe.ComposerRecipeSupport.VENDOR_TOKEN;
+import static org.sonatype.nexus.repository.composer.internal.recipe.ComposerRecipeSupport.VERSION_TOKEN;
 import static org.sonatype.nexus.repository.http.HttpMethods.GET;
 
 /**

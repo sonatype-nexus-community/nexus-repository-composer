@@ -14,6 +14,7 @@ package org.sonatype.nexus.repository.composer.internal;
 
 import com.google.common.collect.ImmutableSet;
 import org.sonatype.nexus.repository.Facet;
+import org.sonatype.nexus.repository.composer.ComposerHostedFacet;
 import org.sonatype.nexus.repository.content.Component;
 import org.sonatype.nexus.repository.content.maintenance.LastAssetMaintenanceFacet;
 
