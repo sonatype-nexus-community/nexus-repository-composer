@@ -35,10 +35,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
-import static org.sonatype.nexus.repository.composer.AssetKind.LIST;
-import static org.sonatype.nexus.repository.composer.AssetKind.PACKAGES;
-import static org.sonatype.nexus.repository.composer.AssetKind.PROVIDER;
-import static org.sonatype.nexus.repository.composer.AssetKind.ZIPBALL;
+import static org.sonatype.nexus.repository.composer.AssetKind.*;
 import static org.sonatype.nexus.repository.composer.internal.recipe.ComposerRecipeSupport.NAME_TOKEN;
 import static org.sonatype.nexus.repository.composer.internal.recipe.ComposerRecipeSupport.PROJECT_TOKEN;
 import static org.sonatype.nexus.repository.composer.internal.recipe.ComposerRecipeSupport.VENDOR_TOKEN;
@@ -113,7 +110,40 @@ public class ComposerHostedDownloadHandlerTest
   }
 
   @Test
-  public void testHandleList() throws Exception {
+  public void testHandleProviderAbsent() throws Exception {
+    when(attributes.require(AssetKind.class)).thenReturn(PROVIDER);
+    when(tokens.get(VENDOR_TOKEN)).thenReturn(VENDOR);
+    when(tokens.get(PROJECT_TOKEN)).thenReturn(PROJECT);
+    when(composerHostedFacet.getProviderJson(VENDOR, PROJECT)).thenReturn(null);
+    Response response = underTest.handle(context);
+    assertThat(response.getStatus().getCode(), is(404));
+    assertThat(response.getPayload(), is(nullValue()));
+  }
+
+  @Test
+  public void testHandlePackage() throws Exception {
+    when(attributes.require(AssetKind.class)).thenReturn(PACKAGE);
+    when(tokens.get(VENDOR_TOKEN)).thenReturn(VENDOR);
+    when(tokens.get(PROJECT_TOKEN)).thenReturn(PROJECT);
+    when(composerHostedFacet.getPackageJson(VENDOR, PROJECT)).thenReturn(content);
+    Response response = underTest.handle(context);
+    assertThat(response.getStatus().getCode(), is(200));
+    assertThat(response.getPayload(), is(content));
+  }
+
+  @Test
+  public void testHandlePackageAbsent() throws Exception {
+    when(attributes.require(AssetKind.class)).thenReturn(PACKAGE);
+    when(tokens.get(VENDOR_TOKEN)).thenReturn(VENDOR);
+    when(tokens.get(PROJECT_TOKEN)).thenReturn(PROJECT);
+    when(composerHostedFacet.getProviderJson(VENDOR, PROJECT)).thenReturn(null);
+    Response response = underTest.handle(context);
+    assertThat(response.getStatus().getCode(), is(404));
+    assertThat(response.getPayload(), is(nullValue()));
+  }
+
+  @Test
+  public void testHandleList() {
     when(attributes.require(AssetKind.class)).thenReturn(LIST);
     IllegalStateException e = assertThrows(IllegalStateException.class, () -> underTest.handle(context));
     assertEquals("Unsupported assetKind: " + LIST, e.getMessage());

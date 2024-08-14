@@ -50,9 +50,9 @@ public class ComposerHostedDownloadHandler
       case LIST:
         throw new IllegalStateException("Unsupported assetKind: " + assetKind);
       case PROVIDER:
-        return HttpResponses.ok(hostedFacet.getProviderJson(getVendorToken(context), getProjectToken(context)));
+        return responseFor(hostedFacet.getProviderJson(getVendorToken(context), getProjectToken(context)));
       case PACKAGE:
-        return HttpResponses.ok(hostedFacet.getPackageJson(getVendorToken(context), getProjectToken(context)));
+        return responseFor(hostedFacet.getPackageJson(getVendorToken(context), getProjectToken(context)));
       case ZIPBALL:
         return responseFor(hostedFacet.getZipball(buildZipballPath(context)));
       default:
