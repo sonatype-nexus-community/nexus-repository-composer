@@ -6,6 +6,7 @@
     <groupId>org.sonatype.nexus.plugins</groupId>
     <artifactId>composer-parent</artifactId>
     <version>0.1.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>nexus-repository-composer-it</artifactId>
@@ -20,57 +21,120 @@
       <artifactId>nexus-pax-exam</artifactId>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>org.ops4j.pax.exam</groupId>
       <artifactId>pax-exam-features</artifactId>
       <type>xml</type>
     </dependency>
+
+    <!--
+    Allow tests access to these APIs/helpers
+    -->
+    <dependency>
+      <groupId>org.sonatype.nexus</groupId>
+      <artifactId>nexus-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.sonatype.nexus.testsuite</groupId>
+      <artifactId>nexus-repository-testsupport</artifactId>
+      <version>${nxrm-version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.sonatype.nexus</groupId>
+      <artifactId>nexus-bootstrap</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.sonatype.nexus</groupId>
+      <artifactId>nexus-rapture</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.sonatype.nexus</groupId>
+      <artifactId>nexus-repository-content</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.sonatype.nexus</groupId>
+      <artifactId>nexus-rest</artifactId>
+      <scope>test</scope>
+    </dependency>
+
     <dependency>
       <groupId>org.sonatype.nexus</groupId>
       <artifactId>nexus-rest-client</artifactId>
+      <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.sonatype.nexus</groupId>
+      <artifactId>nexus-rest-jackson2</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.sonatype.nexus</groupId>
+      <artifactId>nexus-script</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.sonatype.nexus</groupId>
+      <artifactId>nexus-extdirect</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.sonatype.nexus</groupId>
+      <artifactId>nexus-test-common</artifactId>
+    </dependency>
+
     <!--
-    Pax-Exam test driver - end
+    Allow tests access to these plugins
     -->
-    <!--
-    only needed due to testsupport reference to: org.sonatype.nexus.repository.maven.VersionPolicy
-    -->
-    <dependency>
-      <groupId>org.sonatype.nexus.plugins</groupId>
-      <artifactId>nexus-repository-maven</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.sonatype.nexus.testsuite</groupId>
-      <artifactId>nexus-repository-testsupport</artifactId>
-      <version>${nxrm-version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.sonatype.nexus.testsuite</groupId>
-      <artifactId>nexus-repository-testsupport</artifactId>
-      <version>${nxrm-version}</version>
-      <type>xml</type>
-      <classifier>features</classifier>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.sonatype.nexus.testsuite</groupId>
-      <artifactId>nexus-it-suite-data</artifactId>
-      <version>${nxrm-version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.sonatype.nexus.assemblies</groupId>
-      <artifactId>nexus-base-template</artifactId>
-      <version>${nxrm-version}</version>
-      <type>zip</type>
-      <scope>test</scope>
-    </dependency>
+
     <dependency>
       <groupId>org.sonatype.nexus.plugins</groupId>
       <artifactId>nexus-repository-composer</artifactId>
       <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!--
+    Distributions to be tested
+    -->
+
+    <dependency>
+      <groupId>org.sonatype.nexus.assemblies</groupId>
+      <artifactId>nexus-base-template</artifactId>
+      <type>zip</type>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.sonatype.nexus.plugins</groupId>
+      <artifactId>nexus-blobstore-tasks</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.sonatype.nexus.testsuite</groupId>
+      <artifactId>nexus-it-suite-data</artifactId>
+      <version>${nxrm-version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -78,38 +142,31 @@
   <build>
     <plugins>
       <!--
-      ensure runtime dependencies required by ITs are in the local .m2/repository
-      -->
-      <plugin>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>get</goal>
-            </goals>
-            <configuration>
-              <groupId>org.sonatype.nexus.buildsupport</groupId>
-              <artifactId>nexus-buildsupport-it-deps</artifactId>
-              <version>${nxrm-version}</version>
-              <packaging>pom</packaging>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <!--
       Allow use of 'versionAsInProject' in Pax-Exam configuration
       -->
       <plugin>
         <groupId>org.apache.servicemix.tooling</groupId>
         <artifactId>depends-maven-plugin</artifactId>
-        <version>1.3</version>
+      </plugin>
+
+      <!--
+      Pre-fetch all the bundles listed in pax-exam-features
+      -->
+      <plugin>
+        <groupId>org.apache.karaf.tooling</groupId>
+        <artifactId>karaf-maven-plugin</artifactId>
         <executions>
           <execution>
-            <id>generate-depends-file</id>
+            <id>fetch-pax-exam-features</id>
+            <phase>generate-resources</phase>
             <goals>
-              <goal>generate-depends-file</goal>
+              <goal>features-add-to-repository</goal>
             </goals>
+            <configuration>
+              <descriptors>
+                <descriptor>file:${project.artifactMap(org.ops4j.pax.exam:pax-exam-features).file}</descriptor>
+              </descriptors>
+            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -125,9 +182,10 @@
             </goals>
             <configuration>
               <target>
-                <unzip src="${org.sonatype.nexus.testsuite:nexus-it-suite-data:jar}" dest="${project.build.directory}/it-resources">
+                <unzip src="${org.sonatype.nexus.testsuite:nexus-it-suite-data:jar}"
+                    dest="${project.build.directory}/it-resources">
                   <patternset>
-                    <exclude name="META-INF/**" />
+                    <exclude name="META-INF/**"/>
                   </patternset>
                 </unzip>
               </target>
@@ -135,6 +193,7 @@
           </execution>
         </executions>
       </plugin>
+
       <plugin>
         <artifactId>maven-failsafe-plugin</artifactId>
         <executions>

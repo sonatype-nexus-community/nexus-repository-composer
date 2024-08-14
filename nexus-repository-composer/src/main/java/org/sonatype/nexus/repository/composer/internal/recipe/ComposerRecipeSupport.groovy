@@ -12,6 +12,7 @@
  */
 package org.sonatype.nexus.repository.composer.internal.recipe
 
+import groovy.transform.CompileStatic
 import org.sonatype.nexus.repository.composer.AssetKind
 import org.sonatype.nexus.repository.composer.ComposerContentFacet
 import org.sonatype.nexus.repository.composer.internal.ComposerMaintenanceFacet
@@ -47,6 +48,7 @@ import static org.sonatype.nexus.repository.http.HttpMethods.PUT
 /**
  * Abstract superclass containing methods and constants common to most Composer repository recipes.
  */
+@CompileStatic
 abstract class ComposerRecipeSupport
     extends RecipeSupport
 {
