@@ -33,6 +33,7 @@ import org.sonatype.nexus.repository.view.ConfigurableViewFacet
 import org.sonatype.nexus.repository.view.Router
 import org.sonatype.nexus.repository.view.ViewFacet
 
+import static org.sonatype.nexus.repository.composer.AssetKind.LIST
 import static org.sonatype.nexus.repository.composer.AssetKind.PACKAGE
 import static org.sonatype.nexus.repository.composer.AssetKind.PACKAGES
 import static org.sonatype.nexus.repository.composer.AssetKind.PROVIDER
@@ -85,6 +86,18 @@ class ComposerHostedRecipe
     builder.route(packagesMatcher()
         .handler(timingHandler)
         .handler(assetKindHandler.rcurry(PACKAGES))
+        .handler(securityHandler)
+        .handler(exceptionHandler)
+        .handler(handlerContributor)
+        .handler(conditionalRequestHandler)
+        .handler(partialFetchHandler)
+        .handler(contentHeadersHandler)
+        .handler(downloadHandler)
+        .create())
+
+    builder.route(listMatcher()
+        .handler(timingHandler)
+        .handler(assetKindHandler.rcurry(LIST))
         .handler(securityHandler)
         .handler(exceptionHandler)
         .handler(handlerContributor)

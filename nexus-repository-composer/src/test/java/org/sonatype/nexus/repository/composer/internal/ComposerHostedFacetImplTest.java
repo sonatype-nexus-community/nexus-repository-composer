@@ -23,6 +23,7 @@ import org.sonatype.nexus.repository.composer.ComposerContentFacet;
 import org.sonatype.nexus.repository.content.fluent.FluentComponent;
 import org.sonatype.nexus.repository.content.fluent.FluentComponents;
 import org.sonatype.nexus.repository.content.fluent.FluentQuery;
+import org.sonatype.nexus.repository.content.fluent.internal.FluentComponentQueryImpl;
 import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Payload;
 
@@ -97,6 +98,29 @@ public class ComposerHostedFacetImplTest
   public void testGetPackagesJson() throws Exception {
     when(composerJsonProcessor.generatePackagesFromComponents(repository, components)).thenReturn(content);
     assertThat(underTest.getPackagesJson(), is(content));
+  }
+
+  @Test
+  public void testGetListJson() throws Exception {
+    // Without filter
+    when(composerJsonProcessor.generateListFromComponents(components)).thenReturn(content);
+    assertThat(underTest.getListJson(null), is(content));
+
+    // With filter
+    FluentQuery<FluentComponent> query = mock(FluentComponentQueryImpl.class);
+    when(components.byFilter("namespace LIKE #{filterParams.vendor} AND name LIKE #{filterParams.project}",
+        ImmutableMap.of("vendor", "test", "project", "%"))).thenReturn(query);
+    when(composerJsonProcessor.generateListFromComponents(query)).thenReturn(content);
+    assertThat(underTest.getListJson("test/*"), is(content));
+
+    when(components.byFilter("namespace LIKE #{filterParams.vendor} AND name LIKE #{filterParams.project}",
+        ImmutableMap.of("vendor", "%abc%", "project", "pr0_j3cT"))).thenReturn(query);
+    when(composerJsonProcessor.generateListFromComponents(query)).thenReturn(content);
+    assertThat(underTest.getListJson("*abc**/pr0_j3cT"), is(content));
+
+    // Invalid filter
+    when(composerJsonProcessor.generateListFromComponents(null)).thenReturn(content);
+    assertThat(underTest.getListJson("In\\al1d"), is(content));
   }
 
   @Test

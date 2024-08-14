@@ -12,6 +12,7 @@
  */
 package org.sonatype.nexus.repository.composer.internal;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.hash.Hashing;
@@ -31,6 +32,7 @@ import org.sonatype.nexus.repository.view.ContentTypes;
 import org.sonatype.nexus.repository.view.Payload;
 import org.sonatype.nexus.repository.view.payloads.StringPayload;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -192,6 +194,27 @@ public class ComposerJsonProcessor
     packagesJson.put(METADATA_URL_KEY, repository.getUrl() + PACKAGE_V2_JSON_PATH);
     packagesJson.put(PROVIDERS_KEY, names.stream()
         .collect(Collectors.toMap((each) -> each, (each) -> singletonMap(SHA256_KEY, null))));
+    return new Content(new StringPayload(mapper.writeValueAsString(packagesJson), ContentTypes.APPLICATION_JSON));
+  }
+
+  /**
+   * Generates a list.json file based on the components provided.
+   *
+   * @param components Components to process
+   * @return JSON list with package names
+   */
+  public Content generateListFromComponents(@Nullable final FluentQuery<FluentComponent> components) throws IOException {
+    Set<String> packages = new HashSet<>();
+    if (components != null) {
+      Continuation<FluentComponent> comps = components.browse(PAGE_SIZE, null);
+      while (!comps.isEmpty()) {
+        comps.stream().map(comp -> comp.namespace() + "/" + comp.name()).forEach(packages::add);
+        comps = components.browse(PAGE_SIZE, comps.nextContinuationToken());
+      }
+    }
+
+    Map<String, Object> packagesJson = singletonMap(PACKAGE_NAMES_KEY, packages.stream().sorted().collect(Collectors.toList()));
+
     return new Content(new StringPayload(mapper.writeValueAsString(packagesJson), ContentTypes.APPLICATION_JSON));
   }
 

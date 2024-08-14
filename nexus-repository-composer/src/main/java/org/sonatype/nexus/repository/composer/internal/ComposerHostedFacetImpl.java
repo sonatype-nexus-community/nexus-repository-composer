@@ -27,6 +27,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.IOException;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -38,6 +40,8 @@ public class ComposerHostedFacetImpl
     extends FacetSupport
     implements ComposerHostedFacet
 {
+  private static final Pattern FILTER_PATTERN = Pattern.compile("\\s*(?<vendor>[*a-zA-Z0-9_.-]+)/(?<project>[*a-zA-Z0-9_.-]+)\\s*");
+
   private final ComposerJsonProcessor composerJsonProcessor;
 
   @Inject
@@ -67,6 +71,18 @@ public class ComposerHostedFacetImpl
   @Override
   public Content getPackagesJson() throws IOException {
     return composerJsonProcessor.generatePackagesFromComponents(getRepository(), content().components());
+  }
+
+  @Override
+  public Content getListJson(String filter) throws IOException {
+    FluentQuery<FluentComponent> components;
+    if (filter == null || filter.isEmpty()) {
+      components = content().components();
+    } else {
+      components = queryComponents(filter);
+    }
+
+    return composerJsonProcessor.generateListFromComponents(components);
   }
 
   @Override
@@ -123,6 +139,24 @@ public class ComposerHostedFacetImpl
             "namespace = #{filterParams.vendor} AND name = #{filterParams.project}",
             ImmutableMap.of("vendor", vendor, "project", project)
         );
+  }
+
+  private FluentQuery<FluentComponent> queryComponents(final String filter) {
+    Matcher m = FILTER_PATTERN.matcher(filter);
+    if (m.matches()) {
+      String vendor = m.group("vendor").replaceAll("\\*+", "%");
+      String project = m.group("project").replaceAll("\\*+", "%");
+
+      return content()
+          .components()
+          .byFilter(
+              "namespace LIKE #{filterParams.vendor} AND name LIKE #{filterParams.project}",
+              ImmutableMap.of("vendor", vendor, "project", project)
+          );
+    } else {
+      // invalid filter pattern
+      return null;
+    }
   }
 
   private ComposerContentFacet content() {

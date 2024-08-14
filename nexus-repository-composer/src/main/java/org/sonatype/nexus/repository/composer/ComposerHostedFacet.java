@@ -33,6 +33,8 @@ public interface ComposerHostedFacet
 
   Content getPackagesJson() throws IOException;
 
+  Content getListJson(String filter) throws IOException;
+
   Content getProviderJson(String vendor, String project) throws IOException;
 
   Content getPackageJson(String vendor, String project) throws IOException;

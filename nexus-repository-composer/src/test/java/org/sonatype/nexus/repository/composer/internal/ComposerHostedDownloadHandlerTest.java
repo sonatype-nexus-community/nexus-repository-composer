@@ -19,10 +19,7 @@ import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.composer.AssetKind;
 import org.sonatype.nexus.repository.composer.ComposerHostedFacet;
-import org.sonatype.nexus.repository.view.Content;
-import org.sonatype.nexus.repository.view.Context;
-import org.sonatype.nexus.repository.view.Payload;
-import org.sonatype.nexus.repository.view.Response;
+import org.sonatype.nexus.repository.view.*;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 
 import org.junit.Before;
@@ -32,8 +29,6 @@ import org.mockito.Mock;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
 import static org.sonatype.nexus.repository.composer.AssetKind.*;
 import static org.sonatype.nexus.repository.composer.internal.recipe.ComposerRecipeSupport.NAME_TOKEN;
@@ -73,7 +68,10 @@ public class ComposerHostedDownloadHandlerTest
   private Content content;
 
   @Mock
-  private Payload payload;
+  private Request request;
+
+  @Mock
+  private Parameters parameters;
 
   @Mock
   private AttributesMap attributes;
@@ -85,6 +83,8 @@ public class ComposerHostedDownloadHandlerTest
     when(repository.facet(ComposerHostedFacet.class)).thenReturn(composerHostedFacet);
     when(context.getRepository()).thenReturn(repository);
     when(context.getAttributes()).thenReturn(attributes);
+    when(context.getRequest()).thenReturn(request);
+    when(request.getParameters()).thenReturn(parameters);
     when(attributes.require(TokenMatcher.State.class)).thenReturn(state);
     when(state.getTokens()).thenReturn(tokens);
   }
@@ -142,11 +142,24 @@ public class ComposerHostedDownloadHandlerTest
     assertThat(response.getPayload(), is(nullValue()));
   }
 
+
   @Test
-  public void testHandleList() {
+  public void testHandleList() throws Exception {
     when(attributes.require(AssetKind.class)).thenReturn(LIST);
-    IllegalStateException e = assertThrows(IllegalStateException.class, () -> underTest.handle(context));
-    assertEquals("Unsupported assetKind: " + LIST, e.getMessage());
+
+    // No filter
+    when(parameters.get("filter")).thenReturn(null);
+    when(composerHostedFacet.getListJson(null)).thenReturn(content);
+    Response response = underTest.handle(context);
+    assertThat(response.getStatus().getCode(), is(200));
+    assertThat(response.getPayload(), is(content));
+
+    // With filter
+    when(parameters.get("filter")).thenReturn("test/*");
+    when(composerHostedFacet.getListJson("test/*")).thenReturn(content);
+    response = underTest.handle(context);
+    assertThat(response.getStatus().getCode(), is(200));
+    assertThat(response.getPayload(), is(content));
   }
 
   @Test
