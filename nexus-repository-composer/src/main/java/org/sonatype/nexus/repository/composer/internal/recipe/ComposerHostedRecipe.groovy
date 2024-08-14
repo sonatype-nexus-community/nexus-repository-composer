@@ -13,9 +13,9 @@
 package org.sonatype.nexus.repository.composer.internal.recipe
 
 import org.sonatype.nexus.repository.composer.ComposerFormat
-import org.sonatype.nexus.repository.composer.internal.ComposerHostedDownloadHandler
+import org.sonatype.nexus.repository.composer.internal.hosted.ComposerHostedDownloadHandler
 import org.sonatype.nexus.repository.composer.ComposerHostedFacet
-import org.sonatype.nexus.repository.composer.internal.ComposerHostedUploadHandler
+import org.sonatype.nexus.repository.composer.internal.hosted.ComposerHostedUploadHandler
 import org.sonatype.nexus.repository.view.handlers.LastDownloadedHandler
 
 import javax.annotation.Nonnull

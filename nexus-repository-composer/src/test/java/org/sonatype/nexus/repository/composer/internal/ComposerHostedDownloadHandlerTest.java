@@ -19,6 +19,7 @@ import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.composer.AssetKind;
 import org.sonatype.nexus.repository.composer.ComposerHostedFacet;
+import org.sonatype.nexus.repository.composer.internal.hosted.ComposerHostedDownloadHandler;
 import org.sonatype.nexus.repository.view.*;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 

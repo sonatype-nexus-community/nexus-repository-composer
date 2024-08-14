@@ -1,5 +1,6 @@
-package org.sonatype.nexus.repository.composer.internal;
+package org.sonatype.nexus.repository.composer.internal.proxy;
 
+import org.sonatype.nexus.repository.composer.internal.ComposerJsonProcessor;
 import org.sonatype.nexus.repository.http.HttpResponses;
 import org.sonatype.nexus.repository.http.HttpStatus;
 import org.sonatype.nexus.repository.view.Context;

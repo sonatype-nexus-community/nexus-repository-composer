@@ -15,6 +15,7 @@ package org.sonatype.nexus.repository.composer.internal;
 import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.repository.Repository;
+import org.sonatype.nexus.repository.composer.internal.proxy.ComposerProviderHandler;
 import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.Payload;
 import org.sonatype.nexus.repository.view.Request;
@@ -31,7 +32,7 @@ import static org.hamcrest.Matchers.not;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonatype.nexus.repository.composer.internal.ComposerProviderHandler.DO_NOT_REWRITE;
+import static org.sonatype.nexus.repository.composer.internal.proxy.ComposerProviderHandler.DO_NOT_REWRITE;
 import static org.sonatype.nexus.repository.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.sonatype.nexus.repository.http.HttpStatus.OK;
 

@@ -14,9 +14,9 @@ package org.sonatype.nexus.repository.composer.internal.recipe
 
 import org.sonatype.nexus.repository.composer.AssetKind
 import org.sonatype.nexus.repository.composer.ComposerFormat
-import org.sonatype.nexus.repository.composer.internal.ComposerGroupPackageJsonHandler
-import org.sonatype.nexus.repository.composer.internal.ComposerGroupPackagesJsonHandler
-import org.sonatype.nexus.repository.composer.internal.ComposerGroupProviderJsonHandler
+import org.sonatype.nexus.repository.composer.internal.group.ComposerGroupPackageJsonHandler
+import org.sonatype.nexus.repository.composer.internal.group.ComposerGroupPackagesJsonHandler
+import org.sonatype.nexus.repository.composer.internal.group.ComposerGroupProviderJsonHandler
 
 import javax.annotation.Nonnull
 import javax.inject.Inject

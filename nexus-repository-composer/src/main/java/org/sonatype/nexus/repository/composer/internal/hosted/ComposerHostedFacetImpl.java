@@ -10,13 +10,15 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-package org.sonatype.nexus.repository.composer.internal;
+package org.sonatype.nexus.repository.composer.internal.hosted;
 
 import com.google.common.collect.ImmutableMap;
 import org.sonatype.nexus.repository.FacetSupport;
 import org.sonatype.nexus.repository.composer.AssetKind;
 import org.sonatype.nexus.repository.composer.ComposerContentFacet;
 import org.sonatype.nexus.repository.composer.ComposerHostedFacet;
+import org.sonatype.nexus.repository.composer.internal.ComposerJsonProcessor;
+import org.sonatype.nexus.repository.composer.internal.ComposerPathUtils;
 import org.sonatype.nexus.repository.content.fluent.FluentAsset;
 import org.sonatype.nexus.repository.content.fluent.FluentComponent;
 import org.sonatype.nexus.repository.content.fluent.FluentQuery;

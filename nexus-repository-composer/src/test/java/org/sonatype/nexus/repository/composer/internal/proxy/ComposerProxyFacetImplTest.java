@@ -10,7 +10,7 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-package org.sonatype.nexus.repository.composer.internal;
+package org.sonatype.nexus.repository.composer.internal.proxy;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
@@ -22,7 +22,7 @@ import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.cache.CacheInfo;
 import org.sonatype.nexus.repository.composer.AssetKind;
 import org.sonatype.nexus.repository.composer.ComposerContentFacet;
-import org.sonatype.nexus.repository.composer.internal.ComposerProxyFacet.NonResolvableProviderJsonException;
+import org.sonatype.nexus.repository.composer.internal.ComposerJsonProcessor;
 import org.sonatype.nexus.repository.content.fluent.FluentAsset;
 import org.sonatype.nexus.repository.view.*;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
@@ -305,7 +305,7 @@ public class ComposerProxyFacetImplTest
     assertThat(underTest.getUrl(context), is("distUrl"));
   }
 
-  @Test(expected = NonResolvableProviderJsonException.class)
+  @Test(expected = ComposerProxyFacet.NonResolvableProviderJsonException.class)
   public void getUrlZipballMissingProviderJson() throws Exception {
     when(contextAttributes.require(AssetKind.class)).thenReturn(ZIPBALL);
     when(contextAttributes.require(TokenMatcher.State.class)).thenReturn(state);

@@ -14,9 +14,9 @@ package org.sonatype.nexus.repository.composer.internal.recipe
 
 import org.sonatype.nexus.repository.composer.AssetKind
 import org.sonatype.nexus.repository.composer.ComposerFormat
-import org.sonatype.nexus.repository.composer.internal.ComposerPackageHandler
-import org.sonatype.nexus.repository.composer.internal.ComposerProviderHandler
-import org.sonatype.nexus.repository.composer.internal.ComposerProxyFacet
+import org.sonatype.nexus.repository.composer.internal.proxy.ComposerPackageHandler
+import org.sonatype.nexus.repository.composer.internal.proxy.ComposerProviderHandler
+import org.sonatype.nexus.repository.composer.internal.proxy.ComposerProxyFacet
 
 import javax.annotation.Nonnull
 import javax.inject.Inject
