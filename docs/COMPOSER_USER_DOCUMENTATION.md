@@ -2,10 +2,10 @@
 
     Sonatype Nexus (TM) Open Source Version
     Copyright (c) 2018-present Sonatype, Inc.
-    All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
+    All rights reserved. Includes the third-party code listed at https://www.sonatype.com/usage/attributions.
 
     This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
-    which accompanies this distribution and is available at http://www.eclipse.org/legal/epl-v10.html.
+    which accompanies this distribution and is available at https://www.eclipse.org/legal/epl/epl-v10.html.
 
     Sonatype Nexus (TM) Professional Version is available from Sonatype, Inc. "Sonatype" and "Sonatype Nexus" are trademarks
     of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
@@ -34,7 +34,7 @@ if anyone is interested in collaborating._
 The current spike implementation makes certain assumptions about the layout of the upstream repository and is only
 intended for use with the main Composer repository at [https://packagist.org](https://packagist.org/).
 
-To proxy a Composer repository, you simply create a new 'composer (proxy)' as documented in [Repository Management](https://help.sonatype.com/display/NXRM3/Configuration#Configuration-RepositoryManagement)
+To proxy a Composer repository, you simply create a new 'composer (proxy)' as documented in [Repository Management](https://help.sonatype.com/en/nexus-repository-administration.html#Configuration-RepositoryManagement)
 in detail. Minimal configuration steps are:
 
 - Define 'Name'
@@ -88,7 +88,7 @@ By default, Composer will only allow HTTPS URLs. To allow non-SSL URLs you will 
 ### Browsing Composer Repository Packages
 
 You can browse Composer repositories in the user interface inspecting the components and assets and their details, as
-described in [Browsing Repositories and Repository Groups](https://help.sonatype.com/display/NXRM3/Browsing+Repositories+and+Repository+Groups).
+described in [Browsing Repositories and Repository Groups](https://help.sonatype.com/en/browsing-repositories-and-repository-groups.html).
 
 ### Publishing Composer Packages
 
