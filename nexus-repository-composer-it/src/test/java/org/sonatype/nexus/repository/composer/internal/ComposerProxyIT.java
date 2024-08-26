@@ -111,7 +111,6 @@ public class ComposerProxyIT
         NexusBaseITSupport.configureNexusBase(),
 //        KarafDistributionOption.logLevel(LogLevelOption.LogLevel.DEBUG),
 //        KarafDistributionOption.debugConfiguration("5005", true),
-        nexusFeature("org.sonatype.nexus.testsuite", "nexus-repository-testsupport"),
         nexusFeature(
             maven("org.sonatype.nexus.plugins", "nexus-repository-composer")
                 .versionAsInProject().classifier("features").type("xml"),

@@ -43,6 +43,14 @@
       <version>${nxrm-version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.sonatype.nexus.testsuite</groupId>
+      <artifactId>nexus-repository-testsupport</artifactId>
+      <version>${nxrm-version}</version>
+      <classifier>features</classifier>
+      <type>xml</type>
+      <scope>test</scope>
+    </dependency>
 
     <dependency>
       <groupId>org.sonatype.nexus</groupId>
@@ -190,18 +198,6 @@
                 </unzip>
               </target>
             </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <artifactId>maven-failsafe-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>integration-test</goal>
-              <goal>verify</goal>
-            </goals>
           </execution>
         </executions>
       </plugin>
