@@ -1,0 +1,57 @@
+{
+  "minified": "composer/2.0",
+  "packages": {
+    "vendor1/project1": [
+      {
+        "name": "vendor1/project1",
+        "description": "Description 2",
+        "keywords": [],
+        "homepage": "",
+        "version": "v1.2.3",
+        "version_normalized": "1.2.3.0",
+        "license": [
+          "MIT"
+        ],
+        "authors": [
+          {
+            "name": "Author 1",
+            "homepage": "https://example.com/author1"
+          }
+        ],
+        "dist": {
+          "type": "zip",
+          "url": "http://nexus.repo/base/repo/vendor1/project1/v1.2.3/vendor1-project1-v1.2.3.zip",
+          "reference": "f1d2d2f924e986ac86fdf7b36c94bcdf32beec15",
+          "shasum": ""
+        },
+        "time": "2024-09-03T15:30:00+00:00",
+        "uid": 2
+      },
+      {
+        "name": "vendor1/project1",
+        "description": "Description 1",
+        "keywords": [],
+        "homepage": "",
+        "version": "v1.0.0",
+        "version_normalized": "1.0.0.0",
+        "license": [
+          "MIT"
+        ],
+        "authors": [
+          {
+            "name": "Author 1",
+            "homepage": "https://example.com/author1"
+          }
+        ],
+        "dist": {
+          "type": "zip",
+          "url": "http://nexus.repo/base/repo/vendor1/project1/v1.0.0/vendor1-project1-v1.0.0.zip",
+          "reference": "48954c0fa210437795be418e708b379598333d0a",
+          "shasum": ""
+        },
+        "time": "2018-01-09T15:53:01+00:00",
+        "uid": 1
+      }
+    ]
+  }
+}

@@ -370,6 +370,20 @@ public class ComposerJsonProcessorTest
   }
 
   @Test
+  public void rewritePackageJson() throws Exception {
+    String inputJson = readStreamToString(getClass().getResourceAsStream("rewritePackageJson.input.json"));
+    String outputJson = readStreamToString(getClass().getResourceAsStream("rewritePackageJson.output.json"));
+
+    when(repository.getUrl()).thenReturn("http://nexus.repo/base/repo");
+    when(payload1.openInputStream()).thenReturn(new ByteArrayInputStream(inputJson.getBytes(UTF_8)));
+
+    ComposerJsonProcessor underTest = new ComposerJsonProcessor(composerJsonExtractor, composerJsonMinifier);
+    Payload output = underTest.rewritePackageJson(repository, payload1);
+
+    assertEquals(outputJson, readStreamToString(output.openInputStream()), true);
+  }
+
+  @Test
   public void mergePackagesJson() throws Exception {
     String inputJson1 = readStreamToString(getClass().getResourceAsStream("mergePackagesJson.input1.json"));
     String inputJson2 = readStreamToString(getClass().getResourceAsStream("mergePackagesJson.input2.json"));
