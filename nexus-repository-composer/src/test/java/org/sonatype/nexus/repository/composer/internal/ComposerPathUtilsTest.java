@@ -22,13 +22,13 @@ import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.NAME_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.PROJECT_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VENDOR_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VERSION_TOKEN;
+import static org.sonatype.nexus.repository.composer.internal.recipe.ComposerRecipeSupport.NAME_TOKEN;
+import static org.sonatype.nexus.repository.composer.internal.recipe.ComposerRecipeSupport.PROJECT_TOKEN;
+import static org.sonatype.nexus.repository.composer.internal.recipe.ComposerRecipeSupport.VENDOR_TOKEN;
+import static org.sonatype.nexus.repository.composer.internal.recipe.ComposerRecipeSupport.VERSION_TOKEN;
 
 public class ComposerPathUtilsTest
     extends TestSupport
@@ -56,7 +56,7 @@ public class ComposerPathUtilsTest
     when(tokens.get(VERSION_TOKEN)).thenReturn("1.2.3");
     when(tokens.get(NAME_TOKEN)).thenReturn("name");
 
-    assertThat(ComposerPathUtils.buildZipballPath(context), is("testvendor/testproject/1.2.3/name.zip"));
+    assertThat(ComposerPathUtils.buildZipballPath(context), is("/testvendor/testproject/1.2.3/name.zip"));
   }
 
   @Test
@@ -70,7 +70,7 @@ public class ComposerPathUtilsTest
     when(tokens.get(VERSION_TOKEN)).thenReturn("1.2.3");
 
     assertThat(ComposerPathUtils.buildZipballPath(context),
-        is("testvendor/testproject/1.2.3/testvendor-testproject-1.2.3.zip"));
+        is("/testvendor/testproject/1.2.3/testvendor-testproject-1.2.3.zip"));
   }
 
   @Test
@@ -80,7 +80,7 @@ public class ComposerPathUtilsTest
     when(state.getTokens()).thenReturn(tokens);
 
     assertThat(ComposerPathUtils.buildZipballPath("testvendor", "testproject", "1.2.3"),
-        is("testvendor/testproject/1.2.3/testvendor-testproject-1.2.3.zip"));
+        is("/testvendor/testproject/1.2.3/testvendor-testproject-1.2.3.zip"));
   }
 
   @Test
@@ -92,11 +92,11 @@ public class ComposerPathUtilsTest
     when(tokens.get(VENDOR_TOKEN)).thenReturn("testvendor");
     when(tokens.get(PROJECT_TOKEN)).thenReturn("testproject");
 
-    assertThat(ComposerPathUtils.buildProviderPath(context), is("p/testvendor/testproject.json"));
+    assertThat(ComposerPathUtils.buildProviderPath(context), is("/p/testvendor/testproject.json"));
   }
 
   @Test
   public void buildProviderPathFromValues() {
-    assertThat(ComposerPathUtils.buildProviderPath("testvendor", "testproject"), is("p/testvendor/testproject.json"));
+    assertThat(ComposerPathUtils.buildProviderPath("testvendor", "testproject"), is("/p/testvendor/testproject.json"));
   }
 }

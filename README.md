@@ -2,10 +2,10 @@
 
     Sonatype Nexus (TM) Open Source Version
     Copyright (c) 2018-present Sonatype, Inc.
-    All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
+    All rights reserved. Includes the third-party code listed at https://www.sonatype.com/usage/attributions.
 
     This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
-    which accompanies this distribution and is available at http://www.eclipse.org/legal/epl-v10.html.
+    which accompanies this distribution and is available at https://www.eclipse.org/legal/epl/epl-v10.html.
 
     Sonatype Nexus (TM) Professional Version is available from Sonatype, Inc. "Sonatype" and "Sonatype Nexus" are trademarks
     of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
@@ -38,7 +38,7 @@
 ### Requirements
 
 * [Apache Maven 3.3.3+](https://maven.apache.org/install.html)
-* [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+* [Java 17](https://adoptium.net/de/temurin/releases/?version=17) (recommended, also compatible with [Java 11](https://adoptium.net/de/temurin/releases/?version=11) and [Java 8](https://adoptium.net/de/temurin/releases/?version=8))
 * Network access to https://repository.sonatype.org/content/groups/sonatype-public-grid
 
 Also, there is a good amount of information available at [Bundle Development](https://help.sonatype.com/display/NXRM3/Bundle+Development)
@@ -78,6 +78,10 @@ The application will now be available from your browser at http://localhost:8081
 
 [We have detailed instructions on how to get started here!](docs/COMPOSER_USER_DOCUMENTATION.md)
 
+> **_Nexus Repository Composer_ 0.1+ is only compatible with _Nexus Repository Manager_ 3.71 or later**
+>
+> Use 0.0.x for older NXRM installations.
+
 ## Installing the plugin
 
 There are a range of options for installing the Composer plugin. You'll need to build it first, and
@@ -108,14 +112,14 @@ good installation path if you are just testing or doing development on the plugi
 
 * Enable the NXRM console: edit `<nexus_dir>/bin/nexus.vmoptions` and change `karaf.startLocalConsole`  to `true`.
 
-  More details here: [Bundle Development](https://help.sonatype.com/display/NXRM3/Bundle+Development+Overview)
+  More details here: [Bundle Development](https://help.sonatype.com/en/bundle-development.html)
 
 * Run NXRM's console:
   ```
   # sudo su - nexus
   $ cd <nexus_dir>/bin
   $ ./nexus run
-  > bundle:install file:///tmp/nexus-repository-composer-0.0.8.jar
+  > bundle:install file:///tmp/nexus-repository-composer-0.1.0.jar
   > bundle:list
   ```
   (look for org.sonatype.nexus.plugins:nexus-repository-composer ID, should be the last one)
@@ -127,7 +131,7 @@ good installation path if you are just testing or doing development on the plugi
 
 For more permanent installs of the nexus-repository-composer plugin, follow these instructions:
 
-* Copy the bundle (nexus-repository-composer-0.0.8.jar) into <nexus_dir>/deploy
+* Copy the bundle (nexus-repository-composer-0.1.0.jar) into <nexus_dir>/deploy
 
 This will cause the plugin to be loaded with each restart of Nexus Repository. As well, this folder is monitored
 by Nexus Repository and the plugin should load within 60 seconds of being copied there if Nexus Repository
@@ -137,7 +141,7 @@ is running. You will still need to start the bundle using the karaf commands men
 
 If you are trying to use the Composer plugin permanently, it likely makes more sense to do the following:
 
-* Copy the bundle into `<nexus_dir>/system/org/sonatype/nexus/plugins/nexus-repository-composer/0.0.8/nexus-repository-composer-0.0.8.jar`
+* Copy the bundle into `<nexus_dir>/system/org/sonatype/nexus/plugins/nexus-repository-composer/0.1.0/nexus-repository-composer-0.1.0.jar`
 * Make the following additions marked with + to `<nexus_dir>/system/org/sonatype/nexus/assemblies/nexus-core-feature/3.x.y/nexus-core-feature-3.x.y-features.xml`
 
    ```
@@ -148,9 +152,9 @@ If you are trying to use the Composer plugin permanently, it likely makes more s
 
    And    
    ```
-   + <feature name="nexus-repository-composer" description="org.sonatype.nexus.plugins:nexus-repository-composer" version="0.0.8">
+   + <feature name="nexus-repository-composer" description="org.sonatype.nexus.plugins:nexus-repository-composer" version="0.1.0">
    +     <details>org.sonatype.nexus.plugins:nexus-repository-composer</details>
-   +     <bundle>mvn:org.sonatype.nexus.plugins/nexus-repository-composer/0.0.8</bundle>
+   +     <bundle>mvn:org.sonatype.nexus.plugins/nexus-repository-composer/0.1.0</bundle>
    + </feature>
     </features>
    ```
@@ -178,8 +182,8 @@ Have fun creating and using this plugin and the Nexus platform, we are glad to h
 Looking to contribute to our code but need some help? There's a few ways to get information:
 
 * Chat with us on [Gitter](https://gitter.im/sonatype/nexus-developers)
-* Check out the [Nexus3](http://stackoverflow.com/questions/tagged/nexus3) tag on Stack Overflow
-* Check out the [Nexus Repository User List](https://groups.google.com/a/glists.sonatype.com/forum/?hl=en#!forum/nexus-users)
+* Check out the [Nexus3](https://stackoverflow.com/questions/tagged/nexus3) tag on Stack Overflow
+* Check out the [Nexus Repository User List](https://groups.google.com/a/glists.sonatype.com/g/nexus-users)
 
 ## Composer Plugin
 The composer plugin `elendev/nexus-composer-push` (https://github.com/Elendev/nexus-composer-push) provide a composer command to push to a Nexus Repository using this plugin.

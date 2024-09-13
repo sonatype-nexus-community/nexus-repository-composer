@@ -18,14 +18,14 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.sonatype.nexus.cleanup.config.CleanupPolicyConfiguration;
-import org.sonatype.nexus.repository.composer.internal.ComposerFormat;
+import org.sonatype.nexus.repository.composer.ComposerFormat;
 
 import com.google.common.collect.ImmutableMap;
 
-import static org.sonatype.nexus.repository.search.DefaultComponentMetadataProducer.IS_PRERELEASE_KEY;
-import static org.sonatype.nexus.repository.search.DefaultComponentMetadataProducer.LAST_BLOB_UPDATED_KEY;
-import static org.sonatype.nexus.repository.search.DefaultComponentMetadataProducer.LAST_DOWNLOADED_KEY;
-import static org.sonatype.nexus.repository.search.DefaultComponentMetadataProducer.REGEX_KEY;
+import static org.sonatype.nexus.cleanup.config.CleanupPolicyConstants.REGEX_KEY;
+import static org.sonatype.nexus.repository.search.index.SearchConstants.IS_PRERELEASE_KEY;
+import static org.sonatype.nexus.repository.search.index.SearchConstants.LAST_BLOB_UPDATED_KEY;
+import static org.sonatype.nexus.repository.search.index.SearchConstants.LAST_DOWNLOADED_KEY;
 
 /**
  * @since 3.next

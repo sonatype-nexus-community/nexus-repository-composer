@@ -15,11 +15,11 @@
   <parent>
     <groupId>org.sonatype.nexus.plugins</groupId>
     <artifactId>nexus-plugins</artifactId>
-    <version>3.39.0-01</version>
+    <version>3.71.0-06</version>
   </parent>
 
   <artifactId>composer-parent</artifactId>
-  <version>0.0.30-SNAPSHOT</version>
+  <version>0.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>${project.groupId}:${project.artifactId}-parent</name>
@@ -42,7 +42,7 @@
   </distributionManagement>
 
   <properties>
-    <nxrm-version>3.39.0-01</nxrm-version>
+    <nxrm-version>3.71.0-06</nxrm-version>
   </properties>
 
   <repositories>
@@ -68,31 +68,35 @@
 
       <plugin>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>1.4.1</version>
+        <version>3.4.1</version>
         <executions>
           <execution>
             <id>enforce-java</id>
             <goals>
               <goal>enforce</goal>
             </goals>
-            <configuration>
-              <rules>
-                <!--
-                Ensure use of Java 8, as required by NXRM
-                -->
-                <requireJavaVersion>
-                  <version>[1.8,1.9)</version>
-                </requireJavaVersion>
-                <!--
-                Require Maven 3.3.3+
-                -->
-                <requireMavenVersion>
-                  <version>[3.3.3,)</version>
-                </requireMavenVersion>
-              </rules>
-            </configuration>
           </execution>
         </executions>
+        <configuration>
+          <rules>
+            <!--
+            Ensure use of Java 8, as required by NXRM
+            -->
+            <requireJavaVersion>
+              <version>[1.8,18)</version>
+            </requireJavaVersion>
+            <!--
+            Require Maven 3.3.3+
+            -->
+            <requireMavenVersion>
+              <version>[3.3.3,)</version>
+            </requireMavenVersion>
+
+            <requireNoRepositories>
+              <allowedRepositories>rso-public-grid</allowedRepositories>
+            </requireNoRepositories>
+          </rules>
+        </configuration>
       </plugin>
 
       <plugin>
@@ -122,7 +126,7 @@
         <plugins>
           <plugin>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.6</version>
+            <version>3.2.3</version>
             <executions>
               <execution>
                 <id>sign-artifacts</id>

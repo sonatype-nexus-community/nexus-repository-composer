@@ -20,7 +20,7 @@
           }
         ],
         "dist": {
-          "url": "/repository/composer-test-proxy/rjkip/ftp-php/dev-master/rjkip-ftp-php-dev-master.zip",
+          "url": "/rjkip/ftp-php/dev-master/rjkip-ftp-php-dev-master.zip",
           "type": "zip",
           "reference": "69869b3fe417172f3481e6245494843c31037366",
           "shasum": ""
@@ -56,7 +56,7 @@
           }
         ],
         "dist": {
-          "url": "/repository/composer-test-proxy/rjkip/ftp-php/v1.0.0/rjkip-ftp-php-v1.0.0.zip",
+          "url": "/rjkip/ftp-php/v1.0.0/rjkip-ftp-php-v1.0.0.zip",
           "type": "zip",
           "reference": "f71bb2a8646f210f439ca96488ea37f74866e5d1",
           "shasum": ""
@@ -92,7 +92,7 @@
           }
         ],
         "dist": {
-          "url": "/repository/composer-test-proxy/rjkip/ftp-php/v1.0.1/rjkip-ftp-php-v1.0.1.zip",
+          "url": "/rjkip/ftp-php/v1.0.1/rjkip-ftp-php-v1.0.1.zip",
           "type": "zip",
           "reference": "8767a90886226bbfd9d12c61b0cf51ab171d814d",
           "shasum": ""
@@ -128,7 +128,7 @@
           }
         ],
         "dist": {
-          "url": "/repository/composer-test-proxy/rjkip/ftp-php/v1.1.0/rjkip-ftp-php-v1.1.0.zip",
+          "url": "/rjkip/ftp-php/v1.1.0/rjkip-ftp-php-v1.1.0.zip",
           "type": "zip",
           "reference": "69869b3fe417172f3481e6245494843c31037366",
           "shasum": ""

@@ -14,29 +14,31 @@ package org.sonatype.nexus.repository.composer.internal;
 
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+import org.sonatype.nexus.repository.browse.node.BrowsePath;
 import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 
 import org.eclipse.sisu.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.NAME_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.PROJECT_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VENDOR_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.ComposerRecipeSupport.VERSION_TOKEN;
+import static org.sonatype.nexus.repository.composer.internal.recipe.ComposerRecipeSupport.NAME_TOKEN;
+import static org.sonatype.nexus.repository.composer.internal.recipe.ComposerRecipeSupport.PROJECT_TOKEN;
+import static org.sonatype.nexus.repository.composer.internal.recipe.ComposerRecipeSupport.VENDOR_TOKEN;
+import static org.sonatype.nexus.repository.composer.internal.recipe.ComposerRecipeSupport.VERSION_TOKEN;
 
 /**
  * Utility class containing methods for working with Composer routes and paths.
  */
 public final class ComposerPathUtils
 {
-  private static final String ZIPBALL_PATH = "%s/%s/%s/%s.zip";
+  private static final String ZIPBALL_PATH = "/%s/%s/%s/%s.zip";
 
-  private static final String PROVIDER_JSON_PATH = "p/%s/%s.json";
+  private static final String PROVIDER_JSON_PATH = "/p/%s/%s.json";
 
-  private static final String PACKAGE_JSON_PATH = "p2/%s/%s.json";
+  private static final String PACKAGE_JSON_PATH = "/p2/%s/%s.json";
 
-  private static final String PACKAGE_JSON_PATH_DEV_VERSIONS = "p2/%s/%s~dev.json";
+  private static final String PACKAGE_JSON_PATH_DEV_VERSIONS = "/p2/%s/%s~dev.json";
 
   private static final String NAME_PATTERN = "%s-%s-%s";
 
@@ -142,6 +144,16 @@ public final class ComposerPathUtils
     checkNotNull(vendor);
     checkNotNull(project);
     return String.format(PACKAGE_JSON_PATH_DEV_VERSIONS, vendor, project);
+  }
+
+  /**
+   * Returns path with appended string on the beginning
+   *
+   * @param path - Any path e.g. 'some/path/example'
+   * @return - e.g. '/some/path/example'
+   */
+  public static String normalizeAssetPath(String path) {
+    return StringUtils.prependIfMissing(path, BrowsePath.SLASH);
   }
 
   private ComposerPathUtils() {

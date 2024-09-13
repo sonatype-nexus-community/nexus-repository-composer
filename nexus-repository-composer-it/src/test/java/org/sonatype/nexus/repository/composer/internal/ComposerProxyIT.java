@@ -12,32 +12,38 @@
  */
 package org.sonatype.nexus.repository.composer.internal;
 
-import org.sonatype.goodies.httpfixture.server.fluent.Behaviours;
-import org.sonatype.goodies.httpfixture.server.fluent.Server;
-import org.sonatype.nexus.pax.exam.NexusPaxExamSupport;
-import org.sonatype.nexus.repository.Repository;
-import org.sonatype.nexus.repository.http.HttpStatus;
-import org.sonatype.nexus.repository.storage.Asset;
-import org.sonatype.nexus.testsuite.testsupport.NexusITSupport;
-
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
+import org.sonatype.goodies.httpfixture.server.fluent.Behaviours;
+import org.sonatype.goodies.httpfixture.server.fluent.Server;
+import org.sonatype.nexus.pax.exam.NexusPaxExamSupport;
+import org.sonatype.nexus.repository.Repository;
+import org.sonatype.nexus.repository.content.Component;
+import org.sonatype.nexus.repository.content.fluent.FluentAsset;
+import org.sonatype.nexus.repository.http.HttpStatus;
+import org.sonatype.nexus.repository.view.Content;
+import org.sonatype.nexus.testsuite.testsupport.NexusBaseITSupport;
+
+import java.nio.charset.Charset;
+import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
+import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.sonatype.nexus.testsuite.testsupport.FormatClientSupport.status;
 
+/**
+ * Integration test for Composer proxy repositories.
+ */
 public class ComposerProxyIT
     extends ComposerITSupport
 {
@@ -75,7 +81,7 @@ public class ComposerProxyIT
 
   private static final String LIST_BASE_PATH = "packages/";
 
-  private static final String BAD_PATH = "/this/path/is/not/valid";
+  private static final String BAD_PATH = "this/path/is/not/valid";
 
   private static final String VALID_PROVIDER_URL = PACKAGE_BASE_PATH + FILE_PROVIDER;
 
@@ -91,6 +97,8 @@ public class ComposerProxyIT
 
   private static final String VALID_PACKAGE_URL = PACKAGE_BASE_PATH + PACKAGE_NAME;
 
+  private static final long FILE_SIZE_ZIPBALL = 6225L;
+
   private ComposerClient proxyClient;
 
   private Repository proxyRepo;
@@ -100,8 +108,13 @@ public class ComposerProxyIT
   @Configuration
   public static Option[] configureNexus() {
     return NexusPaxExamSupport.options(
-        NexusITSupport.configureNexusBase(),
-        nexusFeature("org.sonatype.nexus.plugins", "nexus-repository-composer")
+        NexusBaseITSupport.configureNexusBase(),
+//        KarafDistributionOption.logLevel(LogLevelOption.LogLevel.DEBUG),
+//        KarafDistributionOption.debugConfiguration("5005", true),
+        nexusFeature(
+            maven("org.sonatype.nexus.plugins", "nexus-repository-composer")
+                .versionAsInProject().classifier("features").type("xml"),
+            "nexus-repository-composer")
     );
   }
 
@@ -127,13 +140,17 @@ public class ComposerProxyIT
     assertThat(status(proxyClient.get(BAD_PATH)), is(HttpStatus.NOT_FOUND));
   }
 
+  @Test
   public void retrievePackagesJSONFromProxyWhenRemoteOnline() throws Exception {
     assertThat(status(proxyClient.get(FILE_PACKAGES)), is(HttpStatus.OK));
 
-    final Asset asset = findAsset(proxyRepo, FILE_PACKAGES);
-    assertThat(asset.name(), is(equalTo(FILE_PACKAGES)));
-    assertThat(asset.contentType(), is(equalTo(MIME_TYPE_JSON)));
-    assertThat(asset.format(), is(equalTo(FORMAT_NAME)));
+    final Optional<FluentAsset> asset = findAsset(proxyRepo, FILE_PACKAGES);
+    assertThat(asset.isPresent(), is(true));
+    assertThat(asset.get().path(), is(equalTo("/" + FILE_PACKAGES)));
+    final Content content = asset.get().download();
+    assertThat(content, is(notNullValue()));
+    assertThat(content.getContentType(), is(equalTo(MIME_TYPE_JSON)));
+    assertThat(asset.get().component().isPresent(), is(false));
   }
 
   @Test
@@ -142,43 +159,57 @@ public class ComposerProxyIT
 
     try (CloseableHttpResponse response = proxyClient.get(FILE_PACKAGES)) {
       HttpEntity entity = response.getEntity();
-      JsonElement element = new JsonParser().parse(IOUtils.toString(entity.getContent()));
+      JsonElement element = JsonParser.parseString(IOUtils.toString(entity.getContent(), Charset.defaultCharset()));
       JsonObject json = element.getAsJsonObject();
 
-      assertThat(json.get("providers-url").toString(), is(equalTo("\"http://localhost:10000/repository/composer-test-proxy/p/%package%.json\"")));
+      assertThat(json.get("providers-url").toString(), is(equalTo("\"" + repositoryBaseUrl(proxyRepo) + "p/%package%.json\"")));
     }
   }
 
+  @Test
   public void retrieveListJSONFromProxyWhenRemoteOnline() throws Exception {
     assertThat(status(proxyClient.get(VALID_LIST_URL)), is(HttpStatus.OK));
 
-    final Asset asset = findAsset(proxyRepo, FILE_LIST);
-    assertThat(asset.name(), is(equalTo(FILE_LIST)));
-    assertThat(asset.contentType(), is(equalTo(MIME_TYPE_JSON)));
-    assertThat(asset.format(), is(equalTo(FORMAT_NAME)));
+    final Optional<FluentAsset> asset = findAsset(proxyRepo, VALID_LIST_URL);
+    assertThat(asset.isPresent(), is(true));
+    assertThat(asset.get().path(), is(equalTo("/" + VALID_LIST_URL)));
+    final Content content = asset.get().download();
+    assertThat(content, is(notNullValue()));
+    assertThat(content.getContentType(), is(equalTo(MIME_TYPE_JSON)));
+    assertThat(asset.get().component().isPresent(), is(false));
   }
 
   @Test
   public void retrieveProviderJSONFromProxyWhenRemoteOnline() throws Exception {
     assertThat(status(proxyClient.get(VALID_PROVIDER_URL)), is(HttpStatus.OK));
 
-    final Asset asset = findAsset(proxyRepo, VALID_PROVIDER_URL);
-    assertThat(asset.name(), is(equalTo(VALID_PROVIDER_URL)));
-    assertThat(asset.contentType(), is(equalTo(MIME_TYPE_JSON)));
-    assertThat(asset.format(), is(equalTo(FORMAT_NAME)));
+    final Optional<FluentAsset> asset = findAsset(proxyRepo, VALID_PROVIDER_URL);
+    assertThat(asset.isPresent(), is(true));
+    assertThat(asset.get().path(), is(equalTo("/" + VALID_PROVIDER_URL)));
+    final Content content = asset.get().download();
+    assertThat(content, is(notNullValue()));
+    assertThat(content.getContentType(), is(equalTo(MIME_TYPE_JSON)));
+    assertThat(asset.get().component().isPresent(), is(false));
   }
 
-  // TODO: Dude, this test, what the heck! It's completely wacky, someone needs to look at this
-  //@Test
-  //public void retrieveZipballFromProxyWhenRemoteOnline() throws Exception {
-  //  assertThat(status(proxyClient.get(VALID_ZIPBALL_URL)), is(HttpStatus.OK));
-  //
-  //  final Asset asset = findAsset(proxyRepo, VALID_ZIPBALL_URL);
-  //  assertThat(asset.name(), is(equalTo(VALID_ZIPBALL_URL)));
-  //  assertThat(asset.contentType(), is(equalTo(MIME_TYPE_ZIP)));
-  //  assertThat(asset.format(), is(equalTo(FORMAT_NAME)));
-  //}
-  
+  @Test
+  public void retrieveZipballFromProxyWhenRemoteOnline() throws Exception {
+    assertThat(status(proxyClient.get(VALID_ZIPBALL_URL)), is(HttpStatus.OK));
+
+    final Optional<FluentAsset> asset = findAsset(proxyRepo, VALID_ZIPBALL_URL);
+    assertThat(asset.isPresent(), is(true));
+    assertThat(asset.get().path(), is(equalTo("/" + VALID_ZIPBALL_URL)));
+    final Content content = asset.get().download();
+    assertThat(content, is(notNullValue()));
+    assertThat(content.getContentType(), is(equalTo(MIME_TYPE_ZIP)));
+    assertThat(content.getSize(), is(equalTo(FILE_SIZE_ZIPBALL)));
+    final Optional<Component> component = asset.get().component();
+    assertThat(component.isPresent(), is(true));
+    assertThat(component.get().namespace(), is(equalTo(NAME_VENDOR)));
+    assertThat(component.get().name(), is(equalTo(NAME_PROJECT)));
+    assertThat(component.get().version(), is(equalTo(NAME_VERSION)));
+  }
+
   @After
   public void tearDown() throws Exception {
     server.stop();

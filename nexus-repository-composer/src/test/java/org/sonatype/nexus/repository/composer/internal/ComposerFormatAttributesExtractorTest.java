@@ -12,33 +12,26 @@
  */
 package org.sonatype.nexus.repository.composer.internal;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.sonatype.goodies.testsupport.TestSupport;
-import org.sonatype.nexus.blobstore.api.Blob;
-import org.sonatype.nexus.common.collect.NestedAttributesMap;
-import org.sonatype.nexus.repository.storage.TempBlob;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.sonatype.goodies.testsupport.TestSupport;
+import org.sonatype.nexus.blobstore.api.Blob;
+import org.sonatype.nexus.common.collect.NestedAttributesMap;
+import org.sonatype.nexus.repository.content.fluent.FluentComponent;
+import org.sonatype.nexus.repository.view.payloads.TempBlob;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonList;
-import static java.util.Collections.singletonMap;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import java.io.InputStream;
+import java.util.*;
+
+import static java.util.Collections.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonatype.nexus.repository.composer.internal.ComposerAttributes.*;
 
@@ -61,26 +54,37 @@ public class ComposerFormatAttributesExtractorTest
 
   private ComposerFormatAttributesExtractor underTest;
 
-  private NestedAttributesMap destination;
+  private FluentComponent destination;
+  private NestedAttributesMap attributesMap;
 
   @Before
   public void setUp() {
     underTest = new ComposerFormatAttributesExtractor(composerJsonExtractor);
-    destination = new NestedAttributesMap("backing", new LinkedHashMap<>());
+    destination = mock(FluentComponent.class);
+    attributesMap = new NestedAttributesMap("backing", new LinkedHashMap<>());
+    when(destination.attributes()).thenReturn(attributesMap);
+    when(destination.attributes(anyString()))
+        .thenAnswer((inv) -> attributesMap.get(inv.getArgument(0, String.class)));
+    when(destination.withAttribute(anyString(), any()))
+        .thenAnswer((inv) -> {
+          attributesMap.set(inv.getArgument(0, String.class), inv.getArgument(1));
+          return destination;
+        });
   }
 
   @Test
   public void extractInfoFromZipballWithJson() throws Exception {
     Map<String, Object> contents;
     try (InputStream in = getClass().getResourceAsStream("extractInfoFromZipballWithJson.composer.json")) {
-      contents = new ObjectMapper().readValue(in, new TypeReference<Map<String, Object>>() { });
+      contents = new ObjectMapper().readValue(in, new TypeReference<Map<String, Object>>()
+      {
+      });
     }
 
     when(tempBlob.getBlob()).thenReturn(blob);
     when(composerJsonExtractor.extractFromZip(blob)).thenReturn(contents);
 
-    NestedAttributesMap attributesMap = new NestedAttributesMap("composer", new LinkedHashMap<>());
-    underTest.extractFromZip(tempBlob, attributesMap);
+    underTest.extractFromZip(tempBlob, destination);
 
     assertThat(attributesMap.keys(), containsInAnyOrder(EXPECTED_FIELDS));
     assertThat(attributesMap.get(P_NAME), is("vendor/project"));
@@ -106,58 +110,60 @@ public class ComposerFormatAttributesExtractorTest
 
   @Test
   public void extractInfoFromZipballWithoutJson() throws Exception {
-      when(tempBlob.getBlob()).thenReturn(blob);
-      when(composerJsonExtractor.extractFromZip(blob)).thenReturn(Collections.emptyMap());
+    when(tempBlob.getBlob()).thenReturn(blob);
+    when(composerJsonExtractor.extractFromZip(blob)).thenReturn(Collections.emptyMap());
 
-      NestedAttributesMap attributesMap = new NestedAttributesMap("composer", new LinkedHashMap<>());
-      underTest.extractFromZip(tempBlob, attributesMap);
+    NestedAttributesMap attributesMap = new NestedAttributesMap("composer", new LinkedHashMap<>());
+    FluentComponent component = mock(FluentComponent.class);
+    when(component.attributes()).thenReturn(attributesMap);
+    underTest.extractFromZip(tempBlob, component);
 
-      assertThat(attributesMap.keys(), is(empty()));
+    assertThat(attributesMap.keys(), is(empty()));
   }
 
   @Test
   public void extractStringsMissing() {
     underTest.extractStrings(emptyMap(), destination, singletonMap("inkey", "outkey"));
-    assertThat(destination.keys(), is(empty()));
+    assertThat(attributesMap.keys(), is(empty()));
   }
 
   @Test
   public void extractStringsNull() {
     underTest.extractStrings(singletonMap("inkey", null), destination, singletonMap("inkey", "outkey"));
-    assertThat(destination.keys(), is(empty()));
+    assertThat(attributesMap.keys(), is(empty()));
   }
 
   @Test
   public void extractStringsNonStringValue() {
     underTest.extractStrings(singletonMap("inkey", Integer.MAX_VALUE), destination, singletonMap("inkey", "outkey"));
-    assertThat(destination.keys(), is(empty()));
+    assertThat(attributesMap.keys(), is(empty()));
   }
 
   @Test
   public void extractStringsSingleString() {
     underTest.extractStrings(singletonMap("inkey", "value"), destination, singletonMap("inkey", "outkey"));
-    assertThat(destination.keys(), contains("outkey"));
-    assertThat(destination.get("outkey"), is("value"));
+    assertThat(attributesMap.keys(), contains("outkey"));
+    assertThat(attributesMap.get("outkey"), is("value"));
   }
 
   @Test
   public void extractStringsEmptyCollection() {
     underTest.extractStrings(singletonMap("inkey", emptyList()), destination, singletonMap("inkey", "outkey"));
-    assertThat(destination.keys(), is(empty()));
+    assertThat(attributesMap.keys(), is(empty()));
   }
 
   @Test
   public void extractStringsCollectionWithNonStringValue() {
     underTest.extractStrings(singletonMap("inkey", Integer.MAX_VALUE), destination, singletonMap("inkey", "outkey"));
-    assertThat(destination.keys(), is(empty()));
+    assertThat(attributesMap.keys(), is(empty()));
   }
 
   @Test
   public void extractStringsCollectionWithString() {
     underTest
         .extractStrings(singletonMap("inkey", singletonList("value")), destination, singletonMap("inkey", "outkey"));
-    assertThat(destination.keys(), contains("outkey"));
-    assertThat((List<String>) destination.get("outkey"), contains("value"));
+    assertThat(attributesMap.keys(), contains("outkey"));
+    assertThat((List<String>) attributesMap.get("outkey"), contains("value"));
   }
 
   @Test
@@ -191,45 +197,45 @@ public class ComposerFormatAttributesExtractorTest
   @Test
   public void extractAuthorsMissing() {
     underTest.extractAuthors(emptyMap(), destination);
-    assertThat(destination.keys(), is(empty()));
+    assertThat(attributesMap.keys(), is(empty()));
   }
 
   @Test
   public void extractAuthorsNull() {
     underTest.extractAuthors(singletonMap("authors", null), destination);
-    assertThat(destination.keys(), is(empty()));
+    assertThat(attributesMap.keys(), is(empty()));
   }
 
   @Test
   public void extractAuthorsEmptyCollection() {
     underTest.extractAuthors(singletonMap("authors", emptyList()), destination);
-    assertThat(destination.keys(), is(empty()));
+    assertThat(attributesMap.keys(), is(empty()));
   }
 
   @Test
   public void extractAuthorsEmptyAuthor() {
     underTest.extractAuthors(singletonMap("authors", singletonList(emptyMap())), destination);
-    assertThat(destination.keys(), is(empty()));
+    assertThat(attributesMap.keys(), is(empty()));
   }
 
   @Test
   public void extractAuthorsAuthorName() {
     underTest.extractAuthors(singletonMap("authors", singletonList(singletonMap("name", "value"))), destination);
-    assertThat(destination.keys(), contains(P_AUTHORS));
-    assertThat((List<String>) destination.get(P_AUTHORS), contains("value"));
+    assertThat(attributesMap.keys(), contains(P_AUTHORS));
+    assertThat((List<String>) attributesMap.get(P_AUTHORS), contains("value"));
   }
 
   @Test
   public void extractAuthorsAuthorEmail() {
     underTest.extractAuthors(singletonMap("authors", singletonList(singletonMap("email", "value"))), destination);
-    assertThat(destination.keys(), contains(P_AUTHORS));
-    assertThat((List<String>) destination.get(P_AUTHORS), contains("<value>"));
+    assertThat(attributesMap.keys(), contains(P_AUTHORS));
+    assertThat((List<String>) attributesMap.get(P_AUTHORS), contains("<value>"));
   }
 
   @Test
   public void extractAuthorsAuthorHomepage() {
     underTest.extractAuthors(singletonMap("authors", singletonList(singletonMap("homepage", "value"))), destination);
-    assertThat(destination.keys(), contains(P_AUTHORS));
-    assertThat((List<String>) destination.get(P_AUTHORS), contains("(value)"));
+    assertThat(attributesMap.keys(), contains(P_AUTHORS));
+    assertThat((List<String>) attributesMap.get(P_AUTHORS), contains("(value)"));
   }
 }
