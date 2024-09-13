@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.sonatype.nexus.plugins</groupId>
     <artifactId>composer-parent</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -190,10 +190,9 @@
             </goals>
             <configuration>
               <target>
-                <unzip src="${org.sonatype.nexus.testsuite:nexus-it-suite-data:jar}"
-                    dest="${project.build.directory}/it-resources">
+                <unzip src="${org.sonatype.nexus.testsuite:nexus-it-suite-data:jar}" dest="${project.build.directory}/it-resources">
                   <patternset>
-                    <exclude name="META-INF/**"/>
+                    <exclude name="META-INF/**" />
                   </patternset>
                 </unzip>
               </target>
