@@ -107,8 +107,6 @@ public class ComposerJsonProcessor
 
   private static final String REQUIRE_DEV_KEY = "require-dev";
 
-  private static final String SHA256_KEY = "sha256";
-
   private static final String SHASUM_KEY = "shasum";
 
   private static final String SCRIPTS_KEY = "scripts";
@@ -178,8 +176,7 @@ public class ComposerJsonProcessor
     Map<String, Object> packagesJson = new LinkedHashMap<>();
     packagesJson.put(PROVIDERS_URL_KEY, repository.getUrl() + PACKAGE_JSON_PATH);
     packagesJson.put(METADATA_URL_KEY, repository.getUrl() + PACKAGE_V2_JSON_PATH);
-    packagesJson.put(PROVIDERS_KEY, names.stream()
-        .collect(Collectors.toMap((each) -> each, (each) -> singletonMap(SHA256_KEY, null))));
+
     return new Content(new StringPayload(mapper.writeValueAsString(packagesJson), ContentTypes.APPLICATION_JSON));
   }
 
