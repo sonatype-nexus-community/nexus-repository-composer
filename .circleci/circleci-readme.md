@@ -5,7 +5,7 @@ The local build runs in a docker container.
 
   * (Once) Install circleci client (`brew install circleci`)
 
-  * Convert the “real” config.yml into a self contained (non-workspace) config via:
+  * Convert the “real” config.yml into a self-contained (non-workspace) config via:
 
         circleci config process .circleci/config.yml > .circleci/local-config.yml
 
