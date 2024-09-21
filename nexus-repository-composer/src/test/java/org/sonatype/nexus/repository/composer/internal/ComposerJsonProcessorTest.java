@@ -15,14 +15,17 @@ package org.sonatype.nexus.repository.composer.internal;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.HashCode;
 import com.google.common.io.CharStreams;
+import org.joda.time.DateTime;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.blobstore.api.Blob;
 import org.sonatype.nexus.blobstore.api.BlobRef;
+import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.common.collect.NestedAttributesMap;
 import org.sonatype.nexus.common.entity.Continuation;
 import org.sonatype.nexus.repository.Repository;
+import org.sonatype.nexus.repository.cache.CacheInfo;
 import org.sonatype.nexus.repository.composer.ComposerContentFacet;
 import org.sonatype.nexus.repository.content.AssetBlob;
 import org.sonatype.nexus.repository.content.fluent.*;
@@ -47,6 +50,7 @@ import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
@@ -61,7 +65,7 @@ public class ComposerJsonProcessorTest
   private Repository repository;
 
   @Mock
-  private Payload payload1;
+  private Content payload1;
 
   @Mock
   private Payload payload2;
@@ -145,11 +149,16 @@ public class ComposerJsonProcessorTest
 
     when(repository.getUrl()).thenReturn("http://nexus.repo/base/repo");
     when(payload1.openInputStream()).thenReturn(new ByteArrayInputStream(listJson.getBytes(UTF_8)));
+    AttributesMap attributes = new AttributesMap();
+    CacheInfo cacheInfo = new CacheInfo(DateTime.now().plusDays(1), null);
+    attributes.set(CacheInfo.class, cacheInfo);
+    when(payload1.getAttributes()).thenReturn(attributes);
 
     ComposerJsonProcessor underTest = new ComposerJsonProcessor(composerJsonExtractor, composerJsonMinifier);
     Content output = underTest.generatePackagesFromList(repository, payload1);
 
     assertEquals(packagesJson, readStreamToString(output.openInputStream()), true);
+    assertSame(cacheInfo, output.getAttributes().get(CacheInfo.class));
   }
 
   @Test

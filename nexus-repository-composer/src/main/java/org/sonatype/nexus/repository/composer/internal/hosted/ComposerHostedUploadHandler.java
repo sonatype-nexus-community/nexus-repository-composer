@@ -181,7 +181,7 @@ public class ComposerHostedUploadHandler
     try (TempBlob blob = contentFacet.blobs().ingest(contentPath, contentType, ComposerContentFacetImpl.hashAlgorithms,
         configuration.isHardLinkingEnabled())) {
       ComposerContentFacet composerFacet = repository.facet(ComposerContentFacet.class);
-      return composerFacet.put(path, new TempBlobPayload(blob, contentType), AssetKind.ZIPBALL).download();
+      return composerFacet.put(path, new TempBlobPayload(blob, contentType), AssetKind.ZIPBALL);
     }
   }
 

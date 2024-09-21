@@ -112,6 +112,8 @@ public class ComposerContentFacetImplTest
   @Mock
   private FluentAsset fluentAsset;
 
+  private Content content;
+
   @Mock
   private FluentComponent fluentComponent;
 
@@ -167,7 +169,10 @@ public class ComposerContentFacetImplTest
     when(fluentAssets.path(anyString())).thenReturn(emptyFAB);
     when(emptyFAB.find()).thenReturn(Optional.empty());
     when(fluentAssetBuilder.find()).thenReturn(Optional.of(fluentAsset));
-    when(fluentAsset.download()).thenReturn(new Content(new BlobPayload(blob, null)));
+
+    content = new Content(new BlobPayload(blob, null));
+    when(fluentAsset.markAsCached(any(Payload.class))).thenReturn(fluentAsset);
+    when(fluentAsset.download()).thenReturn(content);
 
     when(underTest.blobs()).thenReturn(fluentBlobs);
     when(fluentBlobs.ingest(any(Payload.class), any(List.class))).thenReturn(tempBlob);
@@ -265,8 +270,8 @@ public class ComposerContentFacetImplTest
       when(fluentComponentBuilder.getOrCreate()).thenReturn(fluentComponent);
     }
 
-    FluentAsset res = underTest.put(path, upload, assetKind);
-    assertThat(res, is(fluentAsset));
+    Content res = underTest.put(path, upload, assetKind);
+    assertThat(res, is(content));
     assertThat(pathCaptor.getValue(), is(path));
     assertThat(kindCaptor.getValue(), is(assetKind.name()));
     assertThat(tempBlobCaptor.getValue(), is(tempBlob));

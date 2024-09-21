@@ -29,7 +29,6 @@ import org.sonatype.nexus.repository.composer.ComposerContentFacet;
 import org.sonatype.nexus.repository.composer.internal.ComposerJsonProcessor;
 import org.sonatype.nexus.repository.config.Configuration;
 import org.sonatype.nexus.repository.content.facet.ContentProxyFacetSupport;
-import org.sonatype.nexus.repository.content.fluent.FluentAsset;
 import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.Payload;
@@ -115,28 +114,28 @@ public class ComposerProxyFacet
   @Override
   protected Content store(final Context context, final Content content) throws IOException {
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
-    FluentAsset asset;
+    Content res;
     switch (assetKind) {
       case PACKAGES:
-        asset = content().put(PACKAGES_JSON, generatePackagesJson(context), assetKind);
+        res = content().put(PACKAGES_JSON, generatePackagesJson(context), assetKind);
         break;
       case LIST:
-        asset = content().put(LIST_JSON, content, assetKind);
-      break;
+        res = content().put(LIST_JSON, content, assetKind);
+        break;
       case PROVIDER:
-        asset = content().put(buildProviderPath(context), content, assetKind);
-      break;
+        res = content().put(buildProviderPath(context), content, assetKind);
+        break;
       case PACKAGE:
-        asset = content().put(buildPackagePath(context), content, assetKind);
-      break;
+        res = content().put(buildPackagePath(context), content, assetKind);
+        break;
       case ZIPBALL:
-        asset = content().put(buildZipballPath(context), content, assetKind);
-      break;
+        res = content().put(buildZipballPath(context), content, assetKind);
+        break;
       default:
         throw new IllegalStateException();
     }
 
-    return asset.download();
+    return res;
   }
 
   @Override
