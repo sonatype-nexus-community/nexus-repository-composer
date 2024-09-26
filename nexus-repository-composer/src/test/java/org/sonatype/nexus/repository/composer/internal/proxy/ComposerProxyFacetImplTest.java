@@ -207,7 +207,7 @@ public class ComposerProxyFacetImplTest
   @Test
   public void storePackages() throws Exception {
     when(contextAttributes.require(AssetKind.class)).thenReturn(PACKAGES);
-    when(composerContentFacet.put(PACKAGES_PATH, content, PACKAGES)).thenReturn(fluentAsset);
+    when(composerContentFacet.put(PACKAGES_PATH, content, PACKAGES)).thenReturn(content);
 
     when(viewFacet.dispatch(any(Request.class), eq(context))).thenReturn(response);
     when(composerJsonProcessor.generatePackagesFromList(repository, payload)).thenReturn(content);
@@ -220,7 +220,7 @@ public class ComposerProxyFacetImplTest
   @Test
   public void storeList() throws Exception {
     when(contextAttributes.require(AssetKind.class)).thenReturn(LIST);
-    when(composerContentFacet.put(LIST_PATH, content, LIST)).thenReturn(fluentAsset);
+    when(composerContentFacet.put(LIST_PATH, content, LIST)).thenReturn(content);
 
     assertThat(underTest.store(context, content), is(content));
 
@@ -232,7 +232,7 @@ public class ComposerProxyFacetImplTest
     when(contextAttributes.require(AssetKind.class)).thenReturn(PROVIDER);
     when(contextAttributes.require(TokenMatcher.State.class)).thenReturn(state);
 
-    when(composerContentFacet.put(PROVIDER_PATH, content, PROVIDER)).thenReturn(fluentAsset);
+    when(composerContentFacet.put(PROVIDER_PATH, content, PROVIDER)).thenReturn(content);
 
     when(state.getTokens()).thenReturn(new ImmutableMap.Builder<String, String>()
         .put("vendor", "vendor")
@@ -249,7 +249,7 @@ public class ComposerProxyFacetImplTest
     when(contextAttributes.require(AssetKind.class)).thenReturn(ZIPBALL);
     when(contextAttributes.require(TokenMatcher.State.class)).thenReturn(state);
 
-    when(composerContentFacet.put(ZIPBALL_PATH, content, ZIPBALL)).thenReturn(fluentAsset);
+    when(composerContentFacet.put(ZIPBALL_PATH, content, ZIPBALL)).thenReturn(content);
 
     when(state.getTokens()).thenReturn(new ImmutableMap.Builder<String, String>()
         .put("vendor", "vendor")

@@ -12,7 +12,6 @@
  */
 package org.sonatype.nexus.repository.composer.internal;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.hash.Hashing;
@@ -21,6 +20,7 @@ import org.sonatype.nexus.blobstore.api.Blob;
 import org.sonatype.nexus.common.entity.Continuation;
 import org.sonatype.nexus.common.hash.HashAlgorithm;
 import org.sonatype.nexus.repository.Repository;
+import org.sonatype.nexus.repository.cache.CacheInfo;
 import org.sonatype.nexus.repository.composer.ComposerContentFacet;
 import org.sonatype.nexus.repository.content.AssetBlob;
 import org.sonatype.nexus.repository.content.fluent.FluentAsset;
@@ -164,7 +164,14 @@ public class ComposerJsonProcessor
   public Content generatePackagesFromList(final Repository repository, final Payload payload) throws IOException {
     // TODO: Parse using JSON tokens rather than loading all this into memory, it "should" work but I'd be careful.
     Map<String, Object> listJson = parseJson(payload);
-    return buildPackagesJson(repository, new LinkedHashSet<>((Collection<String>) listJson.get(PACKAGE_NAMES_KEY)));
+    Content packagesJson = buildPackagesJson(repository, new LinkedHashSet<>((Collection<String>) listJson.get(PACKAGE_NAMES_KEY)));
+
+    // Preserve caching info from list, if present.
+    if (payload instanceof Content) {
+      packagesJson.getAttributes().set(CacheInfo.class, ((Content) payload).getAttributes().get(CacheInfo.class));
+    }
+
+    return packagesJson;
   }
 
   /**

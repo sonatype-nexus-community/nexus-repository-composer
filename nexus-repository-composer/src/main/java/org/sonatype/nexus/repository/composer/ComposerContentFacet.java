@@ -38,7 +38,7 @@ public interface ComposerContentFacet
 
   Optional<Content> get(String path);
 
-  FluentAsset put(String path, Payload payload, AssetKind assetKind) throws IOException;
+  Content put(String path, Payload payload, AssetKind assetKind) throws IOException;
 
   FluentAsset put(String path, Payload payload, String sourceType, String sourceUrl, String sourceReference) throws IOException;
 
