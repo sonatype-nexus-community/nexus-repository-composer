@@ -20,6 +20,7 @@ import org.sonatype.nexus.repository.content.maintenance.LastAssetMaintenanceFac
 
 import javax.inject.Named;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -37,25 +38,29 @@ public class ComposerMaintenanceFacet
 
     String vendor = component.namespace();
     String project = component.name();
-    try {
-      if (!composerHosted().rebuildPackageJson(vendor, project).isPresent()) {
-        deletedPaths.add(ComposerPathUtils.buildPackagePath(vendor, project));
+
+    Optional<ComposerHostedFacet> hostedFacet = composerHosted();
+    if (hostedFacet.isPresent()) {
+      try {
+        if (!hostedFacet.get().rebuildPackageJson(vendor, project).isPresent()) {
+          deletedPaths.add(ComposerPathUtils.buildPackagePath(vendor, project));
+        }
+      } catch (IOException e) {
+        // update failed
       }
-    } catch (IOException e) {
-      // update failed
-    }
-    try {
-      if (!composerHosted().rebuildProviderJson(vendor, project).isPresent()) {
-        deletedPaths.add(ComposerPathUtils.buildProviderPath(vendor, project));
+      try {
+        if (!hostedFacet.get().rebuildProviderJson(vendor, project).isPresent()) {
+          deletedPaths.add(ComposerPathUtils.buildProviderPath(vendor, project));
+        }
+      } catch (IOException e) {
+        // update failed
       }
-    } catch (IOException e) {
-      // update failed
     }
 
     return deletedPaths.build();
   }
 
-  private ComposerHostedFacet composerHosted() {
-    return facet(ComposerHostedFacet.class);
+  private Optional<ComposerHostedFacet> composerHosted() {
+    return optionalFacet(ComposerHostedFacet.class);
   }
 }

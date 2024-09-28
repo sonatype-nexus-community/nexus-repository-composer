@@ -223,7 +223,6 @@ public class ComposerProxyFacet
       try {
         String path = buildPackagePathForDevVersions(vendor, project);
         Payload payload = getPackagePayload(context, path);
-        String url = composerJsonProcessor.getDistUrlFromPackage(vendor, project, version, payload);
         if (payload != null) {
           return composerJsonProcessor.getDistUrlFromPackage(vendor, project, version, payload);
         }
