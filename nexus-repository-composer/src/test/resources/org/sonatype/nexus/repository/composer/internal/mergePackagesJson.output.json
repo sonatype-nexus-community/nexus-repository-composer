@@ -1,18 +1,10 @@
 {
-  "providers-url": "http://nexus.repo/base/repo/p/%package%.json",
   "metadata-url": "http://nexus.repo/base/repo/p2/%package%.json",
-  "providers": {
-    "vendor1/project1": {
-      "sha256": null
-    },
-    "vendor2/project2": {
-      "sha256": null
-    },
-    "vendor3/project3": {
-      "sha256": null
-    },
-    "vendor4/project4": {
-      "sha256": null
-    }
-  }
+  "providers-url": "http://nexus.repo/base/repo/p/%package%.json",
+  "available-packages": [
+    "vendor1/project1",
+    "vendor2/project2",
+    "vendor3/project3",
+    "vendor4/project4"
+  ]
 }

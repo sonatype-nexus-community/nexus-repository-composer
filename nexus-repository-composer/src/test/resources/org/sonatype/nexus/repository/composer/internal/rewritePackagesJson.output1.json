@@ -1,0 +1,5 @@
+{
+  "metadata-url": "http://nexus.repo/base/repo/p2/%package%.json",
+  "list" : "http://nexus.repo/base/repo/packages/list.json",
+  "providers-url": "http://nexus.repo/base/repo/p/%package%.json"
+}

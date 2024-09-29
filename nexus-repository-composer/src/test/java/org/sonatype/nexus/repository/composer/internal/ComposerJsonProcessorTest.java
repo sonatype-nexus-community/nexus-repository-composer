@@ -15,17 +15,14 @@ package org.sonatype.nexus.repository.composer.internal;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.HashCode;
 import com.google.common.io.CharStreams;
-import org.joda.time.DateTime;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.blobstore.api.Blob;
 import org.sonatype.nexus.blobstore.api.BlobRef;
-import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.common.collect.NestedAttributesMap;
 import org.sonatype.nexus.common.entity.Continuation;
 import org.sonatype.nexus.repository.Repository;
-import org.sonatype.nexus.repository.cache.CacheInfo;
 import org.sonatype.nexus.repository.composer.ComposerContentFacet;
 import org.sonatype.nexus.repository.content.AssetBlob;
 import org.sonatype.nexus.repository.content.fluent.*;
@@ -50,7 +47,6 @@ import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
@@ -69,6 +65,9 @@ public class ComposerJsonProcessorTest
 
   @Mock
   private Payload payload2;
+
+  @Mock
+  private Payload payload3;
 
   @Mock
   private FluentComponent component1;
@@ -143,22 +142,25 @@ public class ComposerJsonProcessorTest
   private ComposerJsonMinifier composerJsonMinifier;
 
   @Test
-  public void generatePackagesFromList() throws Exception {
-    String listJson = readStreamToString(getClass().getResourceAsStream("generatePackagesFromList.list.json"));
-    String packagesJson = readStreamToString(getClass().getResourceAsStream("generatePackagesFromList.packages.json"));
-
+  public void rewritePackagesJson() throws Exception {
     when(repository.getUrl()).thenReturn("http://nexus.repo/base/repo");
-    when(payload1.openInputStream()).thenReturn(new ByteArrayInputStream(listJson.getBytes(UTF_8)));
-    AttributesMap attributes = new AttributesMap();
-    CacheInfo cacheInfo = new CacheInfo(DateTime.now().plusDays(1), null);
-    attributes.set(CacheInfo.class, cacheInfo);
-    when(payload1.getAttributes()).thenReturn(attributes);
-
     ComposerJsonProcessor underTest = new ComposerJsonProcessor(composerJsonExtractor, composerJsonMinifier);
-    Content output = underTest.generatePackagesFromList(repository, payload1);
 
-    assertEquals(packagesJson, readStreamToString(output.openInputStream()), true);
-    assertSame(cacheInfo, output.getAttributes().get(CacheInfo.class));
+    // test 1: packagist.org style
+    String original = readStreamToString(getClass().getResourceAsStream("rewritePackagesJson.input1.json"));
+    String expected = readStreamToString(getClass().getResourceAsStream("rewritePackagesJson.output1.json"));
+    when(payload1.openInputStream()).thenReturn(new ByteArrayInputStream(original.getBytes(UTF_8)));
+
+    Payload output = underTest.rewritePackagesJson(repository, payload1);
+    assertEquals(expected, readStreamToString(output.openInputStream()), true);
+
+    // test 2: Drupal 8 style
+    original = readStreamToString(getClass().getResourceAsStream("rewritePackagesJson.input2.json"));
+    expected = readStreamToString(getClass().getResourceAsStream("rewritePackagesJson.output2.json"));
+    when(payload1.openInputStream()).thenReturn(new ByteArrayInputStream(original.getBytes(UTF_8)));
+
+    output = underTest.rewritePackagesJson(repository, payload1);
+    assertEquals(expected, readStreamToString(output.openInputStream()), true);
   }
 
   @Test
@@ -180,6 +182,7 @@ public class ComposerJsonProcessorTest
     when(component3.version()).thenReturn("version2");
 
     FluentComponents components = mock(FluentComponents.class);
+    when(components.count()).thenReturn(2);
     when(components.browse(anyInt(), isNull())).thenReturn(new ContinuationList("con-tkn-001", component1, component2));
     when(components.browse(anyInt(), eq("con-tkn-001"))).thenReturn(new ContinuationList("con-tkn-002", component3));
     when(components.browse(anyInt(), eq("con-tkn-002"))).thenReturn(new ContinuationList(""));
@@ -406,6 +409,16 @@ public class ComposerJsonProcessorTest
     Payload output = underTest.mergePackagesJson(repository, Arrays.asList(payload1, payload2));
 
     assertEquals(outputJson, readStreamToString(output.openInputStream()), true);
+
+    // Add another repository without "available-packages"
+    String inputJson3 = readStreamToString(getClass().getResourceAsStream("mergePackagesJson.input3.json"));
+    String outputJson2 = readStreamToString(getClass().getResourceAsStream("mergePackagesJson.output2.json"));
+
+    when(payload1.openInputStream()).thenReturn(new ByteArrayInputStream(inputJson1.getBytes(UTF_8)));
+    when(payload2.openInputStream()).thenReturn(new ByteArrayInputStream(inputJson2.getBytes(UTF_8)));
+    when(payload3.openInputStream()).thenReturn(new ByteArrayInputStream(inputJson3.getBytes(UTF_8)));
+    output = underTest.mergePackagesJson(repository, Arrays.asList(payload1, payload2, payload3));
+    assertEquals(outputJson2, readStreamToString(output.openInputStream()), true);
   }
 
   @Test
