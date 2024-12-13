@@ -207,14 +207,13 @@ public class ComposerProxyFacetImplTest
   @Test
   public void storePackages() throws Exception {
     when(contextAttributes.require(AssetKind.class)).thenReturn(PACKAGES);
-    when(composerContentFacet.put(PACKAGES_PATH, content, PACKAGES)).thenReturn(content);
+    when(composerContentFacet.put(eq(PACKAGES_PATH), any(Content.class), eq(PACKAGES))).thenReturn(content);
 
     when(viewFacet.dispatch(any(Request.class), eq(context))).thenReturn(response);
-    when(composerJsonProcessor.generatePackagesFromList(repository, payload)).thenReturn(content);
+    when(content.getPayload()).thenReturn(payload);
+    when(composerJsonProcessor.rewritePackagesJson(repository, payload)).thenReturn(payload);
 
     assertThat(underTest.store(context, content), is(content));
-
-    verify(composerContentFacet).put(PACKAGES_PATH, content, PACKAGES);
   }
 
   @Test
