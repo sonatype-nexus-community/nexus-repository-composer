@@ -19,7 +19,7 @@
   </parent>
 
   <artifactId>composer-parent</artifactId>
-  <version>0.1.8</version>
+  <version>0.1.9-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>${project.groupId}:${project.artifactId}-parent</name>
@@ -32,7 +32,7 @@
 
   <scm>
     <developerConnection>scm:git:git@github.com:sonatype-nexus-community/nexus-repository-composer.git</developerConnection>
-    <tag>composer-parent-0.1.8</tag>
+    <tag>HEAD</tag>
   </scm>
   <distributionManagement>
     <snapshotRepository>
