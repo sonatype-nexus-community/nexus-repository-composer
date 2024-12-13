@@ -78,7 +78,7 @@ public class ComposerMaintenanceFacetTest
   public void setUp() throws Exception {
     when(repository.getName()).thenReturn(REPOSITORY_NAME);
     when(repository.facet(ContentFacet.class)).thenReturn(contentFacet);
-    when(repository.facet(ComposerHostedFacet.class)).thenReturn(hostedFacet);
+    when(repository.optionalFacet(ComposerHostedFacet.class)).thenReturn(Optional.of(hostedFacet));
 
     when(contentFacet.components()).thenReturn(fluentComponents);
     when(fluentComponents.with(component)).thenReturn(fluentComponent);
@@ -109,5 +109,12 @@ public class ComposerMaintenanceFacetTest
 
     Set<String> deletedPaths = underTest.deleteComponent(component);
     assertEquals(new HashSet<>(Arrays.asList(ZIPBALL_PATH, PROVIDER_PATH, PACKAGE_PATH)), deletedPaths);
+  }
+
+  @Test
+  public void testDeleteProxyComponent() {
+    when(repository.optionalFacet(ComposerHostedFacet.class)).thenReturn(Optional.empty());
+    Set<String> deletedPaths = underTest.deleteComponent(component);
+    assertEquals(singleton(ZIPBALL_PATH), deletedPaths);
   }
 }
