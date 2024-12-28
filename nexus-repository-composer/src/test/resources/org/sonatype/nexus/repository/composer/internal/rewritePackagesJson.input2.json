@@ -1,0 +1,176 @@
+{
+  "notify-batch": "\/test2\/downloads",
+  "providers-url": "\/test2\/%package%$%hash%.json",
+  "metadata-url": "\/files\/packages\/test2\/p2\/%package%.json",
+  "available-package-patterns": [
+    "test2\/*"
+  ],
+  "search": "\/test2\/search.json?s=%query%",
+  "warning": "New packages releases ARE NOT AVAILABLE FOR COMPOSER 1!! Composer 1 support will be dropped after October 1, 2024. You should upgrade to Composer 2 now. See https:\/\/packages.example.com\/test2-support-for-composer-1",
+  "warning-versions": "1.99",
+  "provider-includes": {
+    "test2\/provider-2024-3$%hash%.json": {
+      "sha256": "e5a88e0b12e830f430a269e15114d1722f9013d07c6133f65dcca88512d3214a"
+    },
+    "test2\/provider-2024-2$%hash%.json": {
+      "sha256": "6706f57dbd944f39d1766a2bb25fe8f38bddc2a4c9b903cc836b2632d7dac866"
+    },
+    "test2\/provider-2024-1$%hash%.json": {
+      "sha256": "feffb29962cbe73644465f6b2c132c343e4a3c173d645d5ee16678a76f71c999"
+    },
+    "test2\/provider-2023-4$%hash%.json": {
+      "sha256": "13a15831c7b83974c531037212a385f66eb294d2b3fc8cf8b748528ef8be7fc7"
+    },
+    "test2\/provider-2023-3$%hash%.json": {
+      "sha256": "a414b3616d43d0155329ab51e06a46703c85212b508063664a2349258fdff604"
+    },
+    "test2\/provider-2023-2$%hash%.json": {
+      "sha256": "743d1f3ae7cb1364edadcda8272046149611341c806f3604a7fafa99fa90ea4c"
+    },
+    "test2\/provider-2023-1$%hash%.json": {
+      "sha256": "a093b35c5041cfd0142da45cfabf9e39b94c49c089df2131d77ac2cb76c8f662"
+    },
+    "test2\/provider-2022-4$%hash%.json": {
+      "sha256": "9a6005ad61749cf387ea6fc6501b9934aeb4ebe69c36f9a89ff7ca791f54d522"
+    },
+    "test2\/provider-2022-3$%hash%.json": {
+      "sha256": "2e762c2412bb33424e1d9cec185b865a6050c3ddab9386b9287a0d44b0c95766"
+    },
+    "test2\/provider-2022-2$%hash%.json": {
+      "sha256": "a7075c0e986dcfbd4b34e2f36af81a479105481ba5c001ea76a7977691551bca"
+    },
+    "test2\/provider-2022-1$%hash%.json": {
+      "sha256": "bdda6db283a35cb7290e535e961d8994a4dc1ab2b5cbcf9dc33b540d4891ac4c"
+    },
+    "test2\/provider-2021-4$%hash%.json": {
+      "sha256": "5ed2346f9cb8cb6174e31923eab572406f3c51d2311d8497397b99c6a1982686"
+    },
+    "test2\/provider-2021-3$%hash%.json": {
+      "sha256": "920d8f59119b38332c9551641d3655dadbc9f30679b91669346a9eb19c07bdd0"
+    },
+    "test2\/provider-2021-2$%hash%.json": {
+      "sha256": "3213449ad23397313d15d13021e1a9c36f7b82dfa0cb0fd133692e9714098c38"
+    },
+    "test2\/provider-2021-1$%hash%.json": {
+      "sha256": "0cbf858565c5807f11437c3b55804a849c85c8d231183886a5f6a2e0247039f4"
+    },
+    "test2\/provider-2020-4$%hash%.json": {
+      "sha256": "694c4c245f099d837abf839e0c2b011be72d069c22ac0b12796ec650d9c35f4d"
+    },
+    "test2\/provider-2020-3$%hash%.json": {
+      "sha256": "b03a32cce32a77a004cbd3847d9db0ef71bc714d830ade7363cc9336965dcab4"
+    },
+    "test2\/provider-2020-2$%hash%.json": {
+      "sha256": "6b1253fed58d2b1244f812a4f6ea204b40df69665f7d46f4ca194fbbd8472c39"
+    },
+    "test2\/provider-2020-1$%hash%.json": {
+      "sha256": "a7e38bb041601458a9d8fd3dd16241a034e717ce585e04a7c3817a3457770ef1"
+    },
+    "test2\/provider-2019-4$%hash%.json": {
+      "sha256": "c5e5911ed563e3f32036573a0de9262c862895b22058327a5e5fc6ac849d0455"
+    },
+    "test2\/provider-2019-3$%hash%.json": {
+      "sha256": "f4f96c797e13e6700dded1a302c123bd7d7d088f9cfe2e85d886891a34ff3715"
+    },
+    "test2\/provider-2019-2$%hash%.json": {
+      "sha256": "2e5824a44dc3fe61a811ecb5e95784c3846d8b79dd74e1bee3ffe5530a500062"
+    },
+    "test2\/provider-2019-1$%hash%.json": {
+      "sha256": "19a350e6eb2ae03268bbf7b7606045d8d451364455b4777692ebb50f6e103b00"
+    },
+    "test2\/provider-2018-4$%hash%.json": {
+      "sha256": "4936c4a9c0f32aa66d5097a855d7a38ad3824f7ecf1507f70f09633450e349f2"
+    },
+    "test2\/provider-2018-3$%hash%.json": {
+      "sha256": "7a00a95911ae154b02f0eac89d88c0b0ed7706ef87fc7024f9bfba234a1e07cb"
+    },
+    "test2\/provider-2018-2$%hash%.json": {
+      "sha256": "7cdab967c98b2a9a4a5522044dedd717871225871b0180d4c05bfa293214468b"
+    },
+    "test2\/provider-2018-1$%hash%.json": {
+      "sha256": "64b7963d14a4ec937b321eff13030cfef67a95bf131b106ba616888facc42d19"
+    },
+    "test2\/provider-2017-4$%hash%.json": {
+      "sha256": "fb044d343f3b3b7f93f5636dd4f48bd23259a7c299f8c909887e712225de9720"
+    },
+    "test2\/provider-2017-3$%hash%.json": {
+      "sha256": "b9e76b03b48ed366f5b5356368044e4f9c5230f77ad8f71cc15fe639a7f824ca"
+    },
+    "test2\/provider-2017-2$%hash%.json": {
+      "sha256": "a42fe15be659c741457625e268028142c1c05c577ae5c4b3747ba0af799c1938"
+    },
+    "test2\/provider-2017-1$%hash%.json": {
+      "sha256": "24b2e87ff61f19656c8204461cb0b5b82990bce74a2ca36918ea053dcd21b539"
+    },
+    "test2\/provider-2016-4$%hash%.json": {
+      "sha256": "8006013878b154aab6331845e38b5201c2fbdad8a1470cd5e760f1f0cc0a42dd"
+    },
+    "test2\/provider-2016-3$%hash%.json": {
+      "sha256": "03df7876f30135002b827c8e0823049ba72b7944cf1e6b5a8c57ab0fe7bf3e14"
+    },
+    "test2\/provider-2016-2$%hash%.json": {
+      "sha256": "eb40a0ccc6346f1553dc94090f5bc93ed1613421838419718dcfc7cca1c4b4bb"
+    },
+    "test2\/provider-2016-1$%hash%.json": {
+      "sha256": "13e4d5f6af389298df8954f9403c7531422a831ebf0046b45a25851d352a534a"
+    },
+    "test2\/provider-2015-4$%hash%.json": {
+      "sha256": "e7f8db52002b44b9665dd2f4b5b08c02d8590ceae365269d38e6bff65797e32f"
+    },
+    "test2\/provider-2015-3$%hash%.json": {
+      "sha256": "d279ad58ef18e08b351618ba36d19c93c6f3ba1cc486387af9c2ad6ce80b029c"
+    },
+    "test2\/provider-2015-2$%hash%.json": {
+      "sha256": "a5b4d214ba393f64bc91c0f0c05b7cf679de373922f55595dda9d942420c8902"
+    },
+    "test2\/provider-2015-1$%hash%.json": {
+      "sha256": "5fc2ee68da4fbaa49839cfd4807a629bdb05bfb9b1fc5dbe7169978fa896bf7a"
+    },
+    "test2\/provider-2014-4$%hash%.json": {
+      "sha256": "6c84c75fe54496d4eea0347f77f76545f6c99c8db53ec2b33b28b57a57577475"
+    },
+    "test2\/provider-2014-3$%hash%.json": {
+      "sha256": "33629e4f7d6b63aeb6b9e770e738ec7961ffdee7d8ce05223e60d9b45d2500e8"
+    },
+    "test2\/provider-2014-2$%hash%.json": {
+      "sha256": "7e754967e39fb1d29f5611d45956ad631865ebe4949b8c20ca68e1bf550ae90e"
+    },
+    "test2\/provider-2014-1$%hash%.json": {
+      "sha256": "4ac7983e6ce989d369543a15096417828a77cde1ed9febcef00e834d1ba61c53"
+    },
+    "test2\/provider-2013-4$%hash%.json": {
+      "sha256": "925fdf2305f222bdd9280f6e75cc0377ae543d56bffc243c3f0f9705069a0484"
+    },
+    "test2\/provider-2013-3$%hash%.json": {
+      "sha256": "af06ec0b661359d32793c57d5bcbebdfb27f166e17f96f07c5b2fbc206522b49"
+    },
+    "test2\/provider-2013-2$%hash%.json": {
+      "sha256": "6a765e4b17be3e823394faa427abe429a286d1481ab96462b74d32e6756255ba"
+    },
+    "test2\/provider-2013-1$%hash%.json": {
+      "sha256": "42a265f1381a19e659a75a3c4080dc9cfbea2355e311b75ac9fe7a1d0f204929"
+    },
+    "test2\/provider-2012-4$%hash%.json": {
+      "sha256": "e25b345eece68484cfe2498014429b3796b2279c8ec83042c178551edf6a2b78"
+    },
+    "test2\/provider-2012-3$%hash%.json": {
+      "sha256": "1cdebb3dce6cde4c85d904345678f00d441fdba0e846c1ef3431e31d228b8980"
+    },
+    "test2\/provider-2012-2$%hash%.json": {
+      "sha256": "33a4227b031f959a42029f2fa0e5d2db237fa89a2e2043da17a8375f85b09d0d"
+    },
+    "test2\/provider-2012-1$%hash%.json": {
+      "sha256": "2ae58c8d03f273a84836beb3f87adf61c762a6232d98e259ab05e32d132de17f"
+    },
+    "test2\/provider-2011-3$%hash%.json": {
+      "sha256": "a02406671979ced9f13cc084b15d24cef208075aa8ed87b9f3e519e2029f87db"
+    },
+    "test2\/provider-2011-2$%hash%.json": {
+      "sha256": "30c78f26baa2f4593866093a99917c6c992bfa7a41f5265264f7f85b2582dbb9"
+    }
+  },
+  "security-advisories": {
+    "metadata": true,
+    "api-url": "https:\/\/packages.example.com\/test2\/security-advisories"
+  }
+}

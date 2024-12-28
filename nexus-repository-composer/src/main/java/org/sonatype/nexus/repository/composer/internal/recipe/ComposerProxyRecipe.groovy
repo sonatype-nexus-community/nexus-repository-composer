@@ -24,6 +24,7 @@ import javax.inject.Named
 import javax.inject.Provider
 import javax.inject.Singleton
 
+import org.sonatype.nexus.common.upgrade.AvailabilityVersion;
 import org.sonatype.nexus.repository.Format
 import org.sonatype.nexus.repository.Repository
 import org.sonatype.nexus.repository.Type
@@ -41,6 +42,7 @@ import org.sonatype.nexus.repository.view.ViewFacet
 /**
  * Recipe for creating a Composer proxy repository.
  */
+@AvailabilityVersion(from = "1.0")
 @Named(ComposerProxyRecipe.NAME)
 @Singleton
 class ComposerProxyRecipe

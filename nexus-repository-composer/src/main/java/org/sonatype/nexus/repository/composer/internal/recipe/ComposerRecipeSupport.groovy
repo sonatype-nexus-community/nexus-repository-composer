@@ -22,6 +22,7 @@ import org.sonatype.nexus.repository.content.browse.BrowseFacet
 import javax.inject.Inject
 import javax.inject.Provider
 
+import org.sonatype.nexus.common.db.DatabaseCheck
 import org.sonatype.nexus.repository.Format
 import org.sonatype.nexus.repository.RecipeSupport
 import org.sonatype.nexus.repository.Type
@@ -67,6 +68,8 @@ abstract class ComposerRecipeSupport
   public static final String SOURCE_URL_FIELD_NAME = 'src-url';
 
   public static final String SOURCE_REFERENCE_FIELD_NAME = 'src-ref';
+
+  private DatabaseCheck databaseCheck;
 
   @Inject
   Provider<ComposerContentFacet> contentFacet
@@ -162,5 +165,19 @@ abstract class ComposerRecipeSupport
             new ActionMatcher(PUT),
             new TokenMatcher('/packages/upload/{vendor:.+}/{project:.+}/{version:.+}')
         ))
+  }
+
+  @Inject
+  public void setDatabaseCheck(final DatabaseCheck databaseCheck) {
+    this.databaseCheck = databaseCheck;
+  }
+
+  @Override
+  public boolean isFeatureEnabled() {
+    if (databaseCheck != null && !databaseCheck.isAllowedByVersion(getClass())) {
+      return false;
+    }
+
+    return true;
   }
 }

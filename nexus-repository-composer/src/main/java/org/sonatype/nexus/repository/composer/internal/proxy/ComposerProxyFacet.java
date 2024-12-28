@@ -12,16 +12,8 @@
  */
 package org.sonatype.nexus.repository.composer.internal.proxy;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.inject.Inject;
-import javax.inject.Named;
-
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Throwables;
 import org.sonatype.nexus.repository.cache.CacheController;
 import org.sonatype.nexus.repository.cache.CacheInfo;
 import org.sonatype.nexus.repository.composer.AssetKind;
@@ -29,22 +21,21 @@ import org.sonatype.nexus.repository.composer.ComposerContentFacet;
 import org.sonatype.nexus.repository.composer.internal.ComposerJsonProcessor;
 import org.sonatype.nexus.repository.config.Configuration;
 import org.sonatype.nexus.repository.content.facet.ContentProxyFacetSupport;
-import org.sonatype.nexus.repository.view.Content;
-import org.sonatype.nexus.repository.view.Context;
-import org.sonatype.nexus.repository.view.Payload;
-import org.sonatype.nexus.repository.view.Request;
-import org.sonatype.nexus.repository.view.Response;
-import org.sonatype.nexus.repository.view.ViewFacet;
+import org.sonatype.nexus.repository.view.*;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Throwables;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.inject.Inject;
+import javax.inject.Named;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.util.Map;
+import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.sonatype.nexus.repository.composer.internal.ComposerPathUtils.*;
-import static org.sonatype.nexus.repository.composer.internal.recipe.ComposerRecipeSupport.PROJECT_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.recipe.ComposerRecipeSupport.VENDOR_TOKEN;
-import static org.sonatype.nexus.repository.composer.internal.recipe.ComposerRecipeSupport.VERSION_TOKEN;
+import static org.sonatype.nexus.repository.composer.internal.recipe.ComposerRecipeSupport.*;
 import static org.sonatype.nexus.repository.http.HttpMethods.GET;
 
 /**
@@ -70,8 +61,7 @@ public class ComposerProxyFacet
   protected Content fetch(Context context, Content stale) throws IOException {
     try {
       return super.fetch(context, stale);
-    }
-    catch (NonResolvableProviderJsonException e) {
+    } catch (NonResolvableProviderJsonException e) {
       log.debug("Composer provider URL not resolvable: {}", e.getMessage());
       return null;
     }
@@ -117,7 +107,7 @@ public class ComposerProxyFacet
     Content res;
     switch (assetKind) {
       case PACKAGES:
-        res = content().put(PACKAGES_JSON, generatePackagesJson(context), assetKind);
+        res = content().put(PACKAGES_JSON, generatePackagesJson(content), assetKind);
         break;
       case LIST:
         res = content().put(LIST_JSON, content, assetKind);
@@ -182,20 +172,12 @@ public class ComposerProxyFacet
     return cacheControllerHolder.require(assetKind.getCacheType());
   }
 
-  private Content generatePackagesJson(final Context context) throws IOException {
+  private Content generatePackagesJson(final Content original) {
     try {
-      // TODO: Better logging and error checking on failure/non-200 scenarios
-      Request request = new Request.Builder().action(GET).path(LIST_JSON).build();
-      Response response = getRepository().facet(ViewFacet.class).dispatch(request, context);
-      Payload payload = checkNotNull(response.getPayload());
-      return composerJsonProcessor.generatePackagesFromList(getRepository(), payload);
-    }
-    catch (IOException e) {
+      Payload rewritten = composerJsonProcessor.rewritePackagesJson(getRepository(), original.getPayload());
+      return new Content(original, rewritten);
+    } catch (IOException e) {
       throw new UncheckedIOException(e);
-    }
-    catch (Exception e) {
-      Throwables.throwIfUnchecked(e);
-      throw new RuntimeException(e);
     }
   }
 
@@ -214,8 +196,7 @@ public class ComposerProxyFacet
         if (payload != null) {
           return composerJsonProcessor.getDistUrlFromPackage(vendor, project, version, payload);
         }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
         // ignored because we have a fallback
       }
 
@@ -223,12 +204,10 @@ public class ComposerProxyFacet
       try {
         String path = buildPackagePathForDevVersions(vendor, project);
         Payload payload = getPackagePayload(context, path);
-        String url = composerJsonProcessor.getDistUrlFromPackage(vendor, project, version, payload);
         if (payload != null) {
           return composerJsonProcessor.getDistUrlFromPackage(vendor, project, version, payload);
         }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
         // ignored because we have a fallback
       }
 
@@ -241,11 +220,9 @@ public class ComposerProxyFacet
       } else {
         return composerJsonProcessor.getDistUrl(vendor, project, version, payload);
       }
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       throw new UncheckedIOException(e);
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       Throwables.throwIfUnchecked(e);
       throw new RuntimeException(e);
     }
@@ -257,7 +234,7 @@ public class ComposerProxyFacet
 
   private Payload getPackagePayload(final Context context, String path) throws Exception {
     Request request = new Request.Builder().action(GET).path(path)
-      .attribute(ComposerProviderHandler.DO_NOT_REWRITE, "true").build();
+        .attribute(ComposerProviderHandler.DO_NOT_REWRITE, "true").build();
     Response response = getRepository().facet(ViewFacet.class).dispatch(request, context);
     return response.getPayload();
   }
