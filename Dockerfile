@@ -3,7 +3,7 @@
 ARG NEXUS_VERSION=latest
 
 FROM maven:3-jdk-8-alpine AS build
-
+RUN apk add --no-cache git
 COPY . /nexus-repository-composer/
 RUN cd /nexus-repository-composer/; \
     mvn clean package -PbuildKar;
