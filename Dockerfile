@@ -1,6 +1,6 @@
 # declaration of NEXUS_VERSION must appear before first FROM command
 # see: https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
-ARG NEXUS_VERSION=latest
+ARG NEXUS_VERSION=3.71.0-java17-alpine
 
 FROM maven:3-jdk-8-alpine AS build
 RUN apk add --no-cache git
