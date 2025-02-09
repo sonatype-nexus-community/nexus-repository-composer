@@ -75,28 +75,15 @@ public class ComposerProxyFacet
 
   @Nullable
   @Override
-  protected Content getCachedContent(final Context context) throws IOException {
+  protected Content getCachedContent(final Context context) {
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
-    Optional<Content> content;
-    switch (assetKind) {
-      case PACKAGES:
-        content = content().get(PACKAGES_JSON);
-        break;
-      case LIST:
-        content = content().get(LIST_JSON);
-        break;
-      case PROVIDER:
-        content = content().get(buildProviderPath(context));
-        break;
-      case PACKAGE:
-        content = content().get(buildPackagePath(context));
-        break;
-      case ZIPBALL:
-        content = content().get(buildZipballPath(context));
-        break;
-      default:
-        throw new IllegalStateException();
-    }
+    Optional<Content> content = switch (assetKind) {
+      case PACKAGES -> content().get(PACKAGES_JSON);
+      case LIST -> content().get(LIST_JSON);
+      case PROVIDER -> content().get(buildProviderPath(context));
+      case PACKAGE -> content().get(buildPackagePath(context));
+      case ZIPBALL -> content().get(buildZipballPath(context));
+    };
 
     return content.orElse(null);
   }
@@ -104,33 +91,18 @@ public class ComposerProxyFacet
   @Override
   protected Content store(final Context context, final Content content) throws IOException {
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
-    Content res;
-    switch (assetKind) {
-      case PACKAGES:
-        res = content().put(PACKAGES_JSON, generatePackagesJson(content), assetKind);
-        break;
-      case LIST:
-        res = content().put(LIST_JSON, content, assetKind);
-        break;
-      case PROVIDER:
-        res = content().put(buildProviderPath(context), content, assetKind);
-        break;
-      case PACKAGE:
-        res = content().put(buildPackagePath(context), content, assetKind);
-        break;
-      case ZIPBALL:
-        res = content().put(buildZipballPath(context), content, assetKind);
-        break;
-      default:
-        throw new IllegalStateException();
-    }
 
-    return res;
+    return switch (assetKind) {
+      case PACKAGES -> content().put(PACKAGES_JSON, generatePackagesJson(content), assetKind);
+      case LIST -> content().put(LIST_JSON, content, assetKind);
+      case PROVIDER -> content().put(buildProviderPath(context), content, assetKind);
+      case PACKAGE -> content().put(buildPackagePath(context), content, assetKind);
+      case ZIPBALL -> content().put(buildZipballPath(context), content, assetKind);
+    };
   }
 
   @Override
   protected void indicateVerified(final Context context, final Content content, final CacheInfo cacheInfo)
-      throws IOException
   {
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
     switch (assetKind) {
@@ -157,12 +129,11 @@ public class ComposerProxyFacet
   @Override
   protected String getUrl(@Nonnull final Context context) {
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
-    switch (assetKind) {
-      case ZIPBALL:
-        return getZipballUrl(context);
-      default:
-        return context.getRequest().getPath().substring(1);
-    }
+
+    return switch (assetKind) {
+      case ZIPBALL -> getZipballUrl(context);
+      default -> context.getRequest().getPath().substring(1);
+    };
   }
 
   @Nonnull

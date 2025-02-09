@@ -44,20 +44,14 @@ public class ComposerHostedDownloadHandler
     Repository repository = context.getRepository();
     ComposerHostedFacet hostedFacet = repository.facet(ComposerHostedFacet.class);
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
-    switch (assetKind) {
-      case PACKAGES:
-        return HttpResponses.ok(hostedFacet.getPackagesJson());
-      case LIST:
-        return responseFor(hostedFacet.getListJson(context.getRequest().getParameters().get("filter")));
-      case PROVIDER:
-        return responseFor(hostedFacet.getProviderJson(getVendorToken(context), getProjectToken(context)));
-      case PACKAGE:
-        return responseFor(hostedFacet.getPackageJson(getVendorToken(context), getProjectToken(context)));
-      case ZIPBALL:
-        return responseFor(hostedFacet.getZipball(buildZipballPath(context)));
-      default:
-        throw new IllegalStateException("Unexpected assetKind: " + assetKind);
-    }
+
+    return switch (assetKind) {
+      case PACKAGES -> HttpResponses.ok(hostedFacet.getPackagesJson());
+      case LIST -> responseFor(hostedFacet.getListJson(context.getRequest().getParameters().get("filter")));
+      case PROVIDER -> responseFor(hostedFacet.getProviderJson(getVendorToken(context), getProjectToken(context)));
+      case PACKAGE -> responseFor(hostedFacet.getPackageJson(getVendorToken(context), getProjectToken(context)));
+      case ZIPBALL -> responseFor(hostedFacet.getZipball(buildZipballPath(context)));
+    };
   }
 
   private Response responseFor(@Nullable final Content content) {

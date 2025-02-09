@@ -35,14 +35,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Optional;
+import java.util.*;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -250,18 +246,18 @@ public class ComposerJsonProcessorTest
         .put("require", singletonMap("dependency-1", "version-1"))
         .put("require-dev", singletonMap("dev-dependency-1", "dev-version-1"))
         .put("suggest", singletonMap("suggest-1", "description-1"))
-        .put("authors", asList(singletonMap("name", "author-1")))
-        .put("bin", asList("bin-1"))
+        .put("authors", singletonList(singletonMap("name", "author-1")))
+        .put("bin", singletonList("bin-1"))
         .put("conflict", singletonMap("conflict-1", "version-1"))
         .put("extra", singletonMap("branch-alias", singletonMap("branch-1", "version-1")))
-        .put("license", asList("license-1"))
+        .put("license", singletonList("license-1"))
         .put("description", "description-1")
         .put("homepage", "homepage-1")
-        .put("include-path", asList("include-path-1"))
+        .put("include-path", singletonList("include-path-1"))
         .put("replace", singletonMap("replace-1", "replace-1-value"))
         .put("provide", singletonMap("provide-1", "version-1"))
         .put("target-dir", "target-dir-1")
-        .put("scripts", singletonMap("scripts-1", asList("script-1")))
+        .put("scripts", singletonMap("scripts-1", singletonList("script-1")))
         .put("support", singletonMap("support-1", "support-1-value"))
         .put("type", "type-1-value")
         .put("foo", singletonMap("foo-key", "foo-value"))
@@ -284,18 +280,18 @@ public class ComposerJsonProcessorTest
         .put("require", singletonMap("dependency-2", "version-2"))
         .put("require-dev", singletonMap("dev-dependency-2", "dev-version-2"))
         .put("suggest", singletonMap("suggest-2", "description-2"))
-        .put("authors", asList(singletonMap("name", "author-2")))
-        .put("bin", asList("bin-2"))
+        .put("authors", singletonList(singletonMap("name", "author-2")))
+        .put("bin", singletonList("bin-2"))
         .put("conflict", singletonMap("conflict-2", "version-2"))
         .put("extra", singletonMap("branch-alias", singletonMap("branch-2", "version-2")))
-        .put("license", asList("license-2"))
+        .put("license", singletonList("license-2"))
         .put("description", "description-2")
         .put("homepage", "homepage-2")
-        .put("include-path", asList("include-path-2"))
+        .put("include-path", singletonList("include-path-2"))
         .put("replace", singletonMap("replace-2", "replace-2-value"))
         .put("provide", singletonMap("provide-2", "version-2"))
         .put("target-dir", "target-dir-2")
-        .put("scripts", singletonMap("scripts-2", asList("script-2")))
+        .put("scripts", singletonMap("scripts-2", singletonList("script-2")))
         .put("support", singletonMap("support-2", "support-2-value"))
         .put("type", "type-2-value")
         .put("foo", singletonMap("foo-key", "foo-value"))
@@ -318,18 +314,18 @@ public class ComposerJsonProcessorTest
         .put("require", singletonMap("dependency-3", "version-3"))
         .put("require-dev", singletonMap("dev-dependency-3", "dev-version-3"))
         .put("suggest", singletonMap("suggest-3", "description-3"))
-        .put("authors", asList(singletonMap("name", "author-3")))
-        .put("bin", asList("bin-3"))
+        .put("authors", singletonList(singletonMap("name", "author-3")))
+        .put("bin", singletonList("bin-3"))
         .put("conflict", singletonMap("conflict-3", "version-3"))
         .put("extra", singletonMap("branch-alias", singletonMap("branch-3", "version-3")))
-        .put("license", asList("license-3"))
+        .put("license", singletonList("license-3"))
         .put("description", "description-3")
         .put("homepage", "homepage-3")
-        .put("include-path", asList("include-path-3"))
+        .put("include-path", singletonList("include-path-3"))
         .put("replace", singletonMap("replace-3", "replace-3-value"))
         .put("provide", singletonMap("provide-3", "version-3"))
         .put("target-dir", "target-dir-3")
-        .put("scripts", singletonMap("scripts-3", asList("script-3")))
+        .put("scripts", singletonMap("scripts-3", singletonList("script-3")))
         .put("support", singletonMap("support-3", "support-3-value"))
         .put("type", "type-3-value")
         .put("foo", singletonMap("foo-key", "foo-value"))
@@ -352,18 +348,18 @@ public class ComposerJsonProcessorTest
         .put("require", singletonMap("dependency-4", "version-4"))
         .put("require-dev", singletonMap("dev-dependency-4", "dev-version-4"))
         .put("suggest", singletonMap("suggest-4", "description-4"))
-        .put("authors", asList(singletonMap("name", "author-4")))
-        .put("bin", asList("bin-4"))
+        .put("authors", singletonList(singletonMap("name", "author-4")))
+        .put("bin", singletonList("bin-4"))
         .put("conflict", singletonMap("conflict-4", "version-4"))
         .put("extra", singletonMap("branch-alias", singletonMap("branch-4", "version-4")))
-        .put("license", asList("license-4"))
+        .put("license", singletonList("license-4"))
         .put("description", "description-4")
         .put("homepage", "homepage-4")
-        .put("include-path", asList("include-path-4"))
+        .put("include-path", singletonList("include-path-4"))
         .put("replace", singletonMap("replace-4", "replace-4-value"))
         .put("provide", singletonMap("provide-4", "version-4"))
         .put("target-dir", "target-dir-4")
-        .put("scripts", singletonMap("scripts-4", asList("script-4")))
+        .put("scripts", singletonMap("scripts-4", singletonList("script-4")))
         .put("support", singletonMap("support-4", "support-4-value"))
         .put("type", "type-4-value")
         .put("foo", singletonMap("foo-key", "foo-value"))
@@ -433,10 +429,8 @@ public class ComposerJsonProcessorTest
   }
 
   private String readStreamToString(final InputStream in) throws IOException {
-    try {
+    try(in) {
       return CharStreams.toString(new InputStreamReader(in, UTF_8));
-    } finally {
-      in.close();
     }
   }
 

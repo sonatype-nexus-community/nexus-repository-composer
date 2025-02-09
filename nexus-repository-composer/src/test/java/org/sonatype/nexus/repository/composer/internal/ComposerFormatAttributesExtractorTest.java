@@ -38,7 +38,7 @@ import static org.sonatype.nexus.repository.composer.internal.ComposerAttributes
 public class ComposerFormatAttributesExtractorTest
     extends TestSupport
 {
-  private static final String EXPECTED_FIELDS[] = new String[]{
+  private static final String[] EXPECTED_FIELDS = new String[]{
       P_NAME, P_VERSION, P_DESCRIPTION, P_TYPE, P_KEYWORDS, P_HOMEPAGE, P_TIME, P_LICENSE, P_AUTHORS, P_SUPPORT_EMAIL,
       P_SUPPORT_ISSUES, P_SUPPORT_FORUM, P_SUPPORT_WIKI, P_SUPPORT_SOURCE, P_SUPPORT_DOCS, P_SUPPORT_RSS
   };
@@ -76,7 +76,7 @@ public class ComposerFormatAttributesExtractorTest
   public void extractInfoFromZipballWithJson() throws Exception {
     Map<String, Object> contents;
     try (InputStream in = getClass().getResourceAsStream("extractInfoFromZipballWithJson.composer.json")) {
-      contents = new ObjectMapper().readValue(in, new TypeReference<Map<String, Object>>()
+      contents = new ObjectMapper().readValue(in, new TypeReference<>()
       {
       });
     }

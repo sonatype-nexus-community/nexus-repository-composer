@@ -42,14 +42,14 @@ public class ComposerMaintenanceFacet
     Optional<ComposerHostedFacet> hostedFacet = composerHosted();
     if (hostedFacet.isPresent()) {
       try {
-        if (!hostedFacet.get().rebuildPackageJson(vendor, project).isPresent()) {
+        if (hostedFacet.get().rebuildPackageJson(vendor, project).isEmpty()) {
           deletedPaths.add(ComposerPathUtils.buildPackagePath(vendor, project));
         }
       } catch (IOException e) {
         // update failed
       }
       try {
-        if (!hostedFacet.get().rebuildProviderJson(vendor, project).isPresent()) {
+        if (hostedFacet.get().rebuildProviderJson(vendor, project).isEmpty()) {
           deletedPaths.add(ComposerPathUtils.buildProviderPath(vendor, project));
         }
       } catch (IOException e) {

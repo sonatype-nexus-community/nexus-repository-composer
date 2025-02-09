@@ -36,8 +36,8 @@
 
 ### Requirements
 
-* [Apache Maven 3.3.3+](https://maven.apache.org/install.html)
-* [Java 17](https://adoptium.net/de/temurin/releases/?version=17) (recommended, also compatible with [Java 11](https://adoptium.net/de/temurin/releases/?version=11) and [Java 8](https://adoptium.net/de/temurin/releases/?version=8))
+* [Apache Maven 3.9.6+](https://maven.apache.org/install.html)
+* [Java 17](https://adoptium.net/de/temurin/releases/?version=17) or later
 * Network access to https://repository.sonatype.org/content/groups/sonatype-public-grid
 
 Also, there is a good amount of information available at [Bundle Development](https://help.sonatype.com/display/NXRM3/Bundle+Development)

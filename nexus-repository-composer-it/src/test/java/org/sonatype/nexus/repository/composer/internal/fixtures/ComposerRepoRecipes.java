@@ -13,29 +13,25 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-package org.sonatype.nexus.repository.composer.internal.fixtures
+package org.sonatype.nexus.repository.composer.internal.fixtures;
 
-import javax.annotation.Nonnull
+import javax.annotation.Nonnull;
 
-import org.sonatype.nexus.repository.Repository
-import org.sonatype.nexus.repository.config.Configuration
-import org.sonatype.nexus.testsuite.testsupport.fixtures.ConfigurationRecipes
-
-import groovy.transform.CompileStatic
+import org.sonatype.nexus.repository.Repository;
+import org.sonatype.nexus.repository.config.Configuration;
+import org.sonatype.nexus.testsuite.testsupport.fixtures.ConfigurationRecipes;
 
 /**
  * Factory for composer {@link Repository} {@link Configuration}
  */
-@CompileStatic
-trait ComposerRepoRecipes
+interface ComposerRepoRecipes
     extends ConfigurationRecipes
 {
   @Nonnull
-  Repository createComposerProxy(final String name,
-                           final String remoteUrl)
+  default Repository createComposerProxy(final String name, final String remoteUrl)
   {
-    createRepository(createProxy(name, 'composer-proxy', remoteUrl))
+    return createRepository(createProxy(name, "composer-proxy", remoteUrl));
   }
 
-  abstract Repository createRepository(final Configuration configuration)
+  Repository createRepository(final Configuration configuration);
 }

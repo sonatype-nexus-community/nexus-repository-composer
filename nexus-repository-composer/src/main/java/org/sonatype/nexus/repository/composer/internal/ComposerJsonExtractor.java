@@ -17,7 +17,6 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.Map;
 
-import javax.annotation.Nullable;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
@@ -39,7 +38,7 @@ import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 public class ComposerJsonExtractor
     extends ComponentSupport
 {
-  private final TypeReference<Map<String, Object>> typeReference = new TypeReference<Map<String, Object>>() { };
+  private final TypeReference<Map<String, Object>> typeReference = new TypeReference<>() { };
 
   private final ObjectMapper mapper = new ObjectMapper();
 
@@ -51,7 +50,7 @@ public class ComposerJsonExtractor
    */
   public Map<String, Object> extractFromZip(final Blob blob) throws IOException {
     try (InputStream is = blob.getInputStream()) {
-      try (ArchiveInputStream ais = archiveStreamFactory.createArchiveInputStream(ArchiveStreamFactory.ZIP, is)) {
+      try (ArchiveInputStream<?> ais = archiveStreamFactory.createArchiveInputStream(ArchiveStreamFactory.ZIP, is)) {
         ArchiveEntry entry = ais.getNextEntry();
         while (entry != null) {
           Map<String, Object> contents = processEntry(ais, entry);
@@ -72,7 +71,7 @@ public class ComposerJsonExtractor
    * Processes a single entry in the archive. If the entry is the composer.json then the attributes will be extracted.
    * If not, the entry is skipped.
    */
-  private Map<String, Object> processEntry(final ArchiveInputStream stream, final ArchiveEntry entry) throws IOException
+  private Map<String, Object> processEntry(final ArchiveInputStream<?> stream, final ArchiveEntry entry) throws IOException
   {
     if (isComposerJsonFilename(entry.getName())) {
       return mapper.readValue(stream, typeReference);

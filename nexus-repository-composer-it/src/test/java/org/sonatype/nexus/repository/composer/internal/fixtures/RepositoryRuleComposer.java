@@ -13,18 +13,18 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-package org.sonatype.nexus.repository.composer.internal.fixtures
+package org.sonatype.nexus.repository.composer.internal.fixtures;
 
-import javax.inject.Provider
+import javax.inject.Provider;
 
-import org.sonatype.nexus.repository.manager.RepositoryManager
-import org.sonatype.nexus.testsuite.testsupport.fixtures.RepositoryRule
+import org.sonatype.nexus.repository.manager.RepositoryManager;
+import org.sonatype.nexus.testsuite.testsupport.fixtures.RepositoryRule;
 
-class RepositoryRuleComposer
+public class RepositoryRuleComposer
     extends RepositoryRule
     implements ComposerRepoRecipes
 {
-  RepositoryRuleComposer(final Provider<RepositoryManager> repositoryManagerProvider) {
-    super(repositoryManagerProvider)
+  public RepositoryRuleComposer(final Provider<RepositoryManager> repositoryManagerProvider) {
+    super(repositoryManagerProvider);
   }
 }

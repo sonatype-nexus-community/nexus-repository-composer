@@ -15,11 +15,11 @@
   <parent>
     <groupId>org.sonatype.nexus.plugins</groupId>
     <artifactId>nexus-plugins</artifactId>
-    <version>3.71.0-06</version>
+    <version>3.76.1-01</version>
   </parent>
 
   <artifactId>composer-parent</artifactId>
-  <version>0.1.10-SNAPSHOT</version>
+  <version>0.2.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>${project.groupId}:${project.artifactId}-parent</name>
@@ -42,7 +42,7 @@
   </distributionManagement>
 
   <properties>
-    <nxrm-version>3.71.0-06</nxrm-version>
+    <nxrm-version>3.76.1-01</nxrm-version>
   </properties>
 
   <repositories>
@@ -52,6 +52,12 @@
       <url>https://repository.sonatype.org/content/groups/sonatype-public-grid/</url>
     </repository>
   </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>groovy-plugins</id>
+      <url>https://groovy.jfrog.io/artifactory/plugins-release/</url>
+    </pluginRepository>
+  </pluginRepositories>
 
   <build>
     <plugins>
@@ -80,20 +86,27 @@
         <configuration>
           <rules>
             <!--
-            Ensure use of Java 8, as required by NXRM
+            Require Java 17+
             -->
             <requireJavaVersion>
-              <version>[1.8,18)</version>
+              <version>[17,)</version>
             </requireJavaVersion>
+
             <!--
-            Require Maven 3.3.3+
+            Require Maven 3.9.6+ for java17 support
             -->
             <requireMavenVersion>
-              <version>[3.3.3,)</version>
+              <version>[3.9.6,)</version>
             </requireMavenVersion>
+
+            <!--
+            Resolving these issues after the fact is VERY tedious
+            -->
+            <banDuplicatePomDependencyVersions/>
 
             <requireNoRepositories>
               <allowedRepositories>rso-public-grid</allowedRepositories>
+              <allowedPluginRepositories>groovy-plugins</allowedPluginRepositories>
             </requireNoRepositories>
           </rules>
         </configuration>

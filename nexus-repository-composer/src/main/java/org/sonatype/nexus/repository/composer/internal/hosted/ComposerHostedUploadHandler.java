@@ -215,18 +215,14 @@ public class ComposerHostedUploadHandler
 
 
   private BytesPayload readPartStreamToBytePayload(final PartPayload in) throws IOException {
-    try (InputStream is = in.openInputStream()) {
+    try (in; InputStream is = in.openInputStream()) {
       return new BytesPayload(ByteStreams.toByteArray(is), in.getContentType());
-    } finally {
-      in.close();
     }
   }
 
   private String readPartStreamToString(final PartPayload in) throws IOException {
-    try {
+    try(in) {
       return CharStreams.toString(new InputStreamReader(in.openInputStream(), UTF_8));
-    } finally {
-      in.close();
     }
   }
 }

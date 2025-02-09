@@ -23,7 +23,6 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.sonatype.goodies.common.ComponentSupport;
-import org.sonatype.nexus.common.collect.NestedAttributesMap;
 import org.sonatype.nexus.repository.content.fluent.FluentComponent;
 import org.sonatype.nexus.repository.view.payloads.TempBlob;
 
@@ -105,7 +104,7 @@ public class ComposerFormatAttributesExtractor
       .put(SUPPORT_RSS, P_SUPPORT_RSS)
       .build();
 
-  private ComposerJsonExtractor composerJsonExtractor;
+  private final ComposerJsonExtractor composerJsonExtractor;
 
   @Inject
   public ComposerFormatAttributesExtractor(final ComposerJsonExtractor composerJsonExtractor) {
@@ -165,7 +164,7 @@ public class ComposerFormatAttributesExtractor
     Object sourceValue = contents.get(AUTHORS);
     if (sourceValue instanceof Collection) {
       List<String> authors = new ArrayList<>();
-      for (Object author : (Collection) sourceValue) {
+      for (Object author : (Collection<?>) sourceValue) {
         if (author instanceof Map) {
           List<String> parts = new ArrayList<>();
           extractAuthorPart((Map<String, Object>) author, parts, AUTHOR_NAME, "%s");

@@ -73,20 +73,10 @@ public class ComposerContentFacetImpl
   @Override
   public Content put(final String path, final Payload payload, final AssetKind assetKind) throws IOException {
     try (TempBlob tempBlob = getTempBlob(payload)) {
-      FluentAsset asset;
-      switch (assetKind) {
-        case ZIPBALL:
-          asset = findOrCreateContentAsset(path, tempBlob, assetKind, null, null, null);
-          break;
-        case PACKAGES:
-        case PACKAGE:
-        case LIST:
-        case PROVIDER:
-          asset = findOrCreateMetadataAsset(path, tempBlob, assetKind);
-          break;
-        default:
-          throw new IllegalStateException("Unexpected asset kind: " + assetKind);
-      }
+      FluentAsset asset = switch (assetKind) {
+        case ZIPBALL -> findOrCreateContentAsset(path, tempBlob, assetKind, null, null, null);
+        case PACKAGES, PACKAGE, LIST, PROVIDER -> findOrCreateMetadataAsset(path, tempBlob, assetKind);
+      };
 
       return asset
           .markAsCached(payload)

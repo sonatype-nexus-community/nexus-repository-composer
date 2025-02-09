@@ -66,7 +66,7 @@ public class ComposerHostedFacetImpl
   }
 
   @Override
-  public Content getZipball(final String path) throws IOException {
+  public Content getZipball(final String path) {
     return content().get(path).orElse(null);
   }
 

@@ -263,7 +263,7 @@ public class ComposerProxyFacetImplTest
   }
 
   @Test
-  public void getUrlPackages() throws Exception {
+  public void getUrlPackages() {
     when(contextAttributes.require(AssetKind.class)).thenReturn(LIST);
     when(request.getPath()).thenReturn("/" + PACKAGES_PATH);
 
@@ -271,7 +271,7 @@ public class ComposerProxyFacetImplTest
   }
 
   @Test
-  public void getUrlList() throws Exception {
+  public void getUrlList() {
     when(contextAttributes.require(AssetKind.class)).thenReturn(LIST);
     when(request.getPath()).thenReturn("/" + LIST_PATH);
 
@@ -279,7 +279,7 @@ public class ComposerProxyFacetImplTest
   }
 
   @Test
-  public void getUrlProvider() throws Exception {
+  public void getUrlProvider() {
     when(contextAttributes.require(AssetKind.class)).thenReturn(LIST);
     when(request.getPath()).thenReturn("/" + PROVIDER_PATH);
 

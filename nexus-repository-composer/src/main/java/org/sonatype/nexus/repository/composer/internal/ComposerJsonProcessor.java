@@ -163,8 +163,8 @@ public class ComposerJsonProcessor
       .appendOffset("+HH:MM", "+00:00")
       .toFormatter();
 
-  private ComposerJsonExtractor composerJsonExtractor;
-  private ComposerJsonMinifier composerJsonMinifier;
+  private final ComposerJsonExtractor composerJsonExtractor;
+  private final ComposerJsonMinifier composerJsonMinifier;
 
   @Inject
   public ComposerJsonProcessor(final ComposerJsonExtractor composerJsonExtractor, final ComposerJsonMinifier composerJsonMinifier) {
@@ -345,7 +345,7 @@ public class ComposerJsonProcessor
     while (!components.isEmpty()) {
       for (FluentComponent component : components) {
         FluentAsset asset = component.assets().stream().findFirst().orElse(null);
-        if (!asset.hasBlob()) {
+        if (asset == null || !asset.hasBlob()) {
           return null;
         }
         AssetBlob assetBlob = asset.blob().get();
@@ -409,7 +409,7 @@ public class ComposerJsonProcessor
     while (!components.isEmpty()) {
       for (FluentComponent component : components) {
         FluentAsset asset = component.assets().stream().findFirst().orElse(null);
-        if (!asset.hasBlob()) {
+        if (asset == null || !asset.hasBlob()) {
           continue;
         }
         AssetBlob assetBlob = asset.blob().get();
@@ -692,7 +692,7 @@ public class ComposerJsonProcessor
                                             final String shasum,
                                             final String type)
   {
-    String packageNameParts[] = packageName.split("/");
+    String[] packageNameParts = packageName.split("/");
     String packageVendor = packageNameParts[0];
     String packageProject = packageNameParts[1];
     Map<String, Object> newDistInfo = new LinkedHashMap<>();
@@ -743,7 +743,7 @@ public class ComposerJsonProcessor
 
   private Map<String, Object> parseJson(final Payload payload) throws IOException {
     try (InputStream in = payload.openInputStream()) {
-      TypeReference<Map<String, Object>> typeReference = new TypeReference<Map<String, Object>>()
+      TypeReference<Map<String, Object>> typeReference = new TypeReference<>()
       {
       };
       return mapper.readValue(in, typeReference);

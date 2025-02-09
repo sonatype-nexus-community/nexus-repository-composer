@@ -46,5 +46,5 @@ public interface ComposerContentFacet
 
   TempBlob getTempBlob(InputStream in, @Nullable String contentType);
 
-  void setCacheInfo(String path, Content content, CacheInfo cacheInfo) throws IOException;
+  void setCacheInfo(String path, Content content, CacheInfo cacheInfo);
 }

@@ -77,7 +77,7 @@ public class ComposerHostedDownloadHandlerTest
   @Mock
   private AttributesMap attributes;
 
-  private ComposerHostedDownloadHandler underTest = new ComposerHostedDownloadHandler();
+  private final ComposerHostedDownloadHandler underTest = new ComposerHostedDownloadHandler();
 
   @Before
   public void setUp() {

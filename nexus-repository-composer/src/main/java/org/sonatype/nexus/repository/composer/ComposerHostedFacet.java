@@ -44,5 +44,5 @@ public interface ComposerHostedFacet
   Optional<Content> rebuildProviderJson(String vendor, String project) throws IOException;
 
   @Nullable
-  Content getZipball(String path) throws IOException;
+  Content getZipball(String path);
 }

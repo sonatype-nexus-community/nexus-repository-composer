@@ -5,7 +5,7 @@ orbs:
   circleci-maven-release-orb: sonatype-nexus-community/circleci-maven-release-orb@0.0.20
 
 release-args: &release-args
-  mvn-release-perform-command: mvn --batch-mode release:perform -s .circleci/.maven.xml -PbuildKar
+  mvn-release-perform-command: ./mvnw --batch-mode release:perform -s .circleci/.maven.xml -PbuildKar
   ssh-fingerprints: "73:40:5d:60:85:c4:02:7e:79:10:30:6e:36:8d:4b:02"
   context: rso-base
   filters:
@@ -24,7 +24,7 @@ jobs:
             - run:
                 name: Run Maven Build
                 command: |
-                  mvn clean --batch-mode verify -PbuildKar -Dit
+                  ./mvnw clean --batch-mode verify -PbuildKar -Dit
       - run:
           name: Save test results
           command: |
