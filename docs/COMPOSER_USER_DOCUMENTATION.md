@@ -38,7 +38,7 @@ To proxy a Composer repository, you simply create a new 'composer (proxy)' as do
 in detail. Minimal configuration steps are:
 
 - Define 'Name'
-- Define URL for 'Remote storage' e.g. [https://packagist.org/](https://packagist.org/)
+- Define URL for 'Remote storage' e.g. [https://repo.packagist.org/](https://repo.packagist.org/)
 - Select a 'Blob store' for 'Storage'
 
 ### Hosting Composer Repositories
